@@ -1,0 +1,20 @@
+/node_modules/
+dist/
+/.cache/
+.vscode/settings.json
+.DS_Store
+_site
+.sass-cache
+.jekyll-metadata
+.idea
+# .env
+
+src/apps/apps.js
+
+# SSL Certificate
+rootCA.key
+rootCA.pem
+rootCA.srl
+v3.ext
+server.csr.cnf
+server.csr

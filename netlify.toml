@@ -1,0 +1,14 @@
+[[headers]]
+  for = "/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "*"
+
+
+[context.docs]
+  base = "docs"
+  publish = "build/"
+  command = "npm run build"
+
+[context.main]
+  publish = "dist/"
+  command = "npm run build"
