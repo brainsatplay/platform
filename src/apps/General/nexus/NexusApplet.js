@@ -13,7 +13,6 @@ import { RGBShiftShader } from 'three/examples/jsm/shaders/RGBShiftShader'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
-import { gsap } from 'gsap'
 import mapTexture from "./img/mapTexture.jpeg"
 import mapDisp from "./img/mapDisplacement.jpeg"
 import * as settingsFile from './settings'
@@ -50,6 +49,7 @@ export class NexusApplet {
 
         // New App System Update
         this.analysis = {default: ['eegcoherence']}
+        this.dependencies = {gsap: 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js'}
 
         
         this.three = {}
@@ -73,6 +73,22 @@ export class NexusApplet {
     }
 
     init() {
+
+        // Load Dependencies
+        let keys = Object.keys(this.dependencies)
+        await Promise.all(keys.map((name) => {
+            return new Promise(resolve => {
+                let script = document.createElement('script')
+                script.src = this.dependencies[name]
+                script.async = true;
+                script.onload = () => {
+                    this.dependencies[name] = window[name]
+                    script.remove()
+                    resolve()
+                }
+                document.body.appendChild(script);
+            })
+        }))
 
         let HTMLtemplate = (props=this.props) => { 
             return `
@@ -127,12 +143,12 @@ const raycaster = new THREE.Raycaster()
 const loadingManager = new THREE.LoadingManager(
     // Loaded
     () => {
-        gsap.delayedCall(3.0,() => 
+        this.dependencies.gsap.delayedCall(3.0,() => 
         {
         if (this.three.canvas != null){
             this.resizeNexus()
             this.three.getGeolocation()
-            gsap.delayedCall(0.5,() => 
+            this.dependencies.gsap.delayedCall(0.5,() => 
             {
                 this.points.forEach(p => {
                     p.active = true;

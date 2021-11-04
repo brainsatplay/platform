@@ -1,4 +1,3 @@
-import * as PIXI from 'pixi.js';
 import vertexSrc from "./shaders/vertex.glsl"
 import fragmentSrc from "./shaders/noiseCircle/fragment.glsl"
 
@@ -8,9 +7,7 @@ class Manager{
 
     constructor(info, graph) {
 
-        // Generic Plugin Attributes
-        
-        
+        this.dependencies = {PIXI: 'https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.1.3/pixi.min.js'}
 
         // UI Identifier
         this.props = {
@@ -74,7 +71,7 @@ class Manager{
     }
 
     init = () => {
-        this.app = new PIXI.Application({view: this.props.canvas});
+        this.app = new this.dependencies.PIXI.Application({view: this.props.canvas});
         this.props.container.insertAdjacentElement('beforeend', this.props.canvas)
         this.props.container.width = this.props.container.height = '100%'
 
@@ -92,7 +89,7 @@ class Manager{
             noiseIntensity: this.noiseBuffer,
             radiusOffset: this.radiusOffsetBuffer
         };
-        this.shader = PIXI.Shader.from(vertexSrc, fragmentSrc, uniforms);
+        this.shader = this.dependencies.PIXI.Shader.from(vertexSrc, fragmentSrc, uniforms);
         this._generateShaderElements()
         let startTime = Date.now();
         
@@ -156,7 +153,7 @@ class Manager{
         const w = this.props.container.offsetWidth
         const h = this.props.container.offsetHeight        
 
-        this.geometry = new PIXI.Geometry()
+        this.geometry = new this.dependencies.PIXI.Geometry()
                 .addAttribute('aVertexPosition', // the attribute name
                     [0, 0, // x, y
                         w, 0, // x, y
@@ -171,11 +168,11 @@ class Manager{
                     2) // the size of the attribute
                 .addIndex([0, 1, 2, 0, 2, 3]);
 
-        this.shaderTexture = PIXI.RenderTexture.create(w,h);
-        this.shaderQuad = new PIXI.Mesh(this.geometry, this.shader);
+        this.shaderTexture = this.dependencies.PIXI.RenderTexture.create(w,h);
+        this.shaderQuad = new this.dependencies.PIXI.Mesh(this.geometry, this.shader);
 
         if (this.shaderContainer != null) this.app.stage.removeChild(this.shaderContainer)
-        this.shaderContainer = new PIXI.Container();
+        this.shaderContainer = new this.dependencies.PIXI.Container();
         this.shaderContainer.addChild(this.shaderQuad);
         this.app.stage.addChild(this.shaderContainer);
     }

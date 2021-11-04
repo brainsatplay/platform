@@ -1,7 +1,6 @@
 import {DOMFragment} from '../../../utils/DOMFragment'
 import * as settingsFile from './settings'
 import { BreathCapture } from '../../../utils/BreathCapture'
-import ts from 'typescript'
 
 
 //Example Applet for integrating with the UI Manager

@@ -1,5 +1,4 @@
 import {DOMFragment} from '../../../utils/DOMFragment'
-import * as PIXI from 'pixi.js';
 import * as settingsFile from './settings'
 
 // import perlinImg from './img/perlin.jpeg'
@@ -35,6 +34,7 @@ export class PixiApplet {
             id: String(Math.floor(Math.random()*1000000)), //Keep random ID
         };
 
+
         // Setup Neurofeedback
         this.defaultNeurofeedback = function defaultNeurofeedback(){return 0.5 + 0.5*Math.sin(Date.now()/2000)} // default neurofeedback function
         this.getNeurofeedback = this.defaultNeurofeedback
@@ -55,6 +55,7 @@ export class PixiApplet {
 
         // New App System Update
         this.analysis = {default: ['eegcoherence']}
+        this.dependencies = {PIXI: 'https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.1.3/pixi.min.js'}
     }
 
     //---------------------------------
@@ -62,7 +63,24 @@ export class PixiApplet {
     //---------------------------------
 
      //Initalize the this.app with the DOMFragment component for HTML rendering/logic to be used by the UI manager. Customize the this.app however otherwise.
-    init() {
+    async init() {
+
+
+        // Load Dependencies
+        let keys = Object.keys(this.dependencies)
+        await Promise.all(keys.map((name) => {
+            return new Promise(resolve => {
+                let script = document.createElement('script')
+                script.src = this.dependencies[name]
+                script.async = true;
+                script.onload = () => {
+                    this.dependencies[name] = window[name]
+                    script.remove()
+                    resolve()
+                }
+                document.body.appendChild(script);
+            })
+        }))
 
         //HTML render function, can also just be a plain template string, add the random ID to named divs so they don't cause conflicts with other UI elements
         let HTMLtemplate = (props=this.props) => { 
@@ -108,7 +126,7 @@ export class PixiApplet {
         
 
         
-        this.app = new PIXI.Application({view: canvas});
+        this.app = new this.dependencies.PIXI.Application({view: canvas});
 
         this.colorBuffer = Array.from({length: this.history}, e => [1.0,1.0,1.0])
         this.timeBuffer = Array.from({length: this.history}, e => 0)
@@ -122,7 +140,7 @@ export class PixiApplet {
             mouse: [0,0], //[this.mouse.x, this.mouse.y],
             noiseIntensity: this.noiseBuffer
         };
-        this.shader = PIXI.Shader.from(vertexSrc, fragmentSrc, uniforms);
+        this.shader = this.dependencies.PIXI.Shader.from(vertexSrc, fragmentSrc, uniforms);
         // this.responsive()
         this.generateShaderElements()
         let startTime = Date.now();
@@ -184,7 +202,7 @@ export class PixiApplet {
         const h = containerElement.offsetHeight
         
 
-        this.geometry = new PIXI.Geometry()
+        this.geometry = new this.dependencies.PIXI.Geometry()
                 .addAttribute('aVertexPosition', // the attribute name
                     [0, 0, // x, y
                         w, 0, // x, y
@@ -200,12 +218,12 @@ export class PixiApplet {
                 .addIndex([0, 1, 2, 0, 2, 3]);
 
         // if (this.shaderContainer == null) 
-        this.shaderTexture = PIXI.RenderTexture.create(w,h);
+        this.shaderTexture = this.dependencies.PIXI.RenderTexture.create(w,h);
         // if (this.shaderQuad == null)  
-        this.shaderQuad = new PIXI.Mesh(this.geometry, this.shader);
+        this.shaderQuad = new this.dependencies.PIXI.Mesh(this.geometry, this.shader);
 
         if (this.shaderContainer != null) this.app.stage.removeChild(this.shaderContainer)
-        this.shaderContainer = new PIXI.Container();
+        this.shaderContainer = new this.dependencies.PIXI.Container();
         this.shaderContainer.addChild(this.shaderQuad);
         this.app.stage.addChild(this.shaderContainer);
 
@@ -214,8 +232,8 @@ export class PixiApplet {
         //     texNoise: noiseTexture,
         //     texWave: waveTexture,
         // };
-        // const combineShader = PIXI.Shader.from(vertexSrc, fragmentCombineSrc, combineUniforms);
-        // const combineQuad = new PIXI.Mesh(this.geometry, combineShader);
+        // const combineShader = this.dependencies.PIXI.Shader.from(vertexSrc, fragmentCombineSrc, combineUniforms);
+        // const combineQuad = new this.dependencies.PIXI.Mesh(this.geometry, combineShader);
 
         // this.shaderContainer.position.set((containerElement.offsetWidth - Math.min(w,h))/2, (containerElement.offsetHeight - Math.min(w,h))/2);
     }
