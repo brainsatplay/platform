@@ -1,6 +1,6 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 
-import { SoundJS } from '../../../libraries/js/src/utils/general/Sound';
+import { SoundJS } from '../../../utils/Sound';
 import * as settingsFile from './settings'
 
 

@@ -7,8 +7,6 @@ export class Manager {
     constructor(info, graph) {
         
 
-        // this.analysis = ['eegfft']
-
         // UI Identifier
         this.props = {
             id: String(Math.floor(Math.random() * 1000000)),      

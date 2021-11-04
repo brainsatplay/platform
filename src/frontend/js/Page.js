@@ -1,5 +1,5 @@
 
-import { DOMFragment } from './utils/DOMFragment';
+import { DOMFragment } from '../../utils/DOMFragment';
 
 
 export class Page{

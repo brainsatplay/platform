@@ -1,4 +1,4 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 
 import * as THREE from 'three'
 import * as POSTPROCESSING from 'postprocessing'
@@ -51,6 +51,8 @@ export class ThreeSunriseApplet {
         this.threeAnim;
         this.threeWidth = 100;
 
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
     }
 
     //---------------------------------

@@ -1,4 +1,4 @@
-import { Math2 } from "../../../libraries/js/src/utils/mathUtils/Math2"
+import { Math2 } from "../../../utils/Math2"
 
 export class ERP {
 

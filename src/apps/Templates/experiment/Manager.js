@@ -166,6 +166,7 @@ export class Manager {
             start: {
                 onUpdate: (user) =>{
                     if (user.data){
+                        console.log('RUNNING START')
                         this.props.start.style.display = 'none'
                         this.props.experiment.style.display = ''
                         return user

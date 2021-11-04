@@ -1,4 +1,4 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 import p5 from 'p5';
 import {Connectome} from './Connectome';
 import * as settingsFile from './settings'
@@ -31,6 +31,9 @@ export class ConnectomeApplet {
 
         this.connectome = null;
         this.sketch = null;
+
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
     }
 
     //---------------------------------

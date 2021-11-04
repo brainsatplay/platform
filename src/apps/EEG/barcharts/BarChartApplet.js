@@ -1,6 +1,6 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import {eegBarChart, mirrorBarChart} from '../../../libraries/js/src/utils/graphics/eegvisuals'
-import {addChannelOptions, addCoherenceOptions} from '../../../platform/js/frontend/menus/selectTemplates'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import {eegBarChart, mirrorBarChart} from '../../../utils/graphics/eegvisuals'
+import {addChannelOptions, addCoherenceOptions} from '../../../frontend/js/menus/selectTemplates'
 import * as settingsFile from './settings'
 
 //Example Applet for integrating with the UI Manager
@@ -30,6 +30,9 @@ export class BarChartApplet {
         this.chart = null;
         this.looping = false;
         this.loop = null;
+
+        // New App System Update
+        this.analysis = {default: ['eegfft']}
     }
 
     //---------------------------------

@@ -1,4 +1,4 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
  
 import * as THREE from 'three'
 import {UserMarker} from './UserMarker'
@@ -48,6 +48,10 @@ export class NexusApplet {
         //----------------------------------------------
 
 
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
+
+        
         this.three = {}
 
         this.neurofeedbackColors = {

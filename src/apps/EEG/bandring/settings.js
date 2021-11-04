@@ -9,5 +9,4 @@ export const settings = {
     "module": "BandRingApplet",
     "image":  featureImg,
 		"instructions":"Coming soon...",
-    "analysis": ['eegfft']
 }

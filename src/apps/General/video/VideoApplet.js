@@ -1,4 +1,4 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 import * as settingsFile from './settings'
 
 
@@ -52,7 +52,9 @@ export class VideoApplet {
         this.hidden = false;
 
         this.cohScore = undefined; //for getting coherence
-
+        
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
     }
 
     //---------------------------------

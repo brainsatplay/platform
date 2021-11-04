@@ -1,5 +1,5 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import {SoundJS} from '../../../libraries/js/src/utils/general/Sound'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import {SoundJS} from '../../../utils/Sound'
 import * as settingsFile from './settings'
 
 export class AudioApplet {
@@ -57,6 +57,9 @@ export class AudioApplet {
         this.mode = 2;
 
         this.cohScore = undefined;
+
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
     }
 
     //---------------------------------

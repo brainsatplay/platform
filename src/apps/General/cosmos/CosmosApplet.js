@@ -1,4 +1,4 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -37,6 +37,9 @@ export class CosmosApplet {
 
         this.defaultNeurofeedback = function defaultNeurofeedback(){return 0.5 + 0.5*Math.sin(Date.now()/5000)} // default neurofeedback function
         this.getNeurofeedback = this.defaultNeurofeedback   
+
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
     }
 
     //---------------------------------

@@ -1,6 +1,6 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import {BrainMap2D} from '../../../libraries/js/src/utils/graphics/eegvisuals'
-import {genBandviewSelect} from '../../../platform/js/frontend/menus/selectTemplates'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import {BrainMap2D} from '../../../utils/graphics/eegvisuals'
+import {genBandviewSelect} from '../../../frontend/js/menus/selectTemplates'
 import * as settingsFile from './settings'
 
 
@@ -34,6 +34,10 @@ export class BrainMapApplet {
         this.class = null;
         this.loop = null;
         this.looping = false;
+
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
+        
     }
 
     //---------------------------------

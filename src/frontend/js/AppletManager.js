@@ -1,7 +1,7 @@
 import {presetManifest} from '../presetManifest'
 import {appletManifest} from '../../apps/apps'
-import { getApplet, getAppletSettings } from "./utils/importUtils"
-import {handleAuthRedirect} from './utils/login'
+import { getApplet, getAppletSettings } from "./ui/importUtils"
+import {handleAuthRedirect} from './ui/login'
 
 //By Garrett Flynn, Joshua Brewster (GPL)
 

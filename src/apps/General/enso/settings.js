@@ -10,5 +10,4 @@ export const settings = {
     "module": "EnsoApplet",
     "image":  featureImg,
 		"instructions":"Coming soon...",
-    "analysis": ['eegcoherence']
 };

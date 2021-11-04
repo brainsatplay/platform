@@ -1,5 +1,5 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import {DynamicParticles} from '../../../libraries/js/src/utils/graphics/DynamicParticles'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import {DynamicParticles} from '../../../utils/graphics/DynamicParticles'
 
 import * as THREE from 'three'
 //import * as Phenomenon from 'three.phenomenon'

@@ -1,6 +1,5 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 import * as settingsFile from './settings'
-import {deviceList} from '../../../libraries/js/src/devices/deviceList'
 
 export class ProfileApplet {
     constructor(
@@ -141,7 +140,7 @@ export class ProfileApplet {
                 }
 
                 deviceGrid.innerHTML = ''
-                deviceList.forEach((config) => {
+                brainsatplay.devices.forEach((config) => {
                     let div = document.createElement('div')
                     div.style = `min-width: 200px; flex-grow: 1;`
                     let input = document.createElement('input')

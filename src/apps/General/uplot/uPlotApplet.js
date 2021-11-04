@@ -1,7 +1,7 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import {uPlotMaker} from '../../../libraries/js/src/utils/graphics/eegvisuals'
-import { Math2 } from '../../../libraries/js/src/utils/mathUtils/Math2';
-import {genBandviewSelect,addChannelOptions,addCoherenceOptions} from '../../../platform/js/frontend/menus/selectTemplates'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import {uPlotMaker} from '../../../utils/graphics/eegvisuals'
+import { Math2 } from '../../../utils/Math2';
+import {genBandviewSelect,addChannelOptions,addCoherenceOptions} from '../../../frontend/js/menus/selectTemplates'
 import * as settingsFile from './settings'
 
 
@@ -34,6 +34,9 @@ export class uPlotApplet {
         this.yrange = true;
         this.plotWidth = 500;
         this.plotHeight = 300;
+
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
 
     }
 
@@ -185,7 +188,7 @@ export class uPlotApplet {
         );  
 
         
-        this.AppletHTML.appendStylesheet("./_dist_/platform/styles/css/uPlot.min.css");
+        this.AppletHTML.appendStylesheet("/_dist_/utils/graphics/uPlot.min.css");
 
         
         if(this.session.atlas.data.eegshared.frequencies.length === 0) {

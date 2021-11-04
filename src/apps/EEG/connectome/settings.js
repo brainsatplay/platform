@@ -10,5 +10,4 @@ export const settings = {
     "module": "ConnectomeApplet",
     "image":  featureImg,
 		"instructions":"Coming soon...",
-    "analysis": ['eegcoherence']
 }

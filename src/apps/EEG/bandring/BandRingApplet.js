@@ -1,4 +1,4 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 import p5 from 'p5';
 import {Ring} from './Ring';
 import * as settingsFile from './settings'
@@ -27,6 +27,9 @@ export class BandRingApplet {
             id: String(Math.floor(Math.random()*1000000)), //Keep random ID
             buttonOutput: 0 //Add whatever else
         };
+
+        // New App System Update
+        this.analysis = {default: ['eegfft']}
 
         this.ring = null;
         this.sketch = null;

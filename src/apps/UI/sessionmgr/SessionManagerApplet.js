@@ -1,6 +1,6 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import { StateManager } from '../../../libraries/js/src/ui/StateManager'
-import {CSV} from '../../../libraries/js/src/utils/general/csv'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import { StateManager } from '../../../utils/StateManager'
+import {CSV} from '../../../utils/csv'
 import * as settingsFile from './settings'
 import * as BrowserFS from 'browserfs'
 
@@ -12,7 +12,7 @@ import csvsvg from '../../../platform/assets/file-csv-solid.svg'
 import deletesvg from '../../../platform/assets/trash-alt-regular.svg'
 import drivesvg from '../../../platform/assets/Google_Drive_icon_2020.svg'
 
-import {uPlotMaker} from '../../../libraries/js/src/utils/graphics/eegvisuals'
+import {uPlotMaker} from '../../../utils/graphics/eegvisuals'
 
 /*
 How it will work:
@@ -111,7 +111,7 @@ export class SessionManagerApplet {
 
         if(this.settings.length > 0) { this.configure(this.settings); } //You can give the app initialization settings if you want via an array.
         
-        this.AppletHTML.appendStylesheet("./_dist_/platform/styles/css/uPlot.min.css");
+        this.AppletHTML.appendStylesheet("/_dist_/utils/graphics/uPlot.min.css");
 
         this.looping = true;
         //Add whatever else you need to initialize

@@ -10,6 +10,5 @@ export const settings = {
     "module": "NexusApplet",
     "image":  featureImg,
 		"instructions":"Coming soon...",
-    "analysis": ['eegcoherence'],
     'intro': true
 }

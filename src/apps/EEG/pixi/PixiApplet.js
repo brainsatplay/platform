@@ -1,4 +1,4 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 import * as PIXI from 'pixi.js';
 import * as settingsFile from './settings'
 
@@ -52,6 +52,9 @@ export class PixiApplet {
           this.lastColorSwitch=Date.now() 
 
           this.history = 5
+
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
     }
 
     //---------------------------------

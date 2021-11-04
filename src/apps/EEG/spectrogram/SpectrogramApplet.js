@@ -1,6 +1,6 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import {addChannelOptions,addCoherenceOptions} from '../../../platform/js/frontend/menus/selectTemplates'
-import {Spectrogram} from '../../../libraries/js/src/utils/graphics/eegvisuals'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import {addChannelOptions,addCoherenceOptions} from '../../../frontend/js/menus/selectTemplates'
+import {Spectrogram} from '../../../utils/graphics/eegvisuals'
 import * as settingsFile from './settings'
 
 
@@ -33,6 +33,9 @@ export class SpectrogramApplet {
         this.class = null;
         this.loop = null;
         this.looping = false;
+
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
 
     }
 

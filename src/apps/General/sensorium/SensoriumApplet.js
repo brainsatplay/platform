@@ -1,21 +1,18 @@
 //TODO: WebXR, Generalize threejs scene composition
 
 
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import { SoundJS } from '../../../libraries/js/src/utils/general/Sound';
-import { LiveEditor } from '../../../libraries/js/src/ui/LiveEditor'
-import { Math2 } from '../../../libraries/js/src/utils/mathUtils/Math2';
+import {DOMFragment} from '../../../utils/DOMFragment'
+import { SoundJS } from '../../../utils/Sound';
+import { LiveEditor } from '../../../utils/LiveEditor'
+import { Math2 } from '../../../utils/Math2';
 
-import {Graph} from '../../../libraries/js/src/graph/Graph'
 import * as settingsFile from './settings'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
 
-import {addChannelOptions, addCoherenceOptions } from '../../../platform/js/frontend/menus/selectTemplates'
-
-import {Buzz} from '../../../libraries/js/src/plugins/haptics/Buzz'
+import {addChannelOptions, addCoherenceOptions } from '../../../frontend/js/menus/selectTemplates'
 
 //Import shader urls
 import vertexShader from './shaders/vertex.glsl'
@@ -103,6 +100,7 @@ export class SensoriumApplet {
         
         this.props = { //Changes to this can be used to auto-update the HTML and track important UI values 
             id: String(Math.floor(Math.random()*1000000)), //Keep random ID
+            controls: null
             //Add whatever else
         };
 
@@ -118,14 +116,18 @@ export class SensoriumApplet {
 
 
         // Plugins
-        this.graph = new Plugin({
-            name: this.info.name, 
-			nodes: [
-                {name: 'buzz', class: Buzz},
-			],
-		}, {app:this}); // top-level graph
+        this.neosensorium = new brainsatplay.App({
+            name: 'Neosensorium',
+            graphs: [{
+                name: 'Buzz', 
+                nodes: [
+                    {name: 'buzz', class: 'Buzz'},
+                ],
+            }]
+        }, this.parentNode, this.session); // top-level graph
 
-        this.graph.streams = ['modifiers','hostData']
+        this.neosensorium.streams = ['modifiers','hostData']
+        this.analysis = {default: ['eegcoherence']}
 
         this.currentView = 'plane'
 
@@ -583,14 +585,14 @@ void main(){
         );  
 
         
-        this.AppletHTML.appendStylesheet("./_dist_/platform/styles/css/prism/prism-vsc-dark-plus.css");
+        // this.AppletHTML.appendStylesheet("./_dist_/platform/styles/css/prism/prism-vsc-dark-plus.css");
 
         //Add whatever else you need to initialize
         this.looping = true;
         
         this.ct = 0;
 
-		await this.graph.init()
+		this.neosensorium.init()
 
     /**
      * Scene
@@ -631,14 +633,14 @@ void main(){
     this.three.renderer.domElement.style.transition = 'opacity 1s'
 
     // Controls
-    this.controls = new OrbitControls(this.camera, this.three.renderer.domElement)
-    this.controls.enablePan = true
-    this.controls.enableDamping = true
-    this.controls.enabled = true;
-    this.controls.minPolarAngle = 2*Math.PI/6; // radians
-    this.controls.maxPolarAngle = 4*Math.PI/6; // radians
-    this.controls.minDistance = this.baseCameraPos.z; // radians
-    this.controls.maxDistance = this.baseCameraPos.z*1000; // radians
+    this.props.controls = new OrbitControls(this.camera, this.three.renderer.domElement)
+    this.props.controls.enablePan = true
+    this.props.controls.enableDamping = true
+    this.props.controls.enabled = true;
+    this.props.controls.minPolarAngle = 2*Math.PI/6; // radians
+    this.props.controls.maxPolarAngle = 4*Math.PI/6; // radians
+    this.props.controls.minDistance = this.baseCameraPos.z; // radians
+    this.props.controls.maxDistance = this.baseCameraPos.z*1000; // radians
 
     // Plane
     const geometry = this.createViewGeometry();
@@ -727,9 +729,8 @@ void main(){
                 this.additionalUniforms.iFrameRate = 1/(this.additionalUniforms.iTimeDelta*0.001);
                 
                 
-                let userData = this.session.getBrainstormData(this.info.name, this.graph.streams)
+                let userData = this.session.getBrainstormData(this.info.name, this.neosensorium.streams)
                 //let hostData = this.session.getHostData(this.info.name);
-                //console.log(userData)
                 if (userData.length > 0){
                     let averageModifiers = {};
                     userData.forEach((data) => {
@@ -771,7 +772,7 @@ void main(){
                         this.updateMaterialUniforms(p.material,averageModifiers);
                     });
 
-                    this.controls.update()
+                    this.props.controls.update()
                     this.three.renderer.render( this.three.scene, this.camera );
                 }
             }
@@ -844,7 +845,7 @@ void main(){
             else if(struct.sourceIdx) window.audio.stopSound(struct.sourceIdx);
             
         });
-
+        this.neosensorium.deinit()
         document.removeEventListener("keydown", this.saveShader);
 
 
@@ -1597,6 +1598,7 @@ void main(){
                         }
                     }
                 }
+
                 if(this.session.atlas.settings.eeg === true && this.session.atlas.settings.analyzing === true) { 
                     let channel = document.getElementById(this.props.id+'channel'+effectStruct.uiIdx).value;
                     if (option === 'iDelta') {
@@ -1965,17 +1967,17 @@ void main(){
 
 
     updateBuzz(modifiers) {
-        let node = this.graph.getNode(this.props.id, 'buzz')
+        let node = this.neosensorium.graphs[0].getNode('buzz')
 
         if (modifiers.iFFT){
-            this.graph.runSafe(node, 'audioToMotors',{data: modifiers.iFFT, meta: {label: 'iFFT'}})
+            node.update('audioToMotors',{data: modifiers.iFFT, meta: {label: 'iFFT'}})
         }
         if (modifiers.iAudio & modifiers.iFFT.reduce((a,b) => a + b) == 0){
-            this.graph.runSafe(node, 'audioToMotors',{data: modifiers.iAudio, meta: {label: 'iAudio'}})
+            node.update('audioToMotors',{data: modifiers.iAudio, meta: {label: 'iAudio'}})
         }
 
         if (modifiers.iFrontalAlpha1Coherence){
-            this.graph.runSafe(node, 'fillLEDs',{data: modifiers.iFrontalAlpha1Coherence, meta: {label: 'iFrontalAlpha1Coherence'}})
+            node.update('fillLEDs',{data: modifiers.iFrontalAlpha1Coherence, meta: {label: 'iFrontalAlpha1Coherence'}})
         }
     }
 } 

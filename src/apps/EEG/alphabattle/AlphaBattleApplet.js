@@ -1,4 +1,4 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 import p5 from 'p5';
 import * as settingsFile from './settings'
 
@@ -31,6 +31,8 @@ export class AlphaBattleApplet {
         }
         //----------------------------------------------
 
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
 
         // Multiplayer State Management
         this.states = {

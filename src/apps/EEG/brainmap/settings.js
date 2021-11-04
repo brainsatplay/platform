@@ -7,5 +7,4 @@ export const settings = {
     "categories": ["visualize"],
     "module": "BrainMapApplet",
 		"instructions":"Coming soon...",
-    "analysis": ['eegcoherence']
 }

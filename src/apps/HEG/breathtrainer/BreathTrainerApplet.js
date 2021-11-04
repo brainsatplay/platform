@@ -1,7 +1,6 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 import * as settingsFile from './settings'
-import {SoundJS} from '../../../libraries/js/src/utils/general/Sound'
-import { BreathCapture } from '../../../libraries/js/src/utils/signal_processing/BreathCapture'
+import { BreathCapture } from '../../../utils/BreathCapture'
 import ts from 'typescript'
 
 

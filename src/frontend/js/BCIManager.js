@@ -20,11 +20,14 @@ import {
 } from './menus/UITemplates'
 
 import { AppletManager } from './AppletManager'
-import { DOMFragment } from './utils/DOMFragment';
+import { DOMFragment } from '../../utils/DOMFragment';
 
 import { AboutPage } from './AboutPage'
 import { ExtensionPage } from './ExtensionPage'
 import { SettingsPage } from './SettingsPage'
+
+// Applets
+import {appletManifest} from '../../apps/apps'
 
 // Imagess
 import DeviceSelectorIcon from '../assets/wave-square-solid.svg';
@@ -36,7 +39,6 @@ import ExtensionIcon from '../assets/puzzle-piece-solid.svg';
 import SettingsIcon from '../assets/cog-solid.svg';
 
 import * as BrowserFS from 'browserfs'
-// import { Editor } from '../../../libraries/js/src/graph/Editor';
 
 const fs = BrowserFS.BFSRequire('fs')
 const BFSBuffer = BrowserFS.BFSRequire('buffer').Buffer;
@@ -528,9 +530,9 @@ export class BCIAppManager {
         let aboutPage = new AboutPage(document.getElementById('page'), helpMenu)
         let extensionPage = new ExtensionPage(document.getElementById('page'), extensionMenu, this.session)
         this.settingsPage = new SettingsPage(document.getElementById('page'), settingsMenu, this.session)
-
+        
         // Spawn Global Editor
-        this.session.edit(document.getElementById('page'))
+        this.session.edit(document.getElementById('page'), appletManifest)
     }
 
     deinitUI = () => { //Destroy the UI and logic/loops

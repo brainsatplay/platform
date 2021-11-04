@@ -1,5 +1,5 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import { SmoothieChartMaker } from'../../../libraries/js/src/utils/graphics/eegvisuals'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import { SmoothieChartMaker } from'../../../utils/graphics/eegvisuals'
 import * as settingsFile from './settings'
 
 

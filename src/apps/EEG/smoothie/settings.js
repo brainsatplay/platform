@@ -10,5 +10,4 @@ export const settings = {
     "module": "SmoothieApplet",
     "image":  featureImg,
 		"instructions":"Coming soon...",
-    "analysis": ['eegcoherence']
 }

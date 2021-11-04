@@ -1,7 +1,7 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import { WorkerManager } from '../../../libraries/js/src/utils/workers/WorkerManager';
-import { ThreadedCanvas } from '../../../libraries/js/src/utils/workers/ThreadedCanvas'
-import {DynamicParticles} from '../../../libraries/js/src/utils/graphics/DynamicParticles'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import { WorkerManager } from '../../../utils/workers/WorkerManager';
+import { ThreadedCanvas } from '../../../utils/workers/ThreadedCanvas'
+import {DynamicParticles} from '../../../utils/graphics/DynamicParticles'
 
 import * as settingsFile from './settings'
 

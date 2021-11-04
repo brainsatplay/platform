@@ -1,4 +1,4 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 import p5 from 'p5';
 import {Ring} from './Ring';
 import * as settingsFile from './settings'
@@ -31,6 +31,9 @@ export class BrainArtApplet {
 
         this.ring = null;
         this.sketch = null;
+
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
 
         this.generatorFuncs = [
             {

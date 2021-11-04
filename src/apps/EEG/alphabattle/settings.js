@@ -16,7 +16,6 @@ export const settings = {
     "module": "AlphaBattleApplet",
     "image":  featureImg,
 		"instructions":"Coming soon...",
-    "analysis": ['eegcoherence'],
     "display":{
       production: false,
       // development: false

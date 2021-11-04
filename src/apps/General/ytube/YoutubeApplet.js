@@ -1,4 +1,4 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
+import {DOMFragment} from '../../../utils/DOMFragment'
 import * as settingsFile from './settings'
 
 
@@ -36,6 +36,9 @@ export class YoutubeApplet {
         this.alpha = 0;
 
         this.videoId = '';
+
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
     }
 
     //---------------------------------

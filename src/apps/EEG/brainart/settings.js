@@ -9,5 +9,4 @@ export const settings = {
     "module": "BrainArtApplet",
     "image":  featureImg,
 		"instructions":"Coming soon...",
-    "analysis": ['eegcoherence']
 }

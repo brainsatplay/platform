@@ -1,6 +1,6 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import {uPlotMaker} from '../../../libraries/js/src/utils/graphics/eegvisuals'
-import {CSV} from '../../../libraries/js/src/utils/general/csv'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import {uPlotMaker} from '../../../utils/graphics/eegvisuals'
+import {CSV} from '../../../utils/csv'
 import * as settingsFile from './settings'
 
 //Example Applet for integrating with the UI Manager
@@ -111,7 +111,7 @@ export class HEGPlotterApplet {
             "NEVER"             //Changes to props or the template string will automatically rerender the html template if "NEVER" is changed to "FRAMERATE" or another value, otherwise the UI manager handles resizing and reinits when new apps are added/destroyed
         );  
 
-        this.AppletHTML.appendStylesheet("./_dist_/platform/styles/css/uPlot.min.css");
+        this.AppletHTML.appendStylesheet("/_dist_/utils/graphics/uPlot.min.css");
 
         if(this.settings.length > 0) { this.configure(this.settings); } //You can give the app initialization settings if you want via an array.
         this.plot = new uPlotMaker(this.props.id+'uplot');

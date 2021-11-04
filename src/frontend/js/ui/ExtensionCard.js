@@ -1,5 +1,5 @@
 
-import { getAppletSettings } from "../utils/importUtils"
+import { getAppletSettings } from "./importUtils"
 
 export class ExtensionCard {
     constructor(extension, session){

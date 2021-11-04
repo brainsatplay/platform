@@ -1,6 +1,6 @@
-import {DOMFragment} from '../../../frontend/utils/DOMFragment'
-import {addChannelOptions,addCoherenceOptions} from '../../../platform/js/frontend/menus/selectTemplates'
-import { SmoothieChartMaker } from '../../../libraries/js/src/utils/graphics/eegvisuals'
+import {DOMFragment} from '../../../utils/DOMFragment'
+import {addChannelOptions,addCoherenceOptions} from '../../../frontend/js/menus/selectTemplates'
+import { SmoothieChartMaker } from '../../../utils/graphics/eegvisuals'
 import { TimeSeries } from 'smoothie'
 import * as settingsFile from './settings'
 
@@ -36,6 +36,8 @@ export class SmoothieApplet {
         this.loop=null;
         this.looping=false;
 
+        // New App System Update
+        this.analysis = {default: ['eegcoherence']}
     }
 
     //---------------------------------

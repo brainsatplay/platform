@@ -81,7 +81,7 @@ categories.forEach((category,indOut) => {
 
           let name = dict.name
           appletDict[name] = dict
-          appletDict[name].folderUrl = '../../../' + dir.split(path.join(__dirname,'/../'))[1]
+          appletDict[name].folderUrl = '/_dist_/' + dir.split(path.join(__dirname,'/../'))[1] // absolute to served site
 
           let devicereg =  /['"]?devices['"]?:\s*([^\{\]]+)]/g;
           match = devicereg.exec(decoded);

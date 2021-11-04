@@ -10,5 +10,4 @@ export const settings = {
     "module": "SpectrogramApplet",
     "image":  featureImg,
 		"instructions":"Coming soon...",
-    "analysis": ['eegcoherence']
 }
