@@ -1,3 +1,4 @@
+# apps
 This is the directory where apps are stored. 
 
 `app.js` is dynamically generated based on the file system.
