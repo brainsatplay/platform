@@ -27,7 +27,7 @@ import { ExtensionPage } from './ExtensionPage'
 import { SettingsPage } from './SettingsPage'
 
 // Applets
-import {appletManifest} from '../../apps/apps'
+import {apps} from '../../apps/apps.manifest'
 
 // Imagess
 import DeviceSelectorIcon from '../assets/wave-square-solid.svg';
@@ -532,7 +532,7 @@ export class BCIAppManager {
         this.settingsPage = new SettingsPage(document.getElementById('page'), settingsMenu, this.session)
         
         // Spawn Global Editor
-        this.session.edit(document.getElementById('page'), appletManifest)
+        this.session.edit(document.getElementById('page'), apps)
     }
 
     deinitUI = () => { //Destroy the UI and logic/loops

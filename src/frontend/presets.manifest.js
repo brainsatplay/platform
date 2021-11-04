@@ -8,7 +8,7 @@ import studio from '../apps/Templates/blank/feature.png'
 import OBB from '../apps/UI/onebitbonanza/feature.jpg'
 import breathgarden from '../apps/WIPs/breathgarden/feature.png'
 
-export let presetManifest = [
+export let presets = [
     {
         value: 'EEG',
         name: "EEG Neurofeedback",

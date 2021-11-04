@@ -1,2 +1,4 @@
 # brainsatplay-platform
- Distribution platform for Brains@Play applications
+ **brainsatplay-platform** is a distribution hub for Brains@Play applications
+
+

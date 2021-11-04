@@ -1,5 +1,5 @@
-import {presetManifest} from '../presetManifest'
-import {appletManifest} from '../../apps/apps'
+import {presets} from '../presets.manifest'
+import {apps} from '../../apps/apps.manifest'
 import { getApplet, getAppletSettings } from "./ui/importUtils"
 import {handleAuthRedirect} from './ui/login'
 
@@ -119,7 +119,7 @@ export class AppletManager {
             }
         }
 
-        this.appletPresets = presetManifest
+        this.appletPresets = presets
 
         document.getElementById("preset-selector").innerHTML += `
         <option value='default' disabled selected>Browse presets</option>
@@ -165,19 +165,19 @@ export class AppletManager {
     deinitUI = () => { }
 
     // Check class compatibility with current devices
-    checkDeviceCompatibility = (appletManifest, devices = this.session.deviceStreams) => {
+    checkDeviceCompatibility = (apps, devices = this.session.deviceStreams) => {
         let compatible = false
         if (this.session.deviceStreams.length === 0) compatible = true
         else {
             this.session.deviceStreams.forEach((device) => {
-                if (Array.isArray(appletManifest.devices)) { // Check devices only
-                    var regex = new RegExp( appletManifest.devices.join( "|" ), "i");
+                if (Array.isArray(apps.devices)) { // Check devices only
+                    var regex = new RegExp( apps.devices.join( "|" ), "i");
                     if (regex.test(device.info.deviceType) || regex.test(device.info.deviceName)) compatible = true
                 }
-                else if (typeof appletManifest.devices === 'object') { // Check devices AND specific channel tags
-                    if (appletManifest.devices.includes(device.info.devices.deviceType) || appletManifest.devices.includes(device.info.deviceName)) {
-                        if (appletManifest.devices.eegChannelTags) {
-                            appletManifest.devices.eegChannelTags.forEach((tag, k) => {
+                else if (typeof apps.devices === 'object') { // Check devices AND specific channel tags
+                    if (apps.devices.includes(device.info.devices.deviceType) || apps.devices.includes(device.info.deviceName)) {
+                        if (apps.devices.eegChannelTags) {
+                            apps.devices.eegChannelTags.forEach((tag, k) => {
                                 let found = o.atlas.eegshared.eegChannelTags.find((t) => {
                                     if (t.tag === tag) {
                                         return true;
@@ -258,18 +258,18 @@ export class AppletManager {
 
         this.appletConfigs.forEach(conf => {
             if (typeof conf === 'object') {
-                if (!currentApplets.reduce(isAllNull, 0) && appletManifest[conf.name] != null) {
+                if (!currentApplets.reduce(isAllNull, 0) && apps[conf.name] != null) {
                     appletPromises.push(new Promise(async (resolve, reject) => {
-                        let settings = await getAppletSettings(appletManifest[conf.name])
+                        let settings = await getAppletSettings(apps[conf.name])
                         let applet = await getApplet(settings)
                         return (applet != null) ? resolve([applet, settings]) : resolve([brainsatplay.App,settings])
                         // else return reject('applet does not exist')
                     }))
                 }
             }
-            else if (!currentApplets.reduce(isAllNull, 0) && appletManifest[conf] != null) {
+            else if (!currentApplets.reduce(isAllNull, 0) && apps[conf] != null) {
                 appletPromises.push(new Promise(async (resolve, reject) => {
-                    let settings = await getAppletSettings(appletManifest[conf])
+                    let settings = await getAppletSettings(apps[conf])
                     let applet = await getApplet(settings)
                     return (applet != null) ? resolve([applet, settings]) : resolve([brainsatplay.App,settings])
                 }))
@@ -279,7 +279,7 @@ export class AppletManager {
         // If no applets have been configured, redirect to base URL
         if (appletPromises.length == 0) {
             let getBrowser = async () => {
-                let settings = await getAppletSettings(appletManifest['Applet Browser'])
+                let settings = await getAppletSettings(apps['Applet Browser'])
                 let applet = await getApplet(settings)
                 return (applet != null) ? [applet, settings] : [brainsatplay.App,settings]
             }
@@ -295,7 +295,7 @@ export class AppletManager {
             let appletsCreated = []
 
             currentApplets.forEach((appname, i) => {
-                let appletSettings = (appname != null) ? appletManifest[appname] : null
+                let appletSettings = (appname != null) ? apps[appname] : null
                 let compatible = false;
                 if (appletSettings != null) compatible = this.checkDeviceCompatibility(appletSettings) // Check if applet is compatible with current device(s)
                 // else if (currentApplets.reduce((tot,cur) => tot + (cur == undefined)) != currentApplets.length-1) compatible = true // If all applets are not undefined, keep same layout
@@ -401,8 +401,8 @@ export class AppletManager {
                 if (info.name === 'Applet Browser'){
                     config = {
                         hide: [],
-                        applets: Object.keys(appletManifest).map((key) => appletManifest[key]),
-                        presets: presetManifest
+                        applets: Object.keys(apps).map((key) => apps[key]),
+                        presets: presets
                     }
 
                     Promise.all(config.applets).then((resolved) => {
@@ -509,7 +509,7 @@ export class AppletManager {
         const select = document.getElementById(selectId);
         select.innerHTML = "";
         let newhtml = `<option value='None'>None</option>`;
-        let appletKeys = Object.keys(appletManifest)
+        let appletKeys = Object.keys(apps)
         
         let arrayAppletIdx = this.applets.findIndex((o, i) => {
             if (o.appletIdx === appletIdx+1) {
@@ -519,7 +519,7 @@ export class AppletManager {
 
         appletKeys.forEach((name) => {
             if (!['Applet Browser'].includes(name)) {
-                if (this.checkDeviceCompatibility(appletManifest[name])) {
+                if (this.checkDeviceCompatibility(apps[name])) {
                     if (this.applets[arrayAppletIdx] && this.applets[arrayAppletIdx].name === name) {
                         newhtml += `<option value='` + name + `' selected="selected">` + name + `</option>`;
                     }
@@ -534,7 +534,7 @@ export class AppletManager {
         select.onchange = async (e) => {
             this.deinitApplet(appletIdx + 1);
             if (select.value !== 'None') {
-                let appletSettings = await getAppletSettings(appletManifest[select.value])
+                let appletSettings = await getAppletSettings(apps[select.value])
                 let appletCls = await getApplet(appletSettings) ?? brainsatplay.App
                 this.addApplet(appletCls, appletIdx + 1, appletSettings);
             }

@@ -1,6 +1,6 @@
 
 import { Page } from './Page';
-import { appletManifest } from '../../apps/apps'
+import { apps } from '../../apps/apps.manifest'
 import { ExtensionCard } from './ui/ExtensionCard'
 
 export class ExtensionPage extends Page{
@@ -12,10 +12,10 @@ export class ExtensionPage extends Page{
         this.session = session
 
         this.content.style = 'display: flex; flex-wrap: wrap;'
-        let applets = Object.keys(appletManifest)
+        let applets = Object.keys(apps)
         let extensions = []
         applets.forEach(name => {
-            if (appletManifest[name].categories.includes('extension')) extensions.push(appletManifest[name])
+            if (apps[name].categories.includes('extension')) extensions.push(apps[name])
         })
 
         let init = async () => {

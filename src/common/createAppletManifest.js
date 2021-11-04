@@ -12,7 +12,7 @@ let appletDir = path.join(__dirname,'..','apps')
 let categories = fs.readdirSync(appletDir)
 
 // Fetch external files
-let external = fs.readFileSync(path.join(appletDir,'external.js'))
+let external = fs.readFileSync(path.join(appletDir,'external.manifest.js'))
 let decoded = eval(external.toString('utf-8'))
 
 decoded.forEach(info => {
@@ -99,7 +99,7 @@ categories.forEach((category,indOut) => {
     for(const prop in appletDict){
       if (appletDict[prop]['folderUrl']) appletDict[prop]['folderUrl'] = appletDict[prop]['folderUrl'].replace(/\\/g,'/');
     }
-    fs.writeFile('./src/apps/apps.js', 'export const appletManifest = ' + JSON.stringify(appletDict), err => {
+    fs.writeFile('./src/apps/apps.manifest.js', 'export const apps = ' + JSON.stringify(appletDict), err => {
       if (err) {
         console.error(err)
         return

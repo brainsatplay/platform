@@ -1,10 +1,10 @@
-import logo from '../../../platform/assets/logo_and_sub(v3).png'
-import nasa from '../../../platform/assets/nasa.jpg'
-import {appletManifest} from '../../../platform/appletManifest'
+import logo from '../../../frontend/assets/logo_and_sub(v3).png'
+import nasa from '../../../frontend/assets/nasa.jpg'
+import {apps} from '../../apps.manifest'
 
 import { getApplet, getAppletSettings} from "./../../../utils/importUtils"
 
-let bonanzaApps = Object.assign({},appletManifest)
+let bonanzaApps = Object.assign({},apps)
 Object.keys(bonanzaApps).forEach(k => {
     if(!bonanzaApps[k].categories.includes('onebitbonanza')) delete bonanzaApps[k]
 })
