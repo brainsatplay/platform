@@ -740,7 +740,7 @@ export class BCIAppManager {
             this.appletManager = new AppletManager(this.initUI, this.deinitUI, configs, undefined, this.session);    
         })
 
-
+    }
 
 
     downloadImages(w, h) {
