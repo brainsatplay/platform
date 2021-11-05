@@ -1,5 +1,6 @@
 
 import featureImg from './img/feature.png'
+import {UI} from './UI.js'
 
 export const settings = {
     "name": "Pixi",
@@ -7,7 +8,20 @@ export const settings = {
     "devices": ["EEG"],
     "description": "Control a shader with your brain.",
     "categories": ["train"],
-    "module": "PixiApplet",
     "image":  featureImg,
-		"instructions":"Coming soon...",
+    "instructions":"Coming soon...",
+    
+    graphs: [
+      {
+        nodes: [
+          {name: 'ui', class: UI},
+          {name: 'dom', class: 'DOM'},
+        ],
+        edges: [{
+          source: 'ui:element',
+          target: 'dom:content'
+        }]
+    }
+
+    ]
 }

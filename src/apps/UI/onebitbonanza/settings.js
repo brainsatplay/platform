@@ -19,17 +19,18 @@ export const settings = {
     graph:
       {
       nodes: [
-        {name: 'ui', class: UI, params: {}}
+        {name: 'ui', class: UI, params: {}},
+        {name: 'dom', class: 'DOM', params: {}}
       ],
       edges: [
         // {
         //   source: 'signal', 
         //   target: 'neurofeedback'
         // },
-        // {
-        //   source: 'neurofeedback', 
-        //   target: 'ui'
-        // }
+        {
+          source: 'ui:element', 
+          target: 'dom:content'
+        }
       ]
     },
 }

@@ -2,24 +2,18 @@ import logo from '../../../frontend/assets/logo_and_sub(v3).png'
 import nasa from '../../../frontend/assets/nasa.jpg'
 import {apps} from '../../apps.manifest'
 
-import { getApplet, getAppletSettings} from "./../../../utils/importUtils"
-
 let bonanzaApps = Object.assign({},apps)
 Object.keys(bonanzaApps).forEach(k => {
     if(!bonanzaApps[k].categories.includes('onebitbonanza')) delete bonanzaApps[k]
 })
 
+console.log(bonanzaApps)
 
 class UI{
 
     static id = String(Math.floor(Math.random()*1000000))
 
-    constructor(info, graph, params={}) {
-
-        // Generic Plugin Attributes
-        
-        
-
+    constructor() {
         // UI Identifier
         this.props = {
             id: String(Math.floor(Math.random()*1000000)),
@@ -28,6 +22,7 @@ class UI{
             mode: 'timer', // or button
             ui: null,
             countdown: null,
+            container: document.createElement('div')
         }
 
         // Port Definition
@@ -39,28 +34,29 @@ class UI{
                 min: 0,
                 max: 60*10, // 10 Minutes
                 step: 0.5
+            },
+            element: {
+                data: this.props.container
             }
         }
+
+        this.props.container.style = 'height:100%; width:100%; position: relative;'
     }
 
     init = () => {
 
-        let HTMLtemplate = () => {
-            return `
-            <div id='${this.props.id}' style='height:100%; width:100%; position: relative;'>
-                <div id='${this.props.id}-ui' style='position: absolute; top: 0; left: 0; height:100%; width:100%; z-index: 1; pointer-events:none;'>
-                    <div id='${this.props.id}-mask' style="position:absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${nasa}); background-position: center; background-repeat: no-repeat; background-size: cover; pointer-events: none;opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center;">
-                        <img src='${logo}' style="width: 50%;">
-                    </div>
+        this.ports.element.data.innerHTML = `
+            <div id='${this.props.id}-ui' style='position: absolute; top: 0; left: 0; height:100%; width:100%; z-index: 1; pointer-events:none;'>
+                <div id='${this.props.id}-mask' style="position:absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${nasa}); background-position: center; background-repeat: no-repeat; background-size: cover; pointer-events: none;opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center;">
+                    <img src='${logo}' style="width: 50%;">
                 </div>
-                <div id='${this.props.id}-applet' style='position: absolute; top: 0; left: 0; height:100%; width:100%; z-index: 0'></div>
-            </div>`
-        }
+            </div>
+            <div id='${this.props.id}-applet' style='position: absolute; top: 0; left: 0; height:100%; width:100%; z-index: 0'></div>
+            `
 
 
-        let setupHTML = (app) => {
 
-            this.props.ui = document.getElementById(`${this.props.id}-ui`)
+            this.props.ui = this.props.container.querySelector(`[id="${this.props.id}-ui"]`)
 
             if (this.props.mode == 'button'){
                 this.props.ui.innerHTML +=   `<button id='${this.props.id}-randomize' style="pointer-events:auto;position:absolute; top: 25px; right: 25px;">Randomize</button>`
@@ -69,7 +65,7 @@ class UI{
                 };   
             } else if (this.props.mode == 'timer'){
                 this.props.ui.innerHTML += `<h2 id='${this.props.id}-countdown' style="pointer-events:auto;position:absolute; top: 25px; right: 25px; margin: 0px;">0:00</h2>`
-                this.props.countdown = document.getElementById(`${this.props.id}-countdown`)
+                this.props.countdown = this.props.container.querySelector(`[id="${this.props.id}-countdown"]`)
             }
 
             this._setNewApplet()
@@ -94,10 +90,6 @@ class UI{
             }
     
             this._animate()
-
-        }
-
-        return {HTMLtemplate, setupHTML}
     }
 
     deinit = () => {
@@ -112,21 +104,11 @@ class UI{
         return user
     }
 
-    // Helper Functions
-
-    _createInstance = (appletCls, info=undefined) => {
-        let parentNode = document.getElementById(`${this.props.id}-applet`)
-        if (appletCls === App){
-            delete info.intro // Never show intro
-            return new brainsatplay.App(info, parentNode, this.session, [])
-        } else {
-            return new appletCls(parentNode, this.session, [])
-        }
-    }
+    // Helper Function
 
     _setNewApplet = () => {
 
-        let mask = document.getElementById(`${this.props.id}-mask`)
+        let mask = this.props.container.querySelector(`[id="${this.props.id}-mask"]`)
         // Transition
         mask.style.opacity = 1;
         mask.style.pointerEvents = 'none';
@@ -137,9 +119,19 @@ class UI{
         setTimeout(async ()=>{
             let [applet,settings] = await this._getNewApplet()
             if (this.props.currentApplet != null) this.props.currentApplet.instance.deinit()
+            
+            let parentNode = this.props.container.querySelector(`[id="${this.props.id}-applet"]`)
+            let instance
+            if (applet && settings.module){
+                instance = new applet(parentNode, this.session, [])
+            } else {
+                delete settings.intro // Never show intro
+                instance = new brainsatplay.App(settings, parentNode, this.session, [])
+            }
+            
             this.props.currentApplet = {
                 tInit: Date.now(),
-                instance: this._createInstance(applet, settings),
+                instance,
                 settings,
                 tUp: false
             }
@@ -157,7 +149,9 @@ class UI{
 
     _getNewApplet = async () => {
         let appletKeys = Object.keys(bonanzaApps)
-        let settings = Object.assign({}, await getAppletSettings(bonanzaApps[appletKeys[Math.floor(Math.random() * appletKeys.length)]]))
+        let module = await import(bonanzaApps[appletKeys[Math.floor(Math.random() * appletKeys.length)]].folderUrl + '/settings.js')
+        console.log(module)
+        let settings = Object.assign({}, module.settings)
         // Check that the chosen applet is not prohibited, compatible with current devices, and not the same applet as last time
         let compatible = true
         let instance;
@@ -167,7 +161,14 @@ class UI{
         })
         let applet;
         if (!compatible) applet = await this._getNewApplet()
-        else applet = await getApplet(settings)
+        else {
+            if (settings.module){
+                let module = await import(bonanzaApps[settings.name].folderUrl+"/"+settings.module + '.js')
+                console.log(module, settings.module)
+                applet = module[settings.module]
+            }
+        }
+        console.log(applet)
 
         return [applet,settings]
     }

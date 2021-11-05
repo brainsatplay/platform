@@ -134,5 +134,6 @@ void main()
     // outColor += 2./length(uv.y*500. - 200.0*sin(uv.x+time)*amplitude*1.6);
 
     gl_FragColor = vec4(outColor);
+    // gl_FragColor = vec4(1.0);
 
 }
