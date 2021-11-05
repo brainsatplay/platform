@@ -26,9 +26,6 @@ import { AboutPage } from './AboutPage'
 import { ExtensionPage } from './ExtensionPage'
 import { SettingsPage } from './SettingsPage'
 
-// Applets
-import {apps} from '../../apps/apps.manifest'
-
 // Imagess
 import DeviceSelectorIcon from '../assets/wave-square-solid.svg';
 import AppletMenuIcon from '../assets/th-large-solid.svg';
@@ -67,9 +64,8 @@ export class BCIAppManager {
         this.fs;
         this.useFS = useFS;
 
-        if (this.useFS === true) {
-            this.initFS();
-        } else { this.init(); }
+        if (this.useFS === true) this.initFS();
+        else this.init();
 
 
         this.currentState = null
@@ -530,9 +526,6 @@ export class BCIAppManager {
         let aboutPage = new AboutPage(document.getElementById('page'), helpMenu)
         let extensionPage = new ExtensionPage(document.getElementById('page'), extensionMenu, this.session)
         this.settingsPage = new SettingsPage(document.getElementById('page'), settingsMenu, this.session)
-        
-        // Spawn Global Editor
-        this.session.edit(document.getElementById('page'), apps)
     }
 
     deinitUI = () => { //Destroy the UI and logic/loops
@@ -655,7 +648,7 @@ export class BCIAppManager {
     }
 
     //Inits the AppletManager within the context of the filesystem so the data can be autosaved on demand (there should be a better method than mine)
-    initFS = () => {
+    initFS = async () => {
 
         const listFiles = () => {
             fs.readdir('/data', (e, dirr) => {
@@ -741,11 +734,11 @@ export class BCIAppManager {
             });
         }
 
+        console.log('initFS not working...')
         this.session.dataManager.initFS(initWithDirectory,()=>{
             let configs = this.getConfigsFromHashes();
             this.appletManager = new AppletManager(this.initUI, this.deinitUI, configs, undefined, this.session);    
-        });
-    }
+        })
 
 
 

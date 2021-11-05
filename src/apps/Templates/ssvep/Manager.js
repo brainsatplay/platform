@@ -1,4 +1,4 @@
-import {SSVEP} from '../../../utils/signal_processing/ssvep/SSVEP'
+import {SSVEP} from '../../../utils/SSVEP'
 
 class Manager{
 

@@ -30,7 +30,7 @@ export const settings = {
     {
       nodes: [
         {name: 'eeg', class: 'EEG'},
-        {name: 'neurofeedback', class: 'Neurofeedback', params: {metric: 'Alpha Ratio', output: 'Channels'}},
+        {name: 'neurofeedback', class: 'Neurofeedback', params: {metric: 'Alpha Ratio'}},
 
         // Scene
         {name: 'vertex', class: 'Shader', params: {default: vertex, uniforms}},
@@ -74,7 +74,7 @@ export const settings = {
         },
 
         // {
-        //   source: 'neurofeedback', 
+        //   source: 'neurofeedback:channels', 
         //   target: 'fragment:uData'
         // },
 

@@ -19,6 +19,12 @@ export class AppletManager {
         this.appletsSpawned = 0;
         this.appletConfigs = appletConfigs;
 
+        // Editor
+
+        // Spawn Global Editor
+        this.editor = new brainsatplay.Editor(document.getElementById('page'), apps) // Edit the application (optional)
+        if (bcisession.app) this.editor.addApp(bcisession.app) // Add Global App
+
         // Layout Constraints
         if (!window.isMobile) {
             this.maxApplets = 16;
@@ -407,10 +413,14 @@ export class AppletManager {
 
                     Promise.all(config.applets).then((resolved) => {
                         config.applets=resolved
-                        resolve(new brainsatplay.App(info, parentNode, this.session, [config]))
+
+                        let app = new brainsatplay.App(info, parentNode, this.session, [config])
+                        this.editor.addApp(app)
+                        resolve(app)
                     })
                 } else {
                     let app = await this.session.createApp(info, parentNode, this.session, config)
+                    this.editor.addApp(app)
                     resolve(app)
                 }
             } else {
@@ -461,7 +471,11 @@ export class AppletManager {
             if (o.appletIdx === appletIdx && o.classinstance != null) {
                 if (this.applets[i].classinstance != null) {
                     this.applets[i].classinstance.deinit();
+
+                    // Add App to Editor
+                    // this.editor.removeApp(clsInstance)
                 }
+
                 this.applets[i] = { appletIdx: i + 1, name: null, classinstance: null };
                 this.appletsSpawned--;
                 this.enforceLayout();

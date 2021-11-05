@@ -3780,7 +3780,7 @@ var StateManager = /*#__PURE__*/function () {
         this.prev = Object.assign({},this.data);
         //this.prev=JSON.parse(JSON.stringifyFast(this.data));
     }
-     //Causes app to be stuck on startup
+      //Causes app to be stuck on startup
     this.listener.addListener(
         "state",
         this.data,
@@ -25450,7 +25450,7 @@ var counter = 0;
 self.onmessage = function (event) {
   // define gpu instance
   // console.log("worker executing...", event)
-  //console.time("worker");
+  // console.time("worker");
   var input;
   if (event.data.output) input = event.data.output; //from events
   else input = event.data; //console.log(input)
@@ -25509,7 +25509,7 @@ self.onmessage = function (event) {
 
 
   if (!emitted) manager.events.workerCallback(event.data); //checks for eventName tag
-  //console.timeEnd("worker");
+  // console.timeEnd("worker");
 
   return dict;
 };
@@ -25518,6 +25518,7 @@ if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScop
 }
 
 manager.events.emit('newWorker', id);
+/* unused harmony default export */ var __WEBPACK_DEFAULT_EXPORT__ = (self);
 })();
 
 /******/ })()
