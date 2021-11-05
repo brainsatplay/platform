@@ -734,7 +734,6 @@ export class BCIAppManager {
             });
         }
 
-        console.log('initFS not working...')
         this.session.dataManager.initFS(initWithDirectory,()=>{
             let configs = this.getConfigsFromHashes();
             this.appletManager = new AppletManager(this.initUI, this.deinitUI, configs, undefined, this.session);    
