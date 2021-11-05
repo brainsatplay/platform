@@ -35,10 +35,10 @@ import HelpIcon from '../assets/question-solid.svg';
 import ExtensionIcon from '../assets/puzzle-piece-solid.svg';
 import SettingsIcon from '../assets/cog-solid.svg';
 
-import * as BrowserFS from 'browserfs'
+// import * as BrowserFS from 'browserfs'
 
-const fs = BrowserFS.BFSRequire('fs')
-const BFSBuffer = BrowserFS.BFSRequire('buffer').Buffer;
+// // const fs = BrowserFS.BFSRequire('fs')
+// // const BFSBuffer = BrowserFS.BFSRequire('buffer').Buffer;
 
 
 export class BCIAppManager {
@@ -651,7 +651,7 @@ export class BCIAppManager {
     initFS = async () => {
 
         const listFiles = () => {
-            fs.readdir('/data', (e, dirr) => {
+            this.session.dataManager.fs.readdir('/data', (e, dirr) => {
                 if (e) return;
                 if (dirr) {
                     console.log("files", dirr)
@@ -693,7 +693,7 @@ export class BCIAppManager {
                 appletConfigs: this.appletConfigs,
                 autosaving
             });
-            fs.writeFile('/data/settings.json',
+            this.session.dataManager.fs.writeFile('/data/settings.json',
                 newsettings,
                 (err) => {
                     if (err) throw err;
@@ -703,7 +703,7 @@ export class BCIAppManager {
 
         const initWithDirectory = () => {
             let contents = "";
-            fs.readFile('/data/settings.json', (err, data) => {
+            this.session.dataManager.fs.readFile('/data/settings.json', (err, data) => {
                 if (err) {
                     console.log("New settings file created.");
                     contents = JSON.stringify(
@@ -712,7 +712,7 @@ export class BCIAppManager {
                             autosaving: true
                         }
                     )
-                    fs.writeFile('/data/settings.json',
+                    this.session.dataManager.fs.writeFile('/data/settings.json',
                         contents,
                         (errr) => {
                             this.init(contents);
