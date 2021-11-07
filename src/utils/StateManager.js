@@ -130,10 +130,10 @@ export class StateManager {
         //console.log("setting state");
         if(!this.listener.hasKey('pushToState') && this.defaultStartListenerEventLoop) {
             this.setupSynchronousUpdates();
+            this.pushRecord.pushed.push(JSON.parse(JSON.stringifyWithCircularRefs(updateObj)));
         }
 
         updateObj.stateUpdateTimeStamp = Date.now();
-        this.pushRecord.pushed.push(JSON.parse(JSON.stringifyWithCircularRefs(updateObj)));
         
         if(appendArrs) {
             for(const prop in updateObj) { //3 object-deep array checks to buffer values instead of overwriting

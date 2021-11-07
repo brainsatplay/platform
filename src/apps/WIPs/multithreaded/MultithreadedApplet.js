@@ -155,7 +155,7 @@ export class MultithreadedApplet {
         }
     }
 
-    draw = (self) => {
+    draw = (self, args, origin) => {
         let cWidth = self.canvas.width;
         let cHeight = self.canvas.height;
            // style the background
@@ -182,6 +182,172 @@ export class MultithreadedApplet {
         //console.log(this.ctx, this.cColor, this.bgColor)
         
     }
+
+    boidsSetup = (self, args, origin) => {
+
+        if(!self.boids) {console.error('need to add boids to the worker first setValues({boids:[[{x,y,z}],[etc.]]')}
+        let three = self.threeUtil;
+        const THREE = self.THREE;
+
+        if(three.ANIMATING) {
+            three.clear(self, args, origin);
+        }
+
+        three.scene = new THREE.Scene();
+        three.camera = new THREE.PerspectiveCamera(75, three.proxy.clientWidth / three.proxy.clientHeight, 0.01, 1000);
+        three.camera.position.z = 5
+        
+        three.renderer = new THREE.WebGLRenderer({canvas:self.canvas, antialias: true });
+        three.renderer.setPixelRatio(Math.min(three.proxy.clientWidth / three.proxy.clientHeight,2));
+        three.renderer.shadowMap.enabled = true;
+
+        // three.renderer.domElement.style.width = '100%';
+        // three.renderer.domElement.style.height = '100%';
+        // three.renderer.domElement.id = `canvas`;
+        // three.renderer.domElement.style.opacity = '0';
+        // three.renderer.domElement.style.transition = 'opacity 1s';
+
+        //use proxy instead of domElement
+        three.controls = new three.OrbitControls(three.camera, three.proxy);
+        three.controls.enablePan = true
+        three.controls.enableDamping = true
+        three.controls.enabled = true;
+        // three.controls.minPolarAngle = 2*Math.PI/6; // radians
+        // three.controls.maxPolarAngle = 4*Math.PI/6; // radians
+        // three.controls.minDistance = 0; // radians
+        // three.controls.maxDistance = 1000; // radians
+
+        three.nBoids = 0;
+
+        //array of position arrays input
+        self.boids.forEach((group) => {
+            three.nBoids += group.length;
+        });
+    
+        let vertices = [];
+
+        let color = new THREE.Color();
+        let colors = [];
+        self.boids.forEach((group,i)=> {
+
+            group.forEach((boid)=>{
+
+                let x = boid.x;
+                let y = boid.y;
+                let z = -boid.z ;
+
+                vertices.push( x, y, z );
+
+                let roll = Math.random();
+                if(i==0){
+                    if(roll <= 0.3){
+                        color.set('lightseagreen');
+                    } else if (roll <= 0.85){
+                        color.set('blue');
+                    } else {
+                        color.set('turquoise');
+                    }
+                    colors.push(color.r,color.g,color.b);
+                }
+                else if (i==1) {
+                    if(roll <= 0.3){
+                        color.set('pink');
+                    } else if (roll <= 0.85){
+                        color.set('red');
+                    } else {
+                        color.set('orange');
+                    }
+                    colors.push(color.r,color.g,color.b);
+                }
+                else {
+                    color.setRGB(Math.random(),Math.random(),Math.random());
+                    colors.push(color.r,color.g,color.b);
+                }
+            });
+        });
+
+        let geometry = new THREE.BufferGeometry();
+        geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+        
+        // for (let i = 0; i < three.nBoids; i++) {     
+        // }
+
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute( colors, 3));
+
+        let pointmat = new THREE.PointsMaterial( 
+            // { color: 0xffffff },
+            { 
+                vertexColors: THREE.VertexColors,
+                opacity:0.99
+            });
+
+        /*
+        var spriteUrl = 'https://i.ibb.co/NsRgxZc/star.png';
+
+        var textureLoader = new THREE.TextureLoader()
+        textureLoader.crossOrigin = "Anonymous"
+        var myTexture = textureLoader.load(spriteUrl);
+        pointmat.map = myTexture;
+        */
+        three.points = new THREE.Points( geometry, pointmat );
+
+        three.points.position.y -=225;
+        three.points.position.x -=225
+        three.points.position.z +=75;
+
+        three.scene.add( three.points );
+        
+        if(!three.ANIMATING) {
+            three.ANIMATING = true;
+            three.animate(self, args, origin);
+        }
+        
+    }
+
+    boidsRender = (self, args, origin) => {
+        let three = self.threeUtil;
+        let positions = three.points.geometry.attributes.position.array;
+
+        let count = 0;
+
+        //updated with setValues
+        self.boids.forEach((group,i)=> {
+            group.forEach((boid,j)=>{
+                positions[count*3] =   boid.x;
+                positions[count*3+1] = boid.y;
+                positions[count*3+2] = -boid.z;
+                count++;
+            });
+        });
+
+        three.points.geometry.attributes.position.needsUpdate = true;   
+        three.controls.update();
+        three.renderer.render(three.scene, three.camera);
+    }
+
+    //  threeWorkerDefaultDraw(self, args, origin){
+    //     let three = self.threeUtil;
+    //     three.time += three.ANIMFRAMETIME*0.001;
+    //     if (three.resizeRendererToDisplaySize(three.renderer)) {
+    //         three.camera.aspect = three.proxy.clientWidth / three.proxy.clientHeight;
+    //         three.camera.updateProjectionMatrix();
+    //     }
+    
+    //     three.cubes.forEach((cube, ndx) => {
+    //         const speed = 1 + ndx * .1;
+    //         const rot = three.time * speed;
+    //         cube.rotation.x = rot;
+    //         cube.rotation.y = rot;
+    //     });
+    
+        
+    //     three.pickHelper.pick(three.pickPosition, three.scene, three.camera, three.time);
+    //     //console.log(this.pickPosition);
+    //     three.renderer.render(three.scene, three.camera);
+    // }.toString(), //CONVERT TO STRING
+    // function clear(args,origin,self){
+        
+    // }.toString(), //CONVERT TO STRING
 
     setupWorkerStuff = () => {
 
@@ -213,51 +379,14 @@ export class MultithreadedApplet {
             this.origin
         );
 
-        window.workers.runWorkerFunction('initThree',
-            [
-                proxy.id,
-                // function setup(args,origin,self){
-                //     //let three = self.threeUtil.three
-                // }.toString(), //CONVERT TO STRING
-                undefined,
-                function draw(args,origin,self){
-                    let three = self.threeUtil;
-                    three.time += three.ANIMFRAMETIME*0.001;
-                    if (three.resizeRendererToDisplaySize(three.renderer)) {
-                        three.camera.aspect = three.proxy.clientWidth / three.proxy.clientHeight;
-                        three.camera.updateProjectionMatrix();
-                    }
-                
-                    three.cubes.forEach((cube, ndx) => {
-                        const speed = 1 + ndx * .1;
-                        const rot = three.time * speed;
-                        cube.rotation.x = rot;
-                        cube.rotation.y = rot;
-                    });
-                
-                    
-                    three.pickHelper.pick(three.pickPosition, three.scene, three.camera, three.time);
-                    //console.log(this.pickPosition);
-                    three.renderer.render(three.scene, three.camera);
-                }.toString(), //CONVERT TO STRING
-                // function clear(args,origin,self){
-                    
-                // }.toString(), //CONVERT TO STRING
-                undefined
-            ],
-            this.origin,
-            this.canvasWorkerId
-        );
-            
-        //once the render completes release the input
-        window.workers.events.subEvent('render',(res)=>{
-            //console.log('render thread event',res,Date.now());
-        });
 
+        
         //add some events to listen to thread results
-        window.workers.events.addEvent('thread1process',this.origin,undefined,this.worker1Id);
-        window.workers.events.addEvent('thread2process',this.origin,'mul',this.worker2Id);
-        window.workers.events.addEvent('render',this.origin,undefined,this.canvasWorkerId);
+        window.workers.addEvent('thread1process',this.origin,'add',this.worker1Id);
+        window.workers.addEvent('particle1Step',this.origin,'particleStep',this.worker1Id);
+        window.workers.addEvent('particle1Setup',this.origin,'particleSetup',this.worker1Id);
+        window.workers.addEvent('thread2process',this.origin,'mul',this.worker2Id);
+        window.workers.addEvent('render',this.origin,'render',this.canvasWorkerId);
 
         //add some custom functions to the threads
         window.workers.addWorkerFunction( 
@@ -275,7 +404,7 @@ export class MultithreadedApplet {
         // //add some custom functions to the threads
         window.workers.addWorkerFunction(
             'particleSetup',
-            function particleStep(args,origin,self){
+            function particleStep(self, args, origin){
                 //console.log(self);
                 self.particleObj = new self.particleClass(undefined,undefined,false,false);
                 self.particleObj.setupRules([
@@ -299,7 +428,7 @@ export class MultithreadedApplet {
         //add some custom functions to the threads
         window.workers.addWorkerFunction(
             'particleStep',
-            function particleStep(args,origin,self){
+            function particleStep(self, args, origin){
                 self.particleObj.frame(args[0]);
                 let groups = [];
                 self.particleObj.particles.forEach((group,j) => {
@@ -308,15 +437,13 @@ export class MultithreadedApplet {
                         groups[j].push(particle.position);
                     });
                 });
-                return [groups,self.particleObj.currFrame];
+                return [groups,(performance.now()*0.001+self.particleObj.frameOffset-self.particleObj.currFrame)];
             }.toString(),
             this.origin,
             this.worker1Id
         );
 
         
-        window.workers.runWorkerFunction('particleSetup',undefined,this.origin,this.worker1Id);
-        window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
 
         window.workers.addWorkerFunction(
             'mul',
@@ -325,23 +452,68 @@ export class MultithreadedApplet {
             this.worker2Id
         );
         
-                
+        let renderThreadWaiting = false;
+        let renderThreadSetup = false;
         //thread 1 process initiated by button press
-        window.workers.events.subEvent('thread1process',(res) => { //send thread1 result to thread 2
+        window.workers.subEvent('thread1process',(res) => { //send thread1 result to thread 2
             if(typeof res.output === 'number')
             {
                 this.increment = res.output;
                 window.workers.runWorkerFunction('mul',[this.increment,2],this.origin,this.worker2Id);
                 console.log('multiply by 2 on thread 2')
-            } else if (Array.isArray(res.output)) {
-                console.log('thread1 event',res.output,Date.now());
-                // setTimeout(()=>{window.workers.runWorkerFunction('particleStep',[res.output[1]],this.origin,this.worker1Id)},100);
+            } else if (Array.isArray(res.output) && Array.isArray(res.output[0])) {
+                //console.log('thread1 event',res.output,Date.now());
+                console.log(res)
+
             }
         });
 
+        window.workers.subEvent('particle1Setup',(res) => {
+            if(Array.isArray(res.output)) {
+                window.workers.runWorkerFunction('initThree',
+                    [
+                        proxy.id,
+                        {boids:res.output},
+                        this.boidsSetup.toString(), //CONVERT TO STRING
+                        //undefined,
+                        this.boidsRender.toString(),
+                        
+                        undefined
+                    ],
+                    this.origin,
+                    this.canvasWorkerId
+                );
+                renderThreadSetup = true;
+            }
+            window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
+        });
+
+        window.workers.subEvent('particle1Step',(res) => {
+            console.log(res.output)
+            if(Array.isArray(res.output[0])) {
+                if(!renderThreadWaiting) { //don't overwhelm the renderthread
+                    this.canvasWorker.setValues({boids:res.output[0]});
+                    renderThreadWaiting = true;
+                }
+            }
+
+            //console.log(res.output);
+            window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
+        
+        });
+
+        //once the render completes release the input
+        window.workers.subEvent('render',(res)=>{
+            //console.log('render thread event',res,Date.now());
+            renderThreadWaiting = false;
+
+        });
+
+
+
         let element = document.getElementById(this.props.id+'res');
         //send thread2 result to canvas thread to update visual settings
-        window.workers.events.subEvent('thread2process',(res) => { 
+        window.workers.subEvent('thread2process',(res) => { 
             //console.log('thread2 event',res,Date.now());
             console.log('thread2 event',res);
             if(typeof res.output === 'number')
@@ -362,6 +534,10 @@ export class MultithreadedApplet {
                 this.pushedUpdateToThreads = true;
             }
         };
+
+
+        window.workers.runWorkerFunction('particleSetup',undefined,this.origin,this.worker1Id);
+        
 
         //this.canvasWorker.startAnimation(); //run animationFrame loop on the worker
     }

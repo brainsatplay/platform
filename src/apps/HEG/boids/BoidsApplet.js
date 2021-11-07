@@ -418,7 +418,4 @@ export class BoidsApplet {
         }
     }
 
-
-
-   
 } 

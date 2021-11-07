@@ -10,10 +10,9 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 //this file imports a bunch of stuff so you can pass threejs functions
 
 export class threeUtil {
-    constructor(canvas,callbackManager,proxy,origin) {
+    constructor(canvas,callbackManager,proxy) {
 
-        this.callbackManager = callbackManager;
-        this.origin = origin;
+        this.manager = callbackManager;
 
         this.THREE=THREE;
         this.canvas=canvas, 
@@ -51,10 +50,10 @@ export class threeUtil {
     }
 
     finished = (args, origin, self) => {
-        let dict = {foo:'render', output:this.ANIMFRAMETIME, origin:this.origin};
+        let dict = {foo:'render', output:this.ANIMFRAMETIME, origin:origin};
         if(this.manager) {
             let emitevent = this.manager.checkEvents('render');
-            if(emitevent) this.manager.events.emit('render',dict);
+            if(emitevent) this.manager.EVENTS.emit('render',dict);
             else postMessage(dict);
         }
         else postMessage(dict);
@@ -220,8 +219,14 @@ export class threeUtil {
         this.ANIMATING = false;
         //this.renderer.setAnimationLoop( null );
         this.scene = null;
-        this.renderer.domElement = null;
-        this.renderer = null;
+        if(this.renderer)
+          this.renderer.domElement = null;
+        this.renderer=null,
+        this.composer=null,
+        this.gui=null,
+        this.controls=null,
+        this.camera=null,
+        this.scene=null
     }
 
 };

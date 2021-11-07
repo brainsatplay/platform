@@ -16,6 +16,9 @@ export class WorkerManager {
         this.workerThreadrot = 0;
 
         this.events = new Events(this); //window.workers.events.subEvent('abc',(output)=>{do someting})
+        this.subEvent = (eventName, result=(res)=>{})=>{this.events.subEvent(eventName,result);}
+        this.unsubEvent = (eventName, sub) => {this.events.unsubEvent(eventName,sub)};
+        this.addEvent = (eventName, origin, foo, workerId) => {this.events.addEvent(eventName, origin, foo, workerId)};
 
         for(var i = 0; i < defaultWorkerThreads; i++){
           this.addWorker()

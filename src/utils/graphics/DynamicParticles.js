@@ -14,7 +14,7 @@ export class DynamicParticles {
         this.defaultCanvas=defaultCanvas;
         this.ctx = undefined;
         this.looping = false;
-        this.currFrame = 0; this.lastFrame = performance.now();
+        this.currFrame = performance.now()*0.001; 
         this.frameOffset = undefined;
         this.ticks = 0;
 
@@ -360,7 +360,7 @@ export class DynamicParticles {
                 p.position.z += p.velocity.z*timeStep;
             }
 
-            if(i === 0) console.log(p.velocity,p.position,timeStep);
+            //if(i === 0) console.log(p.velocity,p.position,timeStep);
 
             this.checkParticleBounds(p);
 
@@ -746,7 +746,7 @@ export class DynamicParticles {
         if(!this.frameOffset) this.frameOffset = lastFrame;
         this.currFrame = performance.now()*0.001+this.frameOffset;
         let timeStep = this.currFrame - lastFrame;
-        console.log(this.currFrame,lastFrame,timeStep);
+        
 
         if(this.defaultCanvas) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -769,6 +769,7 @@ export class DynamicParticles {
         //     );
 
         this.ticks++;
+        //console.log('frame time (s)', (performance.now()*0.001+this.frameOffset) - this.currFrame)
         return this.currFrame;
     }
 

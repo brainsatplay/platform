@@ -39,8 +39,9 @@ export class ThreadedCanvas {
         window.workers.postToWorker({canvas: this.offscreen, origin:this.name, foo:null},this.workerId,[this.offscreen]);
     }
 
-    setValues(setValues=undefined,transfer=undefined) {
-        if(typeof setValues === 'object') window.workers.postToWorker({foo:'setValues',input:setValues,origin:this.name},this.workerId,transfer);
+    // {x:3, y:['a','b','c']} etc
+    setValues(valObject=undefined,transfer=undefined) {
+        if(typeof setValues === 'object') window.workers.postToWorker({foo:'setValues',input:valObject,origin:this.name},this.workerId,transfer);
     }
 
     //you can reference canvas/this.canvas and context/this.context in the function 
@@ -133,17 +134,17 @@ export class ThreadedCanvas {
 
         this.setValues({x:1,y:2,z:3});
 
-        function drawFunc() {
-            if(!this.x) {
-                this.x = 1;
-                this.y = 2;
-                this.z = 3;
+        function drawFunc(self, args, origin) {
+            if(!self.x) {
+                self.x = 1;
+                self.y = 2;
+                self.z = 3;
             }
-            this.context.font = '10px serif';
-            this.context.fillText(`${this.x} + ${this.y} + ${this.z} = ${this.x+this.y+this.z}`,10,50);
+            self.ctx.font = '10px serif';
+            self.ctx.fillText(`${self.x} + ${self.y} + ${self.z} = ${self.x+self.y+self.z}`,10,50);
         
-            this.x++;
-            this.z+=2;
+            self.x++;
+            self.z+=2;
         }
 
         this.setAnimation(drawFunc);

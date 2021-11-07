@@ -50,8 +50,13 @@ function parseFunctionFromText(method) {
     let varName = newFuncHead.split('(')[1].split(')')[0]
     newFunc = new Function(varName, newFuncBody);
   } else {
-    //console.log(newFuncHead,newFuncBody);
-    newFunc = eval(newFuncHead + newFuncBody + "}");
+    if(newFuncHead.substring(0,6) === newFuncBody.substring(0,6)) {
+      //newFuncBody = newFuncBody.substring(newFuncHead.length);
+      let varName = newFuncHead.split('(')[1].split(')')[0]
+      console.log(varName, newFuncHead ,newFuncBody);
+      newFunc = new Function(varName, newFuncBody.substring(newFuncBody.indexOf('{')+1,newFuncBody.length-1));
+    }
+    else newFunc = eval(newFuncHead + newFuncBody + "}");
   }
 
   return newFunc;
@@ -95,12 +100,12 @@ export class CallbackManager {
 
     this.callbacks = [
       { //ping pong, just validates responsiveness
-        case: 'ping', callback: (args,origin,self) => {
+        case: 'ping', callback: (self, args, origin) => {
           return 'pong';
         }
       },
       { //return a list of function calls available on the worker
-        case: 'list', callback: (args,origin,self) => {
+        case: 'list', callback: (self, args, origin) => {
           let list = [];
           this.callbacks.forEach((obj) => {
             list.push(obj.case);
@@ -109,19 +114,19 @@ export class CallbackManager {
         }
       },
       { //add a local function, can implement whole algorithm pipelines on-the-fly
-        case: 'addfunc', callback: (args, origin, self) => { //arg0 = name, arg1 = function string (arrow or normal)
+        case: 'addfunc', callback: (self, args, origin) => { //arg0 = name, arg1 = function string (arrow or normal)
           let newFunc = parseFunctionFromText(args[1]);
 
           let newCallback = { case: args[0], callback: newFunc };
 
-          let found = this.callbacks.findIndex(c => { if (c.case === newCallback.case) return c });
-          if (found != -1) this.callbacks[found] = newCallback;
-          else this.callbacks.push(newCallback);
+          let found = self.callbacks.findIndex(c => { if (c.case === newCallback.case) return c });
+          if (found != -1) self.callbacks[found] = newCallback;
+          else self.callbacks.push(newCallback);
           return true;
         }
       },
       { //set locally accessible values, just make sure not to overwrite the defaults in the callbackManager
-        case: 'setValues', callback: (args, origin, self) => {
+        case: 'setValues', callback: (self, args, origin) => {
           if (typeof args === 'object') {
             Object.keys(args).forEach((key) => {
               self[key] = args[key]; //variables will be accessible in functions as this.x or this['x']
@@ -132,7 +137,7 @@ export class CallbackManager {
         }
       },
       { //parses a stringified class prototype (class x{}.toString()) containing function methods for use on the worker
-        case: 'transferClassObject', callback: (args,origin,self) => {
+        case: 'transferClassObject', callback: (self, args, origin) => {
           if (typeof args === 'object') {
             Object.keys(args).forEach((key) => {
               if(typeof args[key] === 'string') {
@@ -148,45 +153,45 @@ export class CallbackManager {
         }
       },
       { //add a gpu function call usable in kernels, follow gpujs's tutorials and pass stringified functions using their format
-        case: 'addgpufunc', callback: (args, origin, self) => { //arg0 = gpu in-thread function string
-          return this.gpu.addFunction(parseFunctionFromText(args[0]));
+        case: 'addgpufunc', callback: (self, args, origin) => { //arg0 = gpu in-thread function string
+          return self.gpu.addFunction(parseFunctionFromText(args[0]));
         }
       },
       { //add a gpu kernels, follow gpujs's tutorials and pass stringified functions using their format
-        case: 'addkernel', callback: (args, origin, self) => { //arg0 = kernel name, arg1 = kernel function string
-          return this.gpu.addKernel(args[0], parseFunctionFromText(args[1]));
+        case: 'addkernel', callback: (self, args, origin) => { //arg0 = kernel name, arg1 = kernel function string
+          return self.gpu.addKernel(args[0], parseFunctionFromText(args[1]));
         }
       },
       { //call a custom gpu kernel
-        case: 'callkernel', callback: (args, origin, self) => { //arg0 = kernel name, args.slice(1) = kernel input arguments
-          return this.gpu.callKernel(args[0], args.slice(1)); //generalized gpu kernel calls
+        case: 'callkernel', callback: (self, args, origin) => { //arg0 = kernel name, args.slice(1) = kernel input arguments
+          return self.gpu.callKernel(args[0], args.slice(1)); //generalized gpu kernel calls
         }
       },
       { //add an event to the event manager, this helps building automated pipelines between threads
-        case: 'addevent', callback: (args, origin, self) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
-          this.EVENTSETTINGS.push({ eventName: args[0], case: args[1], origin: origin });
+        case: 'addevent', callback: (self, args, origin) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
+          self.EVENTSETTINGS.push({ eventName: args[0], case: args[1], origin: origin });
           return true;
         }
       },
       { //internal event subscription, look at Event.js for usage, its essentially a function trigger manager for creating algorithms
-        case: 'subevent', callback: (args, origin, self) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
-          return this.EVENTS.subEvent(args[0], parseFunctionFromText(args[1]))
+        case: 'subevent', callback: (self, args, origin) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
+          return self.EVENTS.subEvent(args[0], parseFunctionFromText(args[1]))
         }
       },
       { //internal event unsubscribe
-        case: 'unsubevent', callback: (args, origin, self) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
-          return this.EVENTS.unsubEvent(args[0], args[1]);
+        case: 'unsubevent', callback: (self, args, origin) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
+          return self.EVENTS.unsubEvent(args[0], args[1]);
         }
       },
       { //resize an offscreen canvas
-        case: 'resizecanvas', callback: (args, origin, self) => {
-          this.canvas.width = args[0];
-          this.canvas.height = args[1];
+        case: 'resizecanvas', callback: (self, args, origin) => {
+          self.canvas.width = args[0];
+          self.canvas.height = args[1];
           return true;
         }
       }, 
       { //args[0] = ProxyManager Id returned from startProxy, args[1] = event object
-        case:'proxyHandler', callback: (args, origin, self) => {
+        case:'proxyHandler', callback: (self, args, origin) => {
 
           if(args.type === 'makeProxy') {
             self.PROXYMANAGER.makeProxy(args);
@@ -203,32 +208,37 @@ export class CallbackManager {
         }
       },
       {
-        case: 'initThree', callback: async (args, origin, self) => {
+        case: 'initThree', callback: async (self, args, origin) => {
           if (self.ANIMATING) {
             self.ANIMATING = false;
             cancelAnimationFrame(self.ANIMATION);
           }
           if (!self.threeUtil) {
             let module = await dynamicImport('./workerThreeUtils.js');
-            self.threeUtil = new module.threeUtil(self.canvas,self,self.PROXYMANAGER.getProxy(args[0]), origin);
+            self.threeUtil = new module.threeUtil(self.canvas,self,self.PROXYMANAGER.getProxy(args[0]));
             self.THREE = self.threeUtil.THREE; //add another reference for the hell of it
           }
-          if (args[1]) { //first is the setup function
-            self.threeUtil.setup = parseFunctionFromText(args[1]);
+          if (typeof args[1] === 'object') { //first is the setup function
+            await this.runCallback('setValues',args[1]);
           }
-          if (args[2]) { //next is the draw function (for 1 frame)
-            self.threeUtil.draw = parseFunctionFromText(args[2]);
+          console.log(args)
+          if (args[2]) { //first is the setup function
+            self.threeUtil.setup = parseFunctionFromText(args[2]);
           }
-          if (args[3]) {
-            self.threeUtil.clear = parseFunctionFromText(args[3]);
+          if (args[3]) { //next is the draw function (for 1 frame)
+            self.threeUtil.draw = parseFunctionFromText(args[3]);
           }
-          self.threeUtil.setup(args,origin,self);
+          if (args[4]) {
+            self.threeUtil.clear = parseFunctionFromText(args[4]);
+          }
+          self.threeUtil.clear(self, args, origin);
+          self.threeUtil.setup(self, args, origin);
           //console.log(self.threeUtil);
           return true;
         }
       },
       {
-        case: 'startThree', callback: async (args, origin, self) => { //run the setup to start the three animation
+        case: 'startThree', callback: async (self, args, origin) => { //run the setup to start the three animation
           if (this.ANIMATING) {
             self.ANIMATING = false;
             cancelAnimationFrame(self.ANIMATION);
@@ -239,30 +249,31 @@ export class CallbackManager {
             self.threeUtil = new module.threeUtil(self.canvas,self,self.PROXYMANAGER.getProxy(args[0]));
           }
           if (this.threeUtil) {
-            self.threeUtil.setup(args,origin,self);
+            self.threeUtil.clear(self, args, origin);
+            self.threeUtil.setup(self, args, origin);
           }
           return true;
         }
       },
       {
-        case: 'clearThree', callback: (args, origin, self) => { //run the clear function to stop three
+        case: 'clearThree', callback: (self, args, origin) => { //run the clear function to stop three
           if (this.threeUtil) {
-            this.threeUtil.clear(args,origin,self);
+            this.threeUtil.clear(self, args, origin);
           }
           return true;
         }
       },
-      {case: 'setAnimation', callback: (args, origin, self) => { //pass a draw function to be run on an animation loop. Reference this.canvas and this.context or canvas and context. Reference values with this.x etc. and use setValues to set the values from another thread
+      {case: 'setAnimation', callback: (self, args, origin) => { //pass a draw function to be run on an animation loop. Reference this.canvas and this.context or canvas and context. Reference values with this.x etc. and use setValues to set the values from another thread
           this.animationFunc = parseFunctionFromText(args[0]);
           return true;
         }
       },
       {
-        case: 'startAnimation', callback: (args, origin, self) => {
+        case: 'startAnimation', callback: (self, args, origin) => {
           //console.log(this.animationFunc.toString(), this.canvas, this.angle, this.angleChange, this.bgColor)
           let anim = () => {
             if (self.ANIMATING) {
-              self.animationFunc(self);
+              self.animationFunc(self, args, origin);
               self.ANIMFRAMETIME = performance.now() - self.ANIMFRAMETIME;
               let emitevent = self.checkEvents('render', origin);
               let dict = { foo: 'render', output: self.ANIMFRAMETIME, origin: origin};
@@ -293,7 +304,7 @@ export class CallbackManager {
         }
       },
       {
-        case: 'stopAnimation', callback: (args, origin, self) => {
+        case: 'stopAnimation', callback: (self, args, origin) => {
           if (self.ANIMATING) {
             self.ANIMATING = false;
             cancelAnimationFrame(self.ANIMATION);
@@ -302,77 +313,77 @@ export class CallbackManager {
         }
       },
       {
-        case: 'render', callback: (args, origin, self) => { //runs the animation function
-          self.animationFunc();
+        case: 'render', callback: (self, args, origin) => { //runs the animation function
+          self.animationFunc(self, args, origin);
           let time = performance.now() - self.ANIMFRAMETIME
           tselfhis.ANIMFRAMETIME = performance.now();
           return time;
         }
       },
       { 
-        case: 'xcor', callback: (args, origin, self) => { 
+        case: 'xcor', callback: (self, args, origin) => { 
           return Math2.crosscorrelation(...args); 
         } 
       },
       { 
-        case: 'autocor', callback: (args, origin, self) => { 
+        case: 'autocor', callback: (self, args, origin) => { 
           return Math2.autocorrelation(args); 
         } 
       },
       { 
-        case: 'cov1d', callback: (args, origin, self) => { 
+        case: 'cov1d', callback: (self, args, origin) => { 
           return Math2.cov1d(...args); } 
         },
       { 
-        case: 'cov2d', callback: (args, origin, self) => { 
+        case: 'cov2d', callback: (self, args, origin) => { 
           return Math2.cov2d(args); } 
         },
       { 
-        case: 'sma', callback: (args, origin, self) => { 
+        case: 'sma', callback: (self, args, origin) => { 
           return Math2.sma(...args); } 
         },
       {
-        case: 'dft', callback: (args, origin, self) => {
+        case: 'dft', callback: (self, args, origin) => {
           if (args[2] == undefined) args[2] = 1;
-          return this.gpu.gpuDFT(...args);
+          return self.gpu.gpuDFT(...args);
         }
       },
       {
-        case: 'multidft', callback: (args, origin, self) => {
+        case: 'multidft', callback: (self, args, origin) => {
           if (args[2] == undefined) args[2] = 1;
-          return this.gpu.MultiChannelDFT(...args);
+          return self.gpu.MultiChannelDFT(...args);
         }
       },
       {
-        case: 'multidftbandpass', callback: (args, origin, self) => {
+        case: 'multidftbandpass', callback: (self, args, origin) => {
           if (args[4] == undefined) args[4] = 1;
-          return this.gpu.MultiChannelDFT_Bandpass(...args);
+          return self.gpu.MultiChannelDFT_Bandpass(...args);
         }
       },
       {
-        case: 'fft', callback: (args, origin, self) => {
+        case: 'fft', callback: (self, args, origin) => {
           if (args[2] == undefined) args[2] = 1;
-          return this.gpu.gpuFFT(...args);
+          return self.gpu.gpuFFT(...args);
         }
       },
       {
-        case: 'multifft', callback: (args, origin, self) => {
+        case: 'multifft', callback: (self, args, origin) => {
           if (args[2] == undefined) args[2] = 1;
-          return this.gpu.MultiChannelFFT(...args);
+          return self.gpu.MultiChannelFFT(...args);
         }
       },
       {
-        case: 'multifftbandpass', callback: (args, origin, self) => {
+        case: 'multifftbandpass', callback: (self, args, origin) => {
           if (args[4] == undefined) args[4] = 1;
-          return this.gpu.MultiChannelFFT_Bandpass(...args);
+          return self.gpu.MultiChannelFFT_Bandpass(...args);
         }
       },
       { 
-        case: 'gpucoh', callback: (args, origin, self) => { 
-          return this.gpu.gpuCoherence(...args); } 
+        case: 'gpucoh', callback: (self, args, origin) => { 
+          return self.gpu.gpuCoherence(...args); } 
         },
       {
-        case: 'coherence', callback: (args, origin, self) => {
+        case: 'coherence', callback: (self, args, origin) => {
           const correlograms = Math2.correlograms(args[0]);
           const buffer = [...args[0], ...correlograms];
           var dfts;
@@ -380,7 +391,7 @@ export class CallbackManager {
           var scalar = 1;
           //console.log(mins)
           //console.log(buffer);
-          dfts = this.gpu.MultiChannelDFT_Bandpass(buffer, args[1], args[2], args[3], scalar);
+          dfts = self.gpu.MultiChannelDFT_Bandpass(buffer, args[1], args[2], args[3], scalar);
           //console.log(dfts)
           const cordfts = dfts[1].splice(args[0].length, buffer.length - args[0].length);
           //console.log(cordfts)
@@ -440,7 +451,7 @@ export class CallbackManager {
     let output = 'function not defined';
     await Promise.all(this.callbacks.map(async (o,i) => {
       if (o.case === foo) {
-        if (input) output = await o.callback(input, origin, this);
+        if (input) output = await o.callback(this, input, origin);
         return true;
       } else return false;
     }));
@@ -449,17 +460,19 @@ export class CallbackManager {
 
   checkEvents(foo, origin) {
     let found = this.EVENTSETTINGS.find((o) => {
-      if ((o.origin && origin)) {
-        if (o.case && foo) {
-          if (o.origin === origin && o.case === foo) return true;
-        } else if (o.origin === origin) return true;
-        else return;
+      if ((o.origin && origin && o.case && foo)) {
+        if (o.origin === origin && o.case === foo) return true;
+        else return false;
       } else if (o.case && foo) {
         if (o.case === foo) return true;
-        else return;
+        else return false;
+      } else if (o.origin && origin) {
+        if(o.origin === origin) return true;
+        else return false;
       }
-      else return;
+      else return false;
     });
+    //console.log(foo,origin,found)
     return found;
   }
 
@@ -468,8 +481,8 @@ export class CallbackManager {
     if(!event.data) return output;
     await Promise.all(this.callbacks.map(async (o,i) => {
       if (o.case === event.data.foo || o.case === event.data.case) {
-        if (event.data.input) output = await o.callback(event.data.input, event.data.origin, this);
-        else if (event.data.args) output = await o.callback(event.data.args, event.data.origin, this);
+        if (event.data.input) output = await o.callback(this, event.data.input, event.data.origin);
+        else if (event.data.args) output = await o.callback(this, event.data.args, event.data.origin);
         return true;
       } else return false;
     }));
