@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
-import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass'
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
-import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
+// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
+// import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
+// import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass'
+// import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
+//import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
 
 
 //this file imports a bunch of stuff so you can pass threejs functions

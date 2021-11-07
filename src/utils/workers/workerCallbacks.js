@@ -73,6 +73,7 @@ export class CallbackManager {
     this.EVENTS = new Events();
     this.EVENTSETTINGS = [];
 
+
     this.canvas = new OffscreenCanvas(512, 512); //can add fnctions and refer to this.offscreen 
     this.ctx; this.context;
     this.ANIMATION = undefined;
@@ -80,6 +81,8 @@ export class CallbackManager {
     this.ANIMATING = false;
     this.ANIMFRAMETIME = performance.now(); //ms based on UTC stamps
     this.threeUtil = undefined;
+    this.PROXYMANAGER = new ProxyManager();
+    this.document = {};  // HACK!
 
     //args = array of expected arguments
     //origin = optional tag on input object
@@ -177,43 +180,20 @@ export class CallbackManager {
           return true;
         }
       }, 
-      { //this creates an event dispatcher to replicate input events on targeted elements
-        case:'startProxy', callback: (args, origin, self) => {
-          //pass element proxy and element id
-          const pmgr = new ProxyManager();
-          if(args.element === 'offscreen' || args.element === 'canvas') args.element = self.canvas;
-          self[args.proxyId] = args.element; //local reference to input element proxy self[proxyId] = elementProxy;
-          const proxy = pmgr.getProxy(args.proxyId); 
-          proxy.ownerDocument = proxy; // HACK!
-          self.document = {};  // HACK!
-          
-          let makeProxy = (data) => {
-            pmgr.makeProxy(data);
-          }
-          
-          const handlers = {
-              makeProxy,
-              event: pmgr.handleEvent,
-          };
-          
-          self[pmgr.id] = {
-            proxyManager:pmgr, 
-            handlers:handlers
-          };
-
-          return pmgr.id;
-        }
-      },
       { //args[0] = ProxyManager Id returned from startProxy, args[1] = event object
         case:'proxyHandler', callback: (args, origin, self) => {
 
-          const fn = self[args[0]]?.handlers[args[1].type];
+          if(args.type === 'makeProxy') {
+            self.PROXYMANAGER.makeProxy(args);
 
-          if(!fn) {
-            return false;
+            const proxy = self.PROXYMANAGER.getProxy(args.id); 
+            proxy.ownerDocument = proxy; // HACK!
+            self[args.id] = proxy;
+          } else if (args.type === 'event') {
+            self.PROXYMANAGER.handleEvent(args);
           }
+          else return false;
 
-          fn(args[1]);
           return true;
         }
       },
@@ -223,20 +203,20 @@ export class CallbackManager {
             this.ANIMATING = false;
             cancelAnimationFrame(this.ANIMATION);
           }
-          // if (!this.threeUtil) {
-          //   let module = await dynamicImport('./_dist_/utils/workers/workerThreeUtils.js');
-          //   this.threeUtil = new module.threeUtil(this.canvas);
-          // }
-          // if (args[0]) { //first is the setup function
-          //   this.threeUtil.setup = parseFunctionFromText(args[0]);
-          // }
-          // if (args[1]) { //next is the draw function (for 1 frame)
-          //   this.threeUtil.draw = parseFunctionFromText(args[1]);
-          // }
-          // if (args[2]) {
-          //   this.threeUtil.clear = parseFunctionFromText(args[2]);
-          // }
-          // this.threeUtil.setup();
+          if (!this.threeUtil) {
+            let module = await dynamicImport('./workerThreeUtils.js');
+            this.threeUtil = new module.threeUtil(this.canvas);
+          }
+          if (args[0]) { //first is the setup function
+            this.threeUtil.setup = parseFunctionFromText(args[0]);
+          }
+          if (args[1]) { //next is the draw function (for 1 frame)
+            this.threeUtil.draw = parseFunctionFromText(args[1]);
+          }
+          if (args[2]) {
+            this.threeUtil.clear = parseFunctionFromText(args[2]);
+          }
+          this.threeUtil.setup();
           return true;
         }
       },
@@ -247,7 +227,7 @@ export class CallbackManager {
             cancelAnimationFrame(this.ANIMATION);
           }
           if (!this.threeUtil) {
-            let module = await dynamicImport('./_dist_/utils/workers/workerThreeUtils.js');
+            let module = await dynamicImport('./workerThreeUtils.js');
             console.log(module);
             this.threeUtil = new module.threeUtil(self.canvas, self);
           }
@@ -451,11 +431,11 @@ export class CallbackManager {
 
   async runCallback(foo,input=[],origin) {
     let output = 'function not defined';
-    await Promise.all(this.callbacks.find(async (o,i) => {
+    await Promise.all(this.callbacks.map(async (o,i) => {
       if (o.case === foo) {
         if (input) output = await o.callback(input, origin, this);
         return true;
-      }
+      } else return false;
     }));
     return output;
   }
@@ -479,12 +459,12 @@ export class CallbackManager {
   async checkCallbacks(event) {
     let output = 'function not defined';
     if(!event.data) return output;
-    await Promise.all(this.callbacks.find(async (o,i) => {
+    await Promise.all(this.callbacks.map(async (o,i) => {
       if (o.case === event.data.foo || o.case === event.data.case) {
         if (event.data.input) output = await o.callback(event.data.input, event.data.origin, this);
         else if (event.data.args) output = await o.callback(event.data.args, event.data.origin, this);
         return true;
-      }
+      } else return false;
     }));
     return output;
   }

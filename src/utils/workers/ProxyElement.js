@@ -8,8 +8,7 @@ function noop() {
 
 export class ElementProxy {
   constructor(element, origin, workerId, eventHandlers) {
-    this.id = Math.floor(Math.random()*10000);
-
+    this.id = 'proxy'+Math.floor(Math.random()*10000);
     this.eventHandlers = eventHandlers;
     this.origin = origin;
     this.workerId = workerId;
@@ -19,7 +18,7 @@ export class ElementProxy {
     const sendEvent = (data) => {
         window.workers.runWorkerFunction(
             'proxyHandler',
-            [this.id,{type:'event',id:this.id,data:data}],
+            {type:'event',id:this.id,data:data},
             this.origin,
             this.workerId
         );
@@ -28,7 +27,7 @@ export class ElementProxy {
     // register an id
     window.workers.runWorkerFunction(
         'proxyHandler',
-        [this.id,{type:'makeProxy',id:this.id}],
+        {type:'makeProxy',id:this.id},
         this.origin,
         this.workerId
     );
@@ -149,17 +148,8 @@ const mouseEventHandler = makeSendPropertiesHandler([
         keydown: filteredKeydownEventHandler,
     };
     
-    const proxy = new ElementProxy(element, origin, workerId, eventHandlers);
-    let transfer = undefined;
-    if(element.constructor.name !== 'OffscreenCanvas') transfer = [element]; //'offscreen' 
-    else element = 'offscreen'; //else assume its been transferred
-    //setup element proxy 
-    window.workers.runWorkerFunction(
-        'startProxy',
-        {element:element,id:proxy.id},
-        origin,
-        workerId,
-        transfer
+    const proxy = new ElementProxy(
+      element, origin, workerId, eventHandlers
     );
 
     return proxy;
@@ -268,23 +258,23 @@ export class ElementProxyReceiver extends EventDispatcher {
 /////////////https://threejsfundamentals.org/threejs/lessons/threejs-offscreencanvas.html
 export class ProxyManager {
     constructor() {
-        this.id = 'proxy'+Math.floor(Math.random()*10000);
-        this.targets = {};
-        this.handleEvent = this.handleEvent.bind(this);
+      this.id = 'proxy'+Math.floor(Math.random()*10000);
+      this.targets = {};
+      this.handleEvent = this.handleEvent.bind(this);
     }
 
-    makeProxy(data) {
-        const {id} = data;
-        const proxy = new ElementProxyReceiver();
-        this.targets[id] = proxy;
+    makeProxy(data) {        
+      const {id} = data;
+      const proxy = new ElementProxyReceiver();
+      this.targets[id] = proxy;
     }
 
     getProxy(id) {
-        return this.targets[id];
+      return this.targets[id];
     }
 
     handleEvent(data) {
-        this.targets[data.id].handleEvent(data.data);
+      this.targets[data.id].handleEvent(data.data);
     }
 }
 

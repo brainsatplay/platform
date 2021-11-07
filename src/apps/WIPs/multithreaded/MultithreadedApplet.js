@@ -114,7 +114,7 @@ export class MultithreadedApplet {
 
     //Responsive UI update, for resizing and responding to new connections detected by the UI manager
     responsive() {
-        window.workers?.postToWorker({foo:'resizecanvas',input:[this.AppletHTML.node.clientWidth,this.AppletHTML.node.clientHeight],origin:this.props.id},this.canvasWorkerId);
+        //window.workers?.postToWorker({foo:'resizecanvas',input:[this.AppletHTML.node.clientWidth,this.AppletHTML.node.clientHeight],origin:this.props.id},this.canvasWorkerId);
         // this.canvas.width = this.AppletHTML.node.clientWidth;
         // this.canvas.height = this.AppletHTML.node.clientHeight;
         // this.canvas.style.width = this.AppletHTML.node.clientWidth;
@@ -187,7 +187,7 @@ export class MultithreadedApplet {
     setupWorkerStuff() {
 
         //add the worker manager if it's not on window
-        if(!window.workers) { window.workers = new WorkerManager();}
+        window.workers = new WorkerManager();
         this.origin = this.props.id;
 
         //add workers
@@ -205,7 +205,11 @@ export class MultithreadedApplet {
             this.canvasWorkerId                                       //optional worker id to use, otherwise it sets up its own worker
         );    // This also makes a worker if no workerId is supplied
 
-        initElementProxy(this.canvasWorker.offscreen,this.canvasWorkerId,this.origin);
+        initElementProxy(
+            this.canvas,
+            this.canvasWorkerId,
+            this.origin
+        );
 
         window.workers.runWorkerFunction('initThree',
         // [
