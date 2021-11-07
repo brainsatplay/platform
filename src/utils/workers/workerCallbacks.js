@@ -211,6 +211,7 @@ export class CallbackManager {
           if (!self.threeUtil) {
             let module = await dynamicImport('./workerThreeUtils.js');
             self.threeUtil = new module.threeUtil(self.canvas,self,self.PROXYMANAGER.getProxy(args[0]), origin);
+            self.THREE = self.threeUtil.THREE; //add another reference for the hell of it
           }
           if (args[1]) { //first is the setup function
             self.threeUtil.setup = parseFunctionFromText(args[1]);
@@ -234,7 +235,7 @@ export class CallbackManager {
           }
           if (!this.threeUtil) {
             let module = await dynamicImport('./workerThreeUtils.js');
-            console.log(module);
+            //console.log(module);
             self.threeUtil = new module.threeUtil(self.canvas,self,self.PROXYMANAGER.getProxy(args[0]));
           }
           if (this.threeUtil) {
