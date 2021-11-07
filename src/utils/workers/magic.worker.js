@@ -36,7 +36,7 @@ self.onmessage = async (event) => {
 
     output = await manager.checkCallbacks(event);  // output some results!
     counter++; //just tracks the number of calls made to the worker
-    dict = {output: output, foo: input.foo, origin: input.origin, id:id, counter:counter};
+    dict = {output: output, foo: input.foo, origin: input.origin, counter:counter};
     if(eventSetting) {manager.EVENTS.emit(eventSetting.eventName,dict); emitted = true;} //if the origin and foo match an event setting on the thread, this emits output as an event
     else if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
         self.postMessage(dict);

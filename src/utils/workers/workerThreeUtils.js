@@ -10,9 +10,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 //this file imports a bunch of stuff so you can pass threejs functions
 
 export class threeUtil {
-    constructor(canvas,callbackManager,proxy) {
+    constructor(canvas,callbackManager,proxy,origin) {
 
         this.callbackManager = callbackManager;
+        this.origin = origin;
 
         this.THREE=THREE;
         this.canvas=canvas, 
@@ -27,32 +28,47 @@ export class threeUtil {
         this.ANIMATING = false;
         this.ANIMFRAMETIME = 0;
 
+        this.PickHelper = PickHelper; //an available class
+
     }
 
     setup = (args, origin, self) => { //setup three animation
         this.defaultSetup();
+        
+        this.ANIMATING = true;
+        this.animate(args, origin, self);
     }
 
     draw = (args, origin, self) => { //frame draw function
         //do something
-        this.ANIMFRAMETIME = performance.now() - this.ANIMFRAMETIME;
         this.defaultDraw();
-        this.finished();
-        this.ANIMFRAMETIME = performance.now();
     }
 
-    finished = () => {
-        let dict = {foo:'render',output:this.ANIMFRAMETIME,id:self.id};
-        if(self.manager) {
-            let emitevent = self.manager.checkEvents('render');
-            if(emitevent) self.manager.events.emit('render',dict);
+    finished = (args, origin, self) => {
+        let dict = {foo:'render', output:this.ANIMFRAMETIME, origin:this.origin};
+        if(this.manager) {
+            let emitevent = this.manager.checkEvents('render');
+            if(emitevent) this.manager.events.emit('render',dict);
             else postMessage(dict);
         }
         else postMessage(dict);
     }
 
     clear = (args, origin, self) => {
-        this.defaultClear();
+      this.defaultClear();
+    }
+
+    animate = (args, origin, self) => {
+      if(!this.ANIMATING) return;
+      this.ANIMFRAMETIME = performance.now() - this.ANIMFRAMETIME;
+      this.draw(args, origin, self);
+      this.finished(args, origin, self);
+      this.ANIMFRAMETIME = performance.now();
+      let nextFrame = () => {
+        this.animate(args,origin,self);
+      }
+      requestAnimationFrame(nextFrame);
+      //console.log('frame rendered');
     }
 
     defaultSetup = () => {
@@ -105,33 +121,7 @@ export class threeUtil {
         makeInstance(geometry, 0xaa8844, 2),
       ];
 
-      class PickHelper {
-        constructor() {
-          this.raycaster = new THREE.Raycaster();
-          this.pickedObject = null;
-          this.pickedObjectSavedColor = 0;
-        }
-        pick(normalizedPosition, scene, camera, time) {
-          // restore the color if there is a picked object
-          if (this.pickedObject) {
-            this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
-            this.pickedObject = undefined;
-          }
-    
-          // cast a ray through the frustum
-          this.raycaster.setFromCamera(normalizedPosition, camera);
-          // get the list of objects the ray intersected
-          const intersectedObjects = this.raycaster.intersectObjects(scene.children);
-          if (intersectedObjects.length) {
-            // pick the first object. It's the closest one
-            this.pickedObject = intersectedObjects[0].object;
-            // save its color
-            this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
-            // set its emissive color to flashing red/yellow
-            this.pickedObject.material.emissive.setHex((time * 8) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
-          }
-        }
-      }
+      
 
       this.pickPosition = {x: -2, y: -2};
 
@@ -158,7 +148,7 @@ export class threeUtil {
         this.pickPosition.y = -100000;
       }
     
-      this.pickHelper = new PickHelper();
+      this.pickHelper = new this.PickHelper();
       
       clearPickPosition();
     
@@ -191,13 +181,11 @@ export class threeUtil {
       this.proxy.addEventListener('touchend', clearPickPosition);
 
       this.pickPosition = {x: -2, y: -2};
-      this.pickHelper = new PickHelper();
+      this.pickHelper = new this.PickHelper();
       clearPickPosition();
 
 
       //this.renderer.setAnimationLoop(this.draw);
-      this.ANIMATING = true;
-      this.animate();
     }
 
     defaultDraw = () => {
@@ -230,13 +218,33 @@ export class threeUtil {
         this.renderer = null;
     }
 
-    animate = () => {
-      if(!this.ANIMATING) return;
-      this.draw();
-      requestAnimationFrame(this.animate);
-      //console.log('frame rendered');
-    }
-
 };
 
+export class PickHelper {
+  constructor() {
+    this.raycaster = new THREE.Raycaster();
+    this.pickedObject = null;
+    this.pickedObjectSavedColor = 0;
+  }
 
+  pick(normalizedPosition, scene, camera, time) { //just set this function for new use cases
+    // restore the color if there is a picked object
+    if (this.pickedObject) {
+      this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
+      this.pickedObject = undefined;
+    }
+
+    // cast a ray through the frustum
+    this.raycaster.setFromCamera(normalizedPosition, camera);
+    // get the list of objects the ray intersected
+    const intersectedObjects = this.raycaster.intersectObjects(scene.children);
+    if (intersectedObjects.length) {
+      // pick the first object. It's the closest one
+      this.pickedObject = intersectedObjects[0].object;
+      // save its color
+      this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
+      // set its emissive color to flashing red/yellow
+      this.pickedObject.material.emissive.setHex((time * 8) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
+    }
+  }
+}

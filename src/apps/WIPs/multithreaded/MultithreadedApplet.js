@@ -214,13 +214,30 @@ export class MultithreadedApplet {
         );
 
         window.workers.runWorkerFunction('initThree',
-        [proxy.id
+        [proxy.id,undefined,
             // function setup(args,origin,self){
             //     //let three = self.threeUtil.three
             // }.toString(),
-            // function draw(args,origin,self){
+            function draw(args,origin,self){
+                let three = self.threeUtil;
+                three.time += three.ANIMFRAMETIME*0.001;
+                if (three.resizeRendererToDisplaySize(three.renderer)) {
+                    three.camera.aspect = three.proxy.clientWidth / three.proxy.clientHeight;
+                    three.camera.updateProjectionMatrix();
+                }
+            
+                three.cubes.forEach((cube, ndx) => {
+                    const speed = 1 + ndx * .1;
+                    const rot = three.time * speed;
+                    cube.rotation.x = rot;
+                    cube.rotation.y = rot;
+                });
+            
                 
-            // }.toString(),
+                three.pickHelper.pick(three.pickPosition, three.scene, three.camera, three.time);
+                //console.log(this.pickPosition);
+                three.renderer.render(three.scene, three.camera);
+            }.toString(),
             // function clear(args,origin,self){
                 
             // }.toString(),

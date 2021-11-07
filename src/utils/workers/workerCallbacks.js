@@ -210,7 +210,7 @@ export class CallbackManager {
           }
           if (!self.threeUtil) {
             let module = await dynamicImport('./workerThreeUtils.js');
-            this.threeUtil = new module.threeUtil(self.canvas,self,this.PROXYMANAGER.getProxy(args[0]));
+            self.threeUtil = new module.threeUtil(self.canvas,self,self.PROXYMANAGER.getProxy(args[0]), origin);
           }
           if (args[1]) { //first is the setup function
             self.threeUtil.setup = parseFunctionFromText(args[1]);
@@ -221,7 +221,7 @@ export class CallbackManager {
           if (args[3]) {
             self.threeUtil.clear = parseFunctionFromText(args[3]);
           }
-          this.threeUtil.setup();
+          self.threeUtil.setup(args,origin,self);
           //console.log(self.threeUtil);
           return true;
         }
@@ -229,16 +229,16 @@ export class CallbackManager {
       {
         case: 'startThree', callback: async (args, origin, self) => { //run the setup to start the three animation
           if (this.ANIMATING) {
-            this.ANIMATING = false;
-            cancelAnimationFrame(this.ANIMATION);
+            self.ANIMATING = false;
+            cancelAnimationFrame(self.ANIMATION);
           }
           if (!this.threeUtil) {
             let module = await dynamicImport('./workerThreeUtils.js');
             console.log(module);
-            this.threeUtil = new module.threeUtil(self.canvas,self,this.PROXYMANAGER.getProxy(args[0]));
+            self.threeUtil = new module.threeUtil(self.canvas,self,self.PROXYMANAGER.getProxy(args[0]));
           }
           if (this.threeUtil) {
-            this.threeUtil.setup(args,origin,self);
+            self.threeUtil.setup(args,origin,self);
           }
           return true;
         }
@@ -260,14 +260,14 @@ export class CallbackManager {
         case: 'startAnimation', callback: (args, origin, self) => {
           //console.log(this.animationFunc.toString(), this.canvas, this.angle, this.angleChange, this.bgColor)
           let anim = () => {
-            if (this.ANIMATING) {
-              this.animationFunc(this);
-              this.ANIMFRAMETIME = performance.now() - this.ANIMFRAMETIME;
-              let emitevent = this.checkEvents('render', origin);
-              let dict = { foo: 'render', output: this.ANIMFRAMETIME, id: self.id, origin: origin };
-              this.ANIMFRAMETIME = performance.now();
+            if (self.ANIMATING) {
+              self.animationFunc(self);
+              self.ANIMFRAMETIME = performance.now() - self.ANIMFRAMETIME;
+              let emitevent = self.checkEvents('render', origin);
+              let dict = { foo: 'render', output: self.ANIMFRAMETIME, origin: origin};
+              self.ANIMFRAMETIME = performance.now();
               if (emitevent) {
-                this.EVENTS.emit('render', dict);
+                self.EVENTS.emit('render', dict);
               }
               else {
                 postMessage(dict);
@@ -277,34 +277,34 @@ export class CallbackManager {
           }
 
           if (this.ANIMATING) {
-            this.ANIMATING = false;
-            cancelAnimationFrame(this.ANIMATION);
+            self.ANIMATING = false;
+            cancelAnimationFrame(self.ANIMATION);
             setTimeout(() => {
-              this.ANIMATING = true;
-              this.ANIMATION = requestAnimationFrame(anim);
+              self.ANIMATING = true;
+              self.ANIMATION = requestAnimationFrame(anim);
             }, 300);
           } else {
-            this.ANIMATING = true;
+            self.ANIMATING = true;
             console.log('begin animation')
-            this.ANIMATION = requestAnimationFrame(anim);
+            self.ANIMATION = requestAnimationFrame(anim);
           }
           return true;
         }
       },
       {
         case: 'stopAnimation', callback: (args, origin, self) => {
-          if (this.ANIMATING) {
-            this.ANIMATING = false;
-            cancelAnimationFrame(this.ANIMATION);
+          if (self.ANIMATING) {
+            self.ANIMATING = false;
+            cancelAnimationFrame(self.ANIMATION);
             return true;
           } else return false;
         }
       },
       {
         case: 'render', callback: (args, origin, self) => { //runs the animation function
-          this.animationFunc();
-          let time = performance.now() - this.ANIMFRAMETIME
-          this.ANIMFRAMETIME = performance.now();
+          self.animationFunc();
+          let time = performance.now() - self.ANIMFRAMETIME
+          tselfhis.ANIMFRAMETIME = performance.now();
           return time;
         }
       },
