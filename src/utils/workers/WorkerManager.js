@@ -80,6 +80,7 @@ export class WorkerManager {
       }
     }
 
+    //add a callback to a worker
     addWorkerFunction(functionName,fstring,origin,id) {
       if(functionName && fstring) {
         if(typeof fstring === 'function') fstring = fstring.toString();
@@ -89,6 +90,7 @@ export class WorkerManager {
       }
     }
 
+    //run from the list of callbacks on an available worker
     runWorkerFunction(functionName,args=[],origin,id,transfer=undefined) {
         if(functionName) {
           if(functionName === 'transferClassObject') {
@@ -101,6 +103,11 @@ export class WorkerManager {
           let dict = {foo:functionName, args:args, origin:origin};
           this.postToWorker(dict,id,transfer);
         }
+    }
+
+    //a way to set variables on a thread
+    setValues(values={},origin,id,transfer=undefined) {
+      this.runWorkerFunction('setValues',values,origin,id,transfer);
     }
 
     postToWorker = (input, id = null, transfer=undefined) => {

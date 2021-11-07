@@ -346,7 +346,7 @@ export class MultithreadedApplet {
     //     three.renderer.render(three.scene, three.camera);
     // }.toString(), //CONVERT TO STRING
     // function clear(args,origin,self){
-        
+    
     // }.toString(), //CONVERT TO STRING
 
     setupWorkerStuff = () => {
@@ -373,13 +373,13 @@ export class MultithreadedApplet {
             this.canvasWorkerId                                       //optional worker id to use, otherwise it sets up its own worker
         );    // This also makes a worker if no workerId is supplied
 
+
+        //create a proxy for the canvas on the worker thread to mirror key inputs 
         let proxy = initElementProxy(
             this.canvas,
             this.canvasWorkerId,
             this.origin
         );
-
-
         
         //add some events to listen to thread results
         window.workers.addEvent('thread1process',this.origin,'add',this.worker1Id);
@@ -396,6 +396,7 @@ export class MultithreadedApplet {
             this.worker1Id
         );
 
+        //list all functions on a thread
         window.workers.runWorkerFunction('list',undefined,this.origin,this.worker1Id);
         
         //add a particle system
@@ -542,15 +543,12 @@ export class MultithreadedApplet {
         //this.canvasWorker.startAnimation(); //run animationFrame loop on the worker
     }
 
-    animate() {
-        this.canvasWorker.startAnimation(); //start the worker animation loop
-    }
-
     stop() {
         this.canvasWorker.stopAnimation(); //stop the worker animation loop
     }
 
     cleanupWorkers() {
+        this.stop();
         window.workers.terminate(this.worker1Id);
         window.workers.terminate(this.worker2Id);
         window.workers.terminate(this.canvasWorkerId);
