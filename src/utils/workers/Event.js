@@ -11,7 +11,7 @@
  * 
  */
 
-import {StateManager} from '../../ui/StateManager'
+import {StateManager} from '../StateManager'
 
 export class Events {
     constructor(workermanager=undefined) {
