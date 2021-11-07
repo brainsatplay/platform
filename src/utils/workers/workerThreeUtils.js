@@ -10,13 +10,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 //this file imports a bunch of stuff so you can pass threejs functions
 
 export class threeUtil {
-    constructor(canvas,callbackManager) {
+    constructor(canvas,callbackManager,proxy) {
 
         this.callbackManager = callbackManager;
 
         this.THREE=THREE;
         this.canvas=canvas, 
-        this.proxy = undefined;
+        this.proxy = proxy;
         this.renderer=undefined,
         this.composer=undefined,
         this.gui=undefined,
@@ -24,6 +24,7 @@ export class threeUtil {
         this.camera=undefined,
         this.scene=undefined
         
+        this.ANIMATING = false;
         this.ANIMFRAMETIME = 0;
 
     }
@@ -34,8 +35,8 @@ export class threeUtil {
 
     draw = (args, origin, self) => { //frame draw function
         //do something
-        this.defaultDraw();
         this.ANIMFRAMETIME = performance.now() - this.ANIMFRAMETIME;
+        this.defaultDraw();
         this.finished();
         this.ANIMFRAMETIME = performance.now();
     }
@@ -55,7 +56,8 @@ export class threeUtil {
     }
 
     defaultSetup = () => {
-      this.renderer = new THREE.WebGLRenderer(this.canvas);
+      let canvas = this.canvas;
+      this.renderer = new THREE.WebGLRenderer({canvas});
   
       const fov = 75;
       const aspect = 2; // the canvas default
@@ -83,7 +85,7 @@ export class threeUtil {
       const boxDepth = 1;
       const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
     
-      function makeInstance(geometry, color, x) {
+      const makeInstance = (geometry, color, x) => {
         const material = new THREE.MeshPhongMaterial({
           color,
         });
@@ -132,7 +134,7 @@ export class threeUtil {
 
       this.pickPosition = {x: -2, y: -2};
 
-      function getCanvasRelativePosition(event) {
+      let getCanvasRelativePosition = (event) => {
         const rect = this.proxy.getBoundingClientRect();
         return {
           x: event.clientX - rect.left,
@@ -140,13 +142,13 @@ export class threeUtil {
         };
       }
     
-      function setPickPosition(event) {
+      let setPickPosition = (event) => {
         const pos = getCanvasRelativePosition(event);
         this.pickPosition.x = (pos.x / this.proxy.clientWidth ) *  2 - 1;
         this.pickPosition.y = (pos.y / this.proxy.clientHeight) * -2 + 1;  // note we flip Y
       }
     
-      function clearPickPosition() {
+      let clearPickPosition = () => {
         // unlike the mouse which always has a position
         // if the user stops touching the screen we want
         // to stop picking. For now we just pick a value
@@ -167,6 +169,7 @@ export class threeUtil {
         if (needResize) {
           renderer.setSize(width, height, false);
         }
+        //console.log(canvas, width, height);
         return needResize;
       }
       
@@ -186,18 +189,18 @@ export class threeUtil {
     
       this.proxy.addEventListener('touchend', clearPickPosition);
 
-      const pickPosition = {x: -2, y: -2};
-      const pickHelper = new PickHelper();
+      this.pickPosition = {x: -2, y: -2};
+      this.pickHelper = new PickHelper();
       clearPickPosition();
 
 
-      this.renderer.setAnimationLoop(this.draw);
+      //this.renderer.setAnimationLoop(this.draw);
+      this.ANIMATING = true;
+      this.animate();
     }
 
     defaultDraw = () => {
-
         this.time += this.ANIMFRAMETIME*0.001;
-    
         if (this.resizeRendererToDisplaySize(this.renderer)) {
           this.camera.aspect = this.proxy.clientWidth / this.proxy.clientHeight;
           this.camera.updateProjectionMatrix();
@@ -211,17 +214,25 @@ export class threeUtil {
         });
     
         this.pickHelper.pick(this.pickPosition, this.scene, this.camera, this.time);
-    
+        //console.log(this.pickPosition);
         this.renderer.render(this.scene, this.camera);
   
     }
 
     defaultClear = () => {
         
-        this.renderer.setAnimationLoop( null );
+        this.ANIMATING = false;
+        //this.renderer.setAnimationLoop( null );
         this.scene = null;
         this.renderer.domElement = null;
         this.renderer = null;
+    }
+
+    animate = () => {
+      if(!this.ANIMATING) return;
+      this.draw();
+      requestAnimationFrame(this.animate);
+      //console.log('frame rendered');
     }
 
 };

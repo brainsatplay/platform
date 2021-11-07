@@ -64,7 +64,7 @@ export class MultithreadedApplet {
                     <button id='${props.id}input'>Increment</button>
                     <div id='${props.id}res'>${this.res}</div>
                 </div>
-                <canvas id='${props.id}canvas' style='z-index:1;'></canvas>
+                <canvas id='${props.id}canvas' style='z-index:1; height:'100%' width:'100%' display:'block'></canvas>
             </div>
             `;
         }
@@ -73,9 +73,6 @@ export class MultithreadedApplet {
         let setupHTML = (props=this.props) => {
             this.canvas = document.getElementById(props.id+"canvas");
             //this.ctx = this.canvas.getContext('2d');
-
-            this.setupWorkerStuff();
-
         }
 
         this.AppletHTML = new DOMFragment( // Fast HTML rendering container object
@@ -89,6 +86,8 @@ export class MultithreadedApplet {
 
         if(this.settings.length > 0) { this.configure(this.settings); } //You can give the app initialization settings if you want via an array.
 
+
+        this.setupWorkerStuff();
 
         //Add whatever else you need to initialize
         this.looping = true;
@@ -184,7 +183,7 @@ export class MultithreadedApplet {
         
     }
 
-    setupWorkerStuff() {
+    setupWorkerStuff = () => {
 
         //add the worker manager if it's not on window
         window.workers = new WorkerManager();
@@ -194,7 +193,10 @@ export class MultithreadedApplet {
         this.worker1Id      = window.workers.addWorker(); // Thread 1
         this.worker2Id      = window.workers.addWorker(); // Thread 2
         this.canvasWorkerId = window.workers.addWorker(); // Thread 3 - render thread
-
+        
+        this.canvas.width = this.AppletHTML.node.clientWidth;
+        this.canvas.height = this.AppletHTML.node.clientHeight;
+        
         //quick setup canvas worker with initial settings
         this.canvasWorker = new ThreadedCanvas(
             this.origin,                                              //name given for the worker origin tag 
@@ -205,25 +207,24 @@ export class MultithreadedApplet {
             this.canvasWorkerId                                       //optional worker id to use, otherwise it sets up its own worker
         );    // This also makes a worker if no workerId is supplied
 
-        initElementProxy(
+        let proxy = initElementProxy(
             this.canvas,
             this.canvasWorkerId,
             this.origin
         );
 
         window.workers.runWorkerFunction('initThree',
-        // [
-        //     // function setup(args,origin,self){
-        //     //     //let three = self.threeUtil.three
-        //     // }.toString(),
-        //     // function draw(args,origin,self){
+        [proxy.id
+            // function setup(args,origin,self){
+            //     //let three = self.threeUtil.three
+            // }.toString(),
+            // function draw(args,origin,self){
                 
-        //     // }.toString(),
-        //     // function clear(args,origin,self){
+            // }.toString(),
+            // function clear(args,origin,self){
                 
-        //     // }.toString(),
-        // ]
-        undefined,
+            // }.toString(),
+        ],
         this.origin,this.canvasWorkerId);
             
         //once the render completes release the input

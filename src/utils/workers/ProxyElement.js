@@ -50,7 +50,7 @@ export class ElementProxy {
         });
     }
 
-    //sendSize();
+    sendSize();
     // really need to use ResizeObserver
     window.addEventListener('resize', sendSize);
   }

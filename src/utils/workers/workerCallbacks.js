@@ -82,7 +82,12 @@ export class CallbackManager {
     this.ANIMFRAMETIME = performance.now(); //ms based on UTC stamps
     this.threeUtil = undefined;
     this.PROXYMANAGER = new ProxyManager();
-    this.document = {};  // HACK!
+    
+    try{
+      if(window) console.log('worker in window!');
+    } catch(err) {
+      self.document = {}; //threejs hack
+    }
 
     //args = array of expected arguments
     //origin = optional tag on input object
@@ -199,24 +204,25 @@ export class CallbackManager {
       },
       {
         case: 'initThree', callback: async (args, origin, self) => {
-          if (this.ANIMATING) {
-            this.ANIMATING = false;
-            cancelAnimationFrame(this.ANIMATION);
+          if (self.ANIMATING) {
+            self.ANIMATING = false;
+            cancelAnimationFrame(self.ANIMATION);
           }
-          if (!this.threeUtil) {
+          if (!self.threeUtil) {
             let module = await dynamicImport('./workerThreeUtils.js');
-            this.threeUtil = new module.threeUtil(this.canvas);
+            this.threeUtil = new module.threeUtil(self.canvas,self,this.PROXYMANAGER.getProxy(args[0]));
           }
-          if (args[0]) { //first is the setup function
-            this.threeUtil.setup = parseFunctionFromText(args[0]);
+          if (args[1]) { //first is the setup function
+            self.threeUtil.setup = parseFunctionFromText(args[1]);
           }
-          if (args[1]) { //next is the draw function (for 1 frame)
-            this.threeUtil.draw = parseFunctionFromText(args[1]);
+          if (args[2]) { //next is the draw function (for 1 frame)
+            self.threeUtil.draw = parseFunctionFromText(args[2]);
           }
-          if (args[2]) {
-            this.threeUtil.clear = parseFunctionFromText(args[2]);
+          if (args[3]) {
+            self.threeUtil.clear = parseFunctionFromText(args[3]);
           }
           this.threeUtil.setup();
+          //console.log(self.threeUtil);
           return true;
         }
       },
@@ -229,7 +235,7 @@ export class CallbackManager {
           if (!this.threeUtil) {
             let module = await dynamicImport('./workerThreeUtils.js');
             console.log(module);
-            this.threeUtil = new module.threeUtil(self.canvas, self);
+            this.threeUtil = new module.threeUtil(self.canvas,self,this.PROXYMANAGER.getProxy(args[0]));
           }
           if (this.threeUtil) {
             this.threeUtil.setup(args,origin,self);
