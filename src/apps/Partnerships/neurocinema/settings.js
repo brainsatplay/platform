@@ -105,7 +105,7 @@ export const settings = {
         },
         {
           source: 'buffer',
-          target: 'arithmetic:input'
+          target: 'arithmetic:mean'
         },
         {
           source: 'arithmetic:mean',

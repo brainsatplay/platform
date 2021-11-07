@@ -66,32 +66,25 @@ export class AppletBrowser {
 
                 if (this.showPresets) {this._createFeature()}
 
-                this._createTraining()
+                // this._createTraining() // TODO: Actually Implement Training
         
                 // Create Library Section (dependent on platform)
                 let onclickInternal = (element, settings) => {
-                        let selector = document.getElementById(`applet${0}`) // this.appletToReplace
-                        selector.value = settings.name
-                        window.history.pushState({ additionalInformation: 'Updated URL from Applet Browser (applet)' }, '', `${window.location.origin}/#${settings.name}`)
-                        selector.onchange()
+                    let selector = document.getElementById(`applet${0}`) // this.appletToReplace
+                    selector.value = settings.name
+                    window.history.pushState({ additionalInformation: 'Updated URL from Applet Browser (applet)' }, '', `${window.location.origin}/#${settings.name}`)
+                    selector.onchange()
                 }
-                
-                this._createSection('Library', this.props.applets, onclickInternal)
 
-                // Create Community Section
-               let createCommunitySection = async () => {
-                    let publishedApps = []
-                    // publishedApps = await this.session.projects.getPublishedApps()
-                    if (publishedApps.length > 0){
-                        let onclickCommunity = (element,settings) => {
-                            window.history.pushState({ additionalInformation: 'Updated URL from Applet Browser (applet)' }, '', `${window.location.origin}/#${settings.name}`)
-                            this.app.replace(settings)
-                        }
-                        this._createSection('Community Contributions', publishedApps, onclickCommunity) 
-                    }
-               }
-        
-               createCommunitySection()
+                let library = [], community = []
+                this.props.applets.forEach(a => {
+                    if (a.categories.includes('External')) community.push(a)
+                    else library.push(a)
+                })
+
+                // publishedApps = await this.session.projects.getPublishedApps()
+                if (community.length > 0) this._createSection('Community', community, onclickInternal)//, onclickCommunity) 
+                this._createSection('Library', library, onclickInternal)
     }
 
     _createFeature = () => {
@@ -167,17 +160,23 @@ export class AppletBrowser {
         trainingContainer.style.padding = 0
     }
 
-    _createSection = async (header, apps, onclick=()=>{}) => {
+    _createSection = async (name, apps, onclick=()=>{}) => {
 
         let filter
         let appletInfo = await createCards(apps, filter, onclick)
 
         let randomId = this.session.atlas._getRandomId()
 
-        this.props.container.insertAdjacentHTML('beforeend',
+        let header = document.createElement('div')
+        header.classList.add('browser-header')
+
+        let section = document.createElement('div')
+        section.classList.add('applet-container')
+
+
+        header.insertAdjacentHTML('beforeend',
             `
-        <div id="${this.props.id}-appletheader" class="browser-header">
-            <h1>${header}</h1>
+            <h1>${name}</h1>
             <div style="padding: 0px 25px;  width: 100%; display: flex; margin: auto;">
                 
             <div style="margin: 5px; flex-grow: 1;">
@@ -193,16 +192,15 @@ export class AppletBrowser {
                 </select>
                 </div>
             </div>
-        </div>
-        <div id="${this.props.id}-appletsection" class="applet-container"></div>
         `)
 
-        let appletSection = this.props.container.querySelector(`[id="${this.props.id}-appletsection"]`)
+        this.props.container.insertAdjacentElement('beforeend', header)
+        this.props.container.insertAdjacentElement('beforeend', section)
 
         let categoryArray = []
         let deviceArray = []
         appletInfo.forEach(o => {
-            appletSection.insertAdjacentElement('beforeend', o.element)
+            section.insertAdjacentElement('beforeend', o.element)
             let categories = o.element.getAttribute('categories')
             categoryArray.push(...categories.split(','))
             let devices = o.element.getAttribute('devices')
@@ -216,31 +214,31 @@ export class AppletBrowser {
 
         categoryArray = categoryArray.map(c => c.charAt(0).toUpperCase() + c.slice(1))
         let uniqueCategories = categoryArray.filter(onlyUnique);
-        let categorySelector = this.props.container.querySelector(`[id="${this.props.id}-categories"`)
+        let categorySelector = header.querySelector(`[id="${this.props.id}-categories"`)
         uniqueCategories.forEach(category => {
             categorySelector.innerHTML += `<option value="${category}">${category}</option>`
         })
 
         categorySelector.onchange = (e) => {
-            this.filterApplets()
+            this.filterApplets(header, section)
         }
 
         // Device Filter
         let uniqueDevices = deviceArray.filter(onlyUnique);
-        let deviceSelector = this.props.container.querySelector(`[id="${this.props.id}-devices"]`)
+        let deviceSelector = header.querySelector(`[id="${this.props.id}-devices"]`)
         uniqueDevices.forEach(device => {
             deviceSelector.innerHTML += `<option value="${device}">${device.charAt(0).toUpperCase() + device.slice(1)}</option>`
         })
 
         deviceSelector.onchange = (e) => {
-            this.filterApplets()
+            this.filterApplets(header, section)
         }
     }
 
 
-    filterApplets() {
-        let divs = this.props.container.querySelector(`[id="${this.props.id}-appletsection"]`).querySelectorAll('.browser-card')
-        let selectors = this.props.container.querySelector(`[id="${this.props.id}-appletheader"]`).querySelectorAll('select')
+    filterApplets(header, section) {
+        let divs = section.querySelectorAll('.browser-card')
+        let selectors = header.querySelectorAll('select')
 
         let attributes = []
         let values = []

@@ -32,6 +32,7 @@ categories.forEach((category,indOut) => {
   let files = fs.readdirSync(categoryDir)
   files = files.filter(f => (fs.existsSync(path.join(categoryDir,f)) && fs.lstatSync(path.join(categoryDir,f)).isDirectory()))
 
+  if (category != 'Archive'){
   var bar = new Promise((resolve, reject) => {
     files.forEach((file,indIn) => {
       let dir = path.join(appletDir,category,file)
@@ -108,6 +109,7 @@ categories.forEach((category,indOut) => {
     })
   }
   })
+}
 })
 }
 
