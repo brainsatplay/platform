@@ -412,6 +412,7 @@ export class MultithreadedApplet {
                     ['boids',5000,[450,450,450]],
                     ['boids',700,[450,450,450]]]);
                 let groups = [];
+                //TODO: use an arraybuffer system for MUCH FASTER transfers
                 self.particleObj.particles.map((group,j) => {
                     groups.push(new Array(group.particles.length));
                     group.particles.map((particle, k) => {
@@ -431,6 +432,7 @@ export class MultithreadedApplet {
             function particleStep(self, args, origin){
                 self.particleObj.frame(args[0]);
                 let groups = [];
+                //TODO: use an arraybuffer system for MUCH FASTER transfers
                 self.particleObj.particles.map((group,j) => {
                     groups.push(new Array(group.particles.length));
                     group.particles.map((particle, k) => {
@@ -488,6 +490,7 @@ export class MultithreadedApplet {
             window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
         });
 
+        
         window.workers.subEvent('particle1Step',(res) => {
             //console.log(res.output)
             if(Array.isArray(res.output[0])) {
