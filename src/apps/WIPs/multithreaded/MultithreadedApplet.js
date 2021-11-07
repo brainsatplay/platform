@@ -231,9 +231,9 @@ export class MultithreadedApplet {
 
             group.forEach((boid)=>{
 
-                let x = boid.x;
-                let y = boid.y;
-                let z = -boid.z ;
+                let x = boid[0];
+                let y = boid[1];
+                let z = -boid[2] ;
 
                 vertices.push( x, y, z );
 
@@ -310,11 +310,11 @@ export class MultithreadedApplet {
         let count = 0;
 
         //updated with setValues
-        self.boids.forEach((group,i)=> {
-            group.forEach((boid,j)=>{
-                positions[count*3]   =  boid.x;
-                positions[count*3+1] =  boid.y;
-                positions[count*3+2] = -boid.z;
+        self.boids.map((group,i)=> {
+            group.map((boid,j)=>{
+                positions[count*3]   =  boid[0];
+                positions[count*3+1] =  boid[1];
+                positions[count*3+2] = -boid[2];
                 count++;
             });
         });
@@ -412,10 +412,10 @@ export class MultithreadedApplet {
                     ['boids',5000,[450,450,450]],
                     ['boids',700,[450,450,450]]]);
                 let groups = [];
-                self.particleObj.particles.forEach((group,j) => {
-                    groups.push([]);
-                    group.particles.forEach((particle) => {
-                        groups[j].push(particle.position);
+                self.particleObj.particles.map((group,j) => {
+                    groups.push(new Array(group.particles.length));
+                    group.particles.map((particle, k) => {
+                        groups[j][k]=[particle.position.x,particle.position.y,particle.position.z];
                     });
                 });
                 //console.log(output)
@@ -431,10 +431,10 @@ export class MultithreadedApplet {
             function particleStep(self, args, origin){
                 self.particleObj.frame(args[0]);
                 let groups = [];
-                self.particleObj.particles.forEach((group,j) => {
-                    groups.push([]);
-                    group.particles.forEach((particle) => {
-                        groups[j].push(particle.position);
+                self.particleObj.particles.map((group,j) => {
+                    groups.push(new Array(group.particles.length));
+                    group.particles.map((particle, k) => {
+                        groups[j][k]=[particle.position.x,particle.position.y,particle.position.z];
                     });
                 });
                 return [groups,(performance.now()*0.001+self.particleObj.frameOffset-self.particleObj.currFrame)];
@@ -489,7 +489,7 @@ export class MultithreadedApplet {
         });
 
         window.workers.subEvent('particle1Step',(res) => {
-            console.log(res.output)
+            //console.log(res.output)
             if(Array.isArray(res.output[0])) {
                 if(!renderThreadWaiting) { //don't overwhelm the renderthread
                     this.canvasWorker.setValues({boids:res.output[0]});
