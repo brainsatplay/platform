@@ -64,7 +64,7 @@ export class MultithreadedApplet {
                     <button id='${props.id}input'>Increment</button>
                     <div id='${props.id}res'>${this.res}</div>
                 </div>
-                <canvas id='${props.id}canvas' style='z-index:1; height:'100%' width:'100%' display:'block'></canvas>
+                <canvas id='${props.id}canvas' style='z-index:1;'></canvas>
             </div>
             `;
         }
@@ -225,7 +225,8 @@ export class MultithreadedApplet {
                 
             // }.toString(),
         ],
-        this.origin,this.canvasWorkerId);
+        this.origin,
+        this.canvasWorkerId);
             
         //once the render completes release the input
         window.workers.events.subEvent('render',(res)=>{
