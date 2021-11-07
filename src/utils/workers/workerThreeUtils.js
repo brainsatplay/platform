@@ -58,6 +58,7 @@ export class threeUtil {
     defaultSetup = () => {
       let canvas = this.canvas;
       this.renderer = new THREE.WebGLRenderer({canvas});
+      this.time = 0;
   
       const fov = 75;
       const aspect = 2; // the canvas default
@@ -213,6 +214,7 @@ export class threeUtil {
           cube.rotation.y = rot;
         });
     
+        
         this.pickHelper.pick(this.pickPosition, this.scene, this.camera, this.time);
         //console.log(this.pickPosition);
         this.renderer.render(this.scene, this.camera);

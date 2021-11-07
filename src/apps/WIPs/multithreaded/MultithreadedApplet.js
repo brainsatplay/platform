@@ -113,7 +113,7 @@ export class MultithreadedApplet {
 
     //Responsive UI update, for resizing and responding to new connections detected by the UI manager
     responsive() {
-        //window.workers?.postToWorker({foo:'resizecanvas',input:[this.AppletHTML.node.clientWidth,this.AppletHTML.node.clientHeight],origin:this.props.id},this.canvasWorkerId);
+        window.workers?.postToWorker({foo:'resizecanvas',input:[this.AppletHTML.node.clientWidth,this.AppletHTML.node.clientHeight],origin:this.props.id},this.canvasWorkerId);
         // this.canvas.width = this.AppletHTML.node.clientWidth;
         // this.canvas.height = this.AppletHTML.node.clientHeight;
         // this.canvas.style.width = this.AppletHTML.node.clientWidth;
