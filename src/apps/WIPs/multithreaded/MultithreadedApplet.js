@@ -184,7 +184,6 @@ export class MultithreadedApplet {
     }
 
     boidsSetup = (self, args, origin) => {
-
         if(!self.boids) {console.error('need to add boids to the worker first setValues({boids:[[{x,y,z}],[etc.]]')}
         let three = self.threeUtil;
         const THREE = self.THREE;
@@ -313,8 +312,8 @@ export class MultithreadedApplet {
         //updated with setValues
         self.boids.forEach((group,i)=> {
             group.forEach((boid,j)=>{
-                positions[count*3] =   boid.x;
-                positions[count*3+1] = boid.y;
+                positions[count*3]   =  boid.x;
+                positions[count*3+1] =  boid.y;
                 positions[count*3+2] = -boid.z;
                 count++;
             });
@@ -486,7 +485,7 @@ export class MultithreadedApplet {
                 );
                 renderThreadSetup = true;
             }
-            //window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
+            window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
         });
 
         window.workers.subEvent('particle1Step',(res) => {

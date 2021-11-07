@@ -58,7 +58,7 @@ export class DynamicParticles {
             particleSize: 5,
             startingX: 0.5, 
             startingY: 0.5,
-            maxSpeed: 40, 
+            maxSpeed: 3, 
             xBounce: -1,
             yBounce: -1,
             gravity: 0.0, //Downward z acceleration (-9.81m/s^2 = Earth gravity)
@@ -69,11 +69,11 @@ export class DynamicParticles {
             boundingBox:{left:0,right:1,bot:1,top:0,front:0,back:1}, //bounding box, 1 = max height/width of render window
             boid:{
                 boundingBox:{left:0,right:1,bot:1,top:0,front:0,back:1}, //bounding box, 1 = max height/width of render window
-                cohesion:0.003,
+                cohesion:0.001,
                 separation:0.0001,
                 alignment:0.006,
-                swirl:{x:0.5,y:0.5,z:0.5,mul:0.002},
-                attractor:{x:0.5,y:0.5,z:0.5,mul:0.003},
+                swirl:{x:0.5,y:0.5,z:0.5,mul:0.003},
+                attractor:{x:0.5,y:0.5,z:0.5,mul:0.002},
                 avoidance:{groups:[],mul:0.1},
                 useCohesion:true,
                 useSeparation:true,

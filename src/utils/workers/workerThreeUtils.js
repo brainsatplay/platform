@@ -37,19 +37,19 @@ export class threeUtil {
 
     }
 
-    setup = (args, origin, self) => { //setup three animation
+    setup = (self, args, origin) => { //setup three animation
         this.defaultSetup();
         
         this.ANIMATING = true;
-        this.animate(args, origin, self);
+        this.animate(self, args, origin);
     }
 
-    draw = (args, origin, self) => { //frame draw function
+    draw = (self, args, origin) => { //frame draw function
         //do something
         this.defaultDraw();
     }
 
-    finished = (args, origin, self) => {
+    finished = (self, args, origin) => {
         let dict = {foo:'render', output:this.ANIMFRAMETIME, origin:origin};
         if(this.manager) {
             let emitevent = this.manager.checkEvents('render');
@@ -59,18 +59,18 @@ export class threeUtil {
         else postMessage(dict);
     }
 
-    clear = (args, origin, self) => {
+    clear = (self, args, origin) => {
       this.defaultClear();
     }
 
-    animate = (args, origin, self) => {
+    animate = (self, args, origin) => {
       if(!this.ANIMATING) return;
       this.ANIMFRAMETIME = performance.now() - this.ANIMFRAMETIME;
-      this.draw(args, origin, self);
-      this.finished(args, origin, self);
+      this.draw(self, args, origin);
+      this.finished(self, args, origin);
       this.ANIMFRAMETIME = performance.now();
       let nextFrame = () => {
-        this.animate(args,origin,self);
+        this.animate(self, args, origin);
       }
       requestAnimationFrame(nextFrame);
       //console.log('frame rendered');
