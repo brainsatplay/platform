@@ -485,7 +485,7 @@ export class MultithreadedApplet {
                 );
                 renderThreadSetup = true;
             }
-            window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
+            //window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
         });
 
         window.workers.subEvent('particle1Step',(res) => {
