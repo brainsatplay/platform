@@ -413,6 +413,7 @@ export class MultithreadedApplet {
                     ['boids',700,[450,450,450]]]);
                 let groups = [];
                 //TODO: use an arraybuffer system for MUCH FASTER transfers
+                //https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
                 self.particleObj.particles.map((group,j) => {
                     groups.push(new Array(group.particles.length));
                     group.particles.map((particle, k) => {
@@ -433,6 +434,7 @@ export class MultithreadedApplet {
                 self.particleObj.frame(args[0]);
                 let groups = [];
                 //TODO: use an arraybuffer system for MUCH FASTER transfers
+                //https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
                 self.particleObj.particles.map((group,j) => {
                     groups.push(new Array(group.particles.length));
                     group.particles.map((particle, k) => {
