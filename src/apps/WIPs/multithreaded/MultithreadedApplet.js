@@ -233,7 +233,7 @@ export class MultithreadedApplet {
 
                 let x = boid[0];
                 let y = boid[1];
-                let z = -boid[2] ;
+                let z = -boid[2];
 
                 vertices.push( x, y, z );
 
@@ -309,15 +309,15 @@ export class MultithreadedApplet {
 
         let count = 0;
 
+        //console.log(self.boids);
+        let positionArray = Array.from(self.boids); //convert float32array
+
         //updated with setValues
-        self.boids.map((group,i)=> {
-            group.map((boid,j)=>{
-                positions[count*3]   =  boid[0];
-                positions[count*3+1] =  boid[1];
-                positions[count*3+2] = -boid[2];
-                count++;
-            });
-        });
+        for(let count = 0; count< positionArray.length; count+=3 ) {
+            positions[count]   =  positionArray[count];
+            positions[count+1] =  positionArray[count+1];
+            positions[count+2] = -positionArray[count+2];
+        }
 
         three.points.geometry.attributes.position.needsUpdate = true;   
         three.controls.update();
@@ -411,18 +411,31 @@ export class MultithreadedApplet {
                     ['boids',4000,[450,450,450]],
                     ['boids',5000,[450,450,450]],
                     ['boids',700,[450,450,450]]]);
-                let groups = [];
                 //TODO: use an arraybuffer system for MUCH FASTER transfers
                 //https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
                 //https://developers.google.com/web/updates/2011/12/Transferable-Objects-Lightning-Fast
+
+                let groups = [];
+                let positionbuffer = [];
+                let bufferidx = -1;
+                let p = 0;
                 self.particleObj.particles.map((group,j) => {
-                    groups.push(new Array(group.particles.length));
+                    // if(j > bufferidx) {
+                    //     positionbuffer.push(...new Array(group.particles.length*3));
+                    //     bufferidx = j;
+                    // }
+                    groups.push(new Array(group.length));
                     group.particles.map((particle, k) => {
                         groups[j][k]=[particle.position.x,particle.position.y,particle.position.z];
+                        // positionbuffer[p]=particle.position.x;
+                        // positionbuffer[p+1]=particle.position.y;
+                        // groups[p+2]=particle.position.z;
+                        // p+=3;
                     });
                 });
                 //console.log(output)
                 return groups;
+                //return Float32Array.from(positionbuffer);
             }.toString(),
             this.origin,
             this.worker1Id
@@ -433,17 +446,27 @@ export class MultithreadedApplet {
             'particleStep',
             function particleStep(self, args, origin){
                 self.particleObj.frame(args[0]);
-                let groups = [];
                 //TODO: use an arraybuffer system for MUCH FASTER transfers
                 //https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
                 //https://developers.google.com/web/updates/2011/12/Transferable-Objects-Lightning-Fast
+                //let groups = [];
+                let positionbuffer = [];
+                let bufferidx = -1;
+                let p = 0;
                 self.particleObj.particles.map((group,j) => {
-                    groups.push(new Array(group.particles.length));
+                    if(j > bufferidx) {
+                        positionbuffer.push(...new Array(group.particles.length*3));
+                        bufferidx = j;
+                    }
                     group.particles.map((particle, k) => {
-                        groups[j][k]=[particle.position.x,particle.position.y,particle.position.z];
+                        positionbuffer[p]=particle.position.x;
+                        positionbuffer[p+1]=particle.position.y;
+                        positionbuffer[p+2]=particle.position.z;
+                        p+=3;
                     });
                 });
-                return [groups,(performance.now()*0.001+self.particleObj.frameOffset-self.particleObj.currFrame)];
+                //console.log(output)
+                return Float32Array.from(positionbuffer);
             }.toString(),
             this.origin,
             this.worker1Id
@@ -483,7 +506,6 @@ export class MultithreadedApplet {
                         this.boidsSetup.toString(), //CONVERT TO STRING
                         //undefined,
                         this.boidsRender.toString(),
-                        
                         undefined
                     ],
                     this.origin,
@@ -497,11 +519,9 @@ export class MultithreadedApplet {
         
         window.workers.subEvent('particle1Step',(res) => {
             //console.log(res.output)
-            if(Array.isArray(res.output[0])) {
-                if(!renderThreadWaiting) { //don't overwhelm the renderthread
-                    this.canvasWorker.setValues({boids:res.output[0]});
-                    renderThreadWaiting = true;
-                }
+            if(!renderThreadWaiting) { //don't overwhelm the renderthread
+                this.canvasWorker.setValues({boids:res.output},[res.output.buffer]);
+                renderThreadWaiting = true;
             }
 
             //console.log(res.output);
