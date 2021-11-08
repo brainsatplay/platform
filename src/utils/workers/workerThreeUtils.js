@@ -76,6 +76,22 @@ export class threeUtil {
       //console.log('frame rendered');
     }
 
+    resizeRendererToDisplaySize = (renderer=this.renderer,proxy=this.proxy,camera=this.camera) => {
+      const canvas = renderer.domElement;
+      const width = proxy.clientWidth;
+      const height = proxy.clientHeight;
+      const needResize = canvas.width !== width || canvas.height !== height;
+      if (needResize) {
+        renderer.setSize(width, height, false);
+        if(camera) {
+          camera.aspect = proxy.clientWidth / proxy.clientHeight;
+          camera.updateProjectionMatrix();
+        }
+      }
+      //console.log(canvas, width, height);
+      return needResize;
+    }
+
     defaultSetup = () => {
       let canvas = this.canvas;
       this.renderer = new THREE.WebGLRenderer({canvas});
@@ -157,17 +173,7 @@ export class threeUtil {
       
       clearPickPosition();
     
-      this.resizeRendererToDisplaySize = (renderer) => {
-        const canvas = this.renderer.domElement;
-        const width = this.proxy.clientWidth;
-        const height = this.proxy.clientHeight;
-        const needResize = canvas.width !== width || canvas.height !== height;
-        if (needResize) {
-          renderer.setSize(width, height, false);
-        }
-        //console.log(canvas, width, height);
-        return needResize;
-      }
+      
       
       this.proxy.addEventListener('mousemove', setPickPosition);
       this.proxy.addEventListener('mouseout', clearPickPosition);
@@ -195,10 +201,8 @@ export class threeUtil {
 
     defaultDraw = () => {
         this.time += this.ANIMFRAMETIME*0.001;
-        if (this.resizeRendererToDisplaySize(this.renderer)) {
-          this.camera.aspect = this.proxy.clientWidth / this.proxy.clientHeight;
-          this.camera.updateProjectionMatrix();
-        }
+        this.resizeRendererToDisplaySize(this.renderer,this.proxy,this.camera)
+        
     
         this.cubes.forEach((cube, ndx) => {
           const speed = 1 + ndx * .1;

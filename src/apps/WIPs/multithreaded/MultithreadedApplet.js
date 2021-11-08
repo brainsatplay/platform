@@ -65,7 +65,7 @@ export class MultithreadedApplet {
                     <div id='${props.id}res'>${this.res}</div>
                     <div id='${props.id}score'>${this.score}</div>
                 </div>
-                <canvas id='${props.id}canvas' style='z-index:1;'></canvas>
+                <canvas id='${props.id}canvas' style='z-index:1;width:100%;height:100%;'></canvas>
             </div>
             `;
         }
@@ -114,7 +114,7 @@ export class MultithreadedApplet {
 
     //Responsive UI update, for resizing and responding to new connections detected by the UI manager
     responsive() {
-        window.workers?.postToWorker({foo:'resizecanvas',input:[this.AppletHTML.node.clientWidth,this.AppletHTML.node.clientHeight],origin:this.props.id},this.canvasWorkerId);
+        //window.workers?.postToWorker({foo:'resizecanvas',input:[this.AppletHTML.node.clientWidth,this.AppletHTML.node.clientHeight],origin:this.props.id},this.canvasWorkerId);
         // this.canvas.width = this.AppletHTML.node.clientWidth;
         // this.canvas.height = this.AppletHTML.node.clientHeight;
         // this.canvas.style.width = this.AppletHTML.node.clientWidth;
@@ -200,7 +200,8 @@ export class MultithreadedApplet {
         three.renderer = new THREE.WebGLRenderer({canvas:self.canvas, antialias: true });
         three.renderer.setPixelRatio(Math.min(three.proxy.clientWidth / three.proxy.clientHeight,2));
         three.renderer.shadowMap.enabled = true;
-
+        
+        three.resizeRendererToDisplaySize(three.renderer,three.proxy,three.camera);
         // three.renderer.domElement.style.width = '100%';
         // three.renderer.domElement.style.height = '100%';
         // three.renderer.domElement.id = `canvas`;
@@ -305,7 +306,12 @@ export class MultithreadedApplet {
     }
 
     boidsRender = (self, args, origin) => {
+
+        
         let three = self.threeUtil;
+
+        three.resizeRendererToDisplaySize(three.renderer,three.proxy,three.camera);
+
         let positions = three.points.geometry.attributes.position.array;
 
         let count = 0;

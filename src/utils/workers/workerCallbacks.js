@@ -53,7 +53,7 @@ function parseFunctionFromText(method) {
     if(newFuncHead.substring(0,6) === newFuncBody.substring(0,6)) {
       //newFuncBody = newFuncBody.substring(newFuncHead.length);
       let varName = newFuncHead.split('(')[1].split(')')[0]
-      console.log(varName, newFuncHead ,newFuncBody);
+      //console.log(varName, newFuncHead ,newFuncBody);
       newFunc = new Function(varName, newFuncBody.substring(newFuncBody.indexOf('{')+1,newFuncBody.length-1));
     }
     else newFunc = eval(newFuncHead + newFuncBody + "}");
@@ -221,7 +221,7 @@ export class CallbackManager {
           if (typeof args[1] === 'object') { //first is the setup function
             await this.runCallback('setValues',args[1]);
           }
-          console.log(args)
+          //console.log(args)
           if (args[2]) { //first is the setup function
             self.threeUtil.setup = parseFunctionFromText(args[2]);
           }
