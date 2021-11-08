@@ -62,8 +62,8 @@ export class MultithreadedApplet {
             <div id=${props.id}>
                 <div style='position:absolute;'>
                     <button id='${props.id}input'>Increment</button>
-                    <div id='${props.id}res'>${this.res}</div>
-                    <div id='${props.id}score'>${this.score}</div>
+                    <div id='${props.id}res' style='display:none;'>${this.res}</div>
+                    <div id='${props.id}score' style='display:none;'>${this.score}</div>
                     <button id='`+props.id+`showhide' style='opacity:0.2; z-index:2;'>Show UI</button><br>
                     <table id='`+props.id+`table' style='z-index:99; display:none;'>
                         <tr><td>
