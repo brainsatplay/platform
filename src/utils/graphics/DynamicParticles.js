@@ -58,7 +58,7 @@ export class DynamicParticles {
             particleSize: 5,
             startingX: 0.5, 
             startingY: 0.5,
-            maxSpeed: 3, 
+            maxSpeed: 2, 
             xBounce: -1,
             yBounce: -1,
             gravity: 0.0, //Downward z acceleration (-9.81m/s^2 = Earth gravity)

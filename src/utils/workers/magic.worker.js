@@ -39,15 +39,17 @@ self.onmessage = async (event) => {
 
     //we are gonna assume typedarrays are to be transferred for speed so throw those all into the transfer array
     let transfer = undefined;
-    if(output.__proto__.__proto__?.constructor.name === 'TypedArray') { 
-      transfer = [output.buffer];
-    } else if (typeof output === 'Object') {
-        for(const key in output) {
-            if(output[key].__proto__.__proto__?.constructor.name === 'TypedArray') {
-                if(!transfer) transfer = output[key].buffer;
-                else transfer.push(output[key].buffer);
-            }
-        }
+    if(output) {
+      if(output.__proto__?.__proto__?.constructor.name === 'TypedArray') { 
+        transfer = [output.buffer];
+      } else if (typeof output === 'Object') {
+          for(const key in output) {
+              if(output[key].__proto__?.__proto__?.constructor.name === 'TypedArray') {
+                  if(!transfer) transfer = output[key].buffer;
+                  else transfer.push(output[key].buffer);
+              }
+          }
+      }
     }
     //if(input.foo === 'particleStep') console.log(output, transfer);
 

@@ -64,8 +64,27 @@ export class MultithreadedApplet {
                     <button id='${props.id}input'>Increment</button>
                     <div id='${props.id}res'>${this.res}</div>
                     <div id='${props.id}score'>${this.score}</div>
+                    <button id='`+props.id+`showhide' style='opacity:0.2; z-index:2;'>Show UI</button><br>
+                    <table id='`+props.id+`table' style='z-index:99; display:none;'>
+                        <tr><td>
+                        Group: 
+                        <select id='${props.id}select'>
+                            <option value='none'>All</option> 
+                            <option value=0>0</option>   
+                            <option value=1>1</option>   
+                            <option value=2>2</option>             
+                        </select></td></tr>
+                        <tr><td>Cohesion:</td><td><input type='range' id='`+props.id+`cohesion' min="0" max="0.1" value="0.003" step="0.0001"></td><td><button id='`+props.id+`cohesionreset'>Reset</button></td></tr>
+                        <tr><td>Separation:</td><td><input type='range' id='`+props.id+`separation' min="0" max="1" value="0.0001" step="0.0001"></td><td><button id='`+props.id+`separationreset'>Reset</button></td></tr>
+                        <tr><td>Alignment:</td><td><input type='range' id='`+props.id+`align' min="0" max="0.05" value="0.006" step="0.001"></td><td><button id='`+props.id+`alignreset'>Reset</button></td></tr>
+                        <tr><td>Swirl:</td><td><input type='range' id='`+props.id+`swirl' min="0" max="0.01" value="0.002" step="0.0001" ></td><td><button id='`+props.id+`swirlreset'>Reset</button></td></tr>
+                        <tr><td>Anchor:</td><td><input type='range' id='`+props.id+`anchor' min="0" max="0.05" value="0.003" step="0.001" ></td><td><button id='`+props.id+`anchorreset'>Reset</button></td></tr>
+                        <tr><td>Max Speed:</td><td><input type='range' id='`+props.id+`speed' min="0" max="20" value="2" step="0.1" ></td><td><button id='`+props.id+`speedreset'>Reset</button></td></tr>
+                        <tr><td>Gravity:</td><td><input type='range' id='`+props.id+`gravity' min="0" max="10" value="0" step="0.1"></td><td><button id='`+props.id+`gravityreset'>Reset</button></td></tr>
+                    </table>   
                 </div>
                 <canvas id='${props.id}canvas' style='z-index:1;width:100%;height:100%;'></canvas>
+                         
             </div>
             `;
         }
@@ -74,6 +93,158 @@ export class MultithreadedApplet {
         let setupHTML = (props=this.props) => {
             this.canvas = document.getElementById(props.id+"canvas");
             //this.ctx = this.canvas.getContext('2d');
+
+            let showhide = document.getElementById(props.id+'showhide');
+            let table = document.getElementById(props.id+'table');
+            showhide.onclick = () => {
+                if(this.hidden === false) {
+                    table.style.display = 'none';
+                    showhide.innerHTML = "Show UI";
+                    this.hidden = true;
+                }
+                else {
+                    table.style.display = '';
+                    showhide.innerHTML = "Hide UI";
+                    this.hidden = false;
+                }
+            }
+
+            showhide.onmouseover = () => {
+                showhide.style.opacity = 1.0;
+            }
+            showhide.onmouseleave = () => {
+                showhide.style.opacity = 0.2;
+            }
+
+            this.selected = undefined;
+
+            document.getElementById(props.id+'select').onchange = (ev) => {
+                if(ev.target.value === 'none') this.selected = undefined;
+                else this.selected = ev.target.value
+            }
+
+            document.getElementById(props.id+'cohesion').onchange = (ev) => {
+                let select = document.getElementById(props.id+'select');
+                let value = select.options[select.selectedIndex].value;
+                if(value === 'none') value = undefined;
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{cohesion:ev.target.value},'boid',undefined,this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'cohesionreset').onclick = () => {
+                document.getElementById(props.id+'cohesion').value = 0.003;
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{cohesion:0.003},'boid',undefined,this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'separation').onchange = (ev) => {
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{separation:ev.target.value},'boid',undefined,this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'separationreset').onclick = () => {
+                document.getElementById(props.id+'separation').value = 0.0001;
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{separation:0.0001},'boid',undefined,this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'align').onchange = (ev) => {
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{alignment:ev.target.value},'boid',undefined,this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'alignreset').onclick = () => {
+                document.getElementById(props.id+'align').value = 0.006;
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{alignment:0.006},'boid',undefined,this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'swirl').onchange = (ev) => {
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{mul:ev.target.value},'boid','swirl',this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'swirlreset').onclick = () => {
+                document.getElementById(props.id+'swirl').value = 0.002;
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{mul:0.002},'boid','swirl',this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'anchor').onchange = (ev) => {
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{mul:ev.target.value},'boid','attractor',this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'anchorreset').onclick = () => {
+                document.getElementById(props.id+'anchor').value = 0.003;
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{mul:0.003},'boid','attractor',this.selected],
+                    this.origin,
+                    this.worker1Id
+                )
+            }
+            document.getElementById(props.id+'speed').onchange = (ev) => {
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{maxSpeed:ev.target.value}],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'speedreset').onclick = () => {
+                document.getElementById(props.id+'speed').value = 2;
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{maxSpeed:2},undefined,undefined,this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'gravity').onchange = (ev) => {
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{gravity:-ev.target.value},undefined,undefined,this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
+            document.getElementById(props.id+'gravityreset').onclick = () => {
+                document.getElementById(props.id+'gravity').value = 0;
+                window.workers.runWorkerFunction(
+                    'setGroupProperties',
+                    [{gravity:0},undefined,undefined,this.selected],
+                    this.origin,
+                    this.worker1Id
+                );
+            }
         }
 
         this.AppletHTML = new DOMFragment( // Fast HTML rendering container object
@@ -200,7 +371,7 @@ export class MultithreadedApplet {
         three.renderer = new THREE.WebGLRenderer({canvas:self.canvas, antialias: true });
         three.renderer.setPixelRatio(Math.min(three.proxy.clientWidth / three.proxy.clientHeight,2));
         three.renderer.shadowMap.enabled = true;
-        
+
         three.resizeRendererToDisplaySize(three.renderer,three.proxy,three.camera);
         // three.renderer.domElement.style.width = '100%';
         // three.renderer.domElement.style.height = '100%';
@@ -397,7 +568,7 @@ export class MultithreadedApplet {
         //add some custom functions to the threads
         window.workers.addWorkerFunction( 
             'add',
-            function add(args){return args[0]+args[1];}.toString(),
+            function add(self,args,origin){return args[0]+args[1];}.toString(),
             this.origin,
             this.worker1Id
         );
@@ -479,11 +650,29 @@ export class MultithreadedApplet {
             this.worker1Id
         );
 
-        
+        //add some custom functions to the threads
+        window.workers.addWorkerFunction(
+            'setGroupProperties',
+            function particleStep(self, args, origin){
+                if(typeof args[0] === 'object') {
+                    if(!args[3]) {
+                        self.particleObj.particles.forEach((p,i) => {
+                            self.particleObj.updateGroupProperties(i,args[0],args[1],args[2]);
+                        });
+                    } else {
+                        self.particleObj.updateGroupProperties(args[3],args[0],args[1],args[2]);
+                    }
+                    return true;
+                }
+                return false;
+            }.toString(),
+            this.origin,
+            this.worker1Id
+        );
 
         window.workers.addWorkerFunction(
             'mul',
-            function mul(args,origin){return args[0]*args[1];}.toString(),
+            function mul(self,args,origin){return args[0]*args[1];}.toString(),
             this.origin,
             this.worker2Id
         );
