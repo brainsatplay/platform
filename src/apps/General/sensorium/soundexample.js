@@ -35,7 +35,7 @@ sound.addSounds([url],onReady = (idx,buffer) => {
     //[0,1,3,4,22,555,444,222]; 
     let toDispatch = [];
     for(let i = 0; i < buf.length; i+= buffer.samplingRate*0.5) {
-        if(i > buf.length) {
+        if(i+buffer.samplingRate > buf.length) {
             i = buf.length - buffer.samplingRate;
         }
         toDispatch.push(buf.slice(i,i+buffer.samplingRate));

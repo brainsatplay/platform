@@ -46,7 +46,7 @@ export class MultithreadedApplet {
         this.thread1lastoutput = 1;
         this.increment = 0;
         this.res = 0;
-
+        this.score = 0;
     }
 
     //---------------------------------
@@ -63,6 +63,7 @@ export class MultithreadedApplet {
                 <div style='position:absolute;'>
                     <button id='${props.id}input'>Increment</button>
                     <div id='${props.id}res'>${this.res}</div>
+                    <div id='${props.id}score'>${this.score}</div>
                 </div>
                 <canvas id='${props.id}canvas' style='z-index:1;'></canvas>
             </div>

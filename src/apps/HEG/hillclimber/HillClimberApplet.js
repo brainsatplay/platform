@@ -165,19 +165,21 @@ export class HillClimberApplet {
 
 
         //Add whatever else you need to initialize
+        this.looping = true;
         this.updateLoop();
     }
 
     //Delete all event listeners and loops here and delete the HTML block
     deinit() {
-        this.stop();
-        if(window.audio){
-            if(window.audio.osc[0] != undefined) {
-              window.audio.osc[0].stop(0);
-            }
+      this.looping = false;
+      this.stop();
+      if(window.audio){
+          if(window.audio.osc[0] != undefined) {
+            window.audio.osc[0].stop(0);
           }
-        this.AppletHTML.deleteNode();
-        //Be sure to unsubscribe from state if using it and remove any extra event listeners
+        }
+      this.AppletHTML.deleteNode();
+      //Be sure to unsubscribe from state if using it and remove any extra event listeners
     }
 
     //Responsive UI update, for resizing and responding to new connections detected by the UI manager
@@ -196,6 +198,11 @@ export class HillClimberApplet {
     //--------------------------------------------
     //--Add anything else for internal use below--
     //--------------------------------------------
+
+    mean(arr){
+      var sum = arr.reduce((prev,curr)=> curr += prev);
+      return sum / arr.length;
+    }
 
     onData(score){
         var newscore = this.hillScore[this.hillScore.length - 1]+score*20
@@ -224,6 +231,7 @@ export class HillClimberApplet {
       }
     
     updateLoop = () => {
+      if(this.looping) {
         if(this.session.atlas.settings.heg  && this.session.atlas.settings.deviceConnected) {
           if(this.feedback === 'ratio') {
             let ct = this.session.atlas.data.heg[0].count;
@@ -244,10 +252,11 @@ export class HillClimberApplet {
               this.onData(score);
             }
           }
-          document.getElementById(this.props.id+'score').innerHTML = this.hillScore.toFixed(3);
+          document.getElementById(this.props.id+'score').innerHTML = this.hillScore[this.hillScore.length-1].toFixed(3);
         }
         this.draw();
         setTimeout(() => {this.animationId = requestAnimationFrame(this.updateLoop);}, this.updateInterval);
+      }
     }
    
     draw = () => {
