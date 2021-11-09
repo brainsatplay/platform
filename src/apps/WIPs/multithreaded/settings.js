@@ -8,6 +8,6 @@ export const settings = {
     module: "MultithreadedApplet",
 		"instructions":"Coming soon...",
     display: {
-        production: false
+        production: true
         },
 }
