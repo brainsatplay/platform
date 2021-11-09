@@ -318,7 +318,10 @@ export class MultithreadedApplet {
                     let slice = this.session.atlas.data.heg[0].ratio.slice(ct-avg);
                     let score = this.session.atlas.data.heg[0].ratio[ct-1] - this.mean(slice);
                     this.angleChange = score; this.score += score;
-                    this.canvasWorker.setValues({angleChange:this.angleChange});
+                    this.runWorkerFunction('setGroupProperties',[{maxSpeed:this.score*2}],this.origin,this.canvasWorkerId);
+                    this.runWorkerFunction('setGroupProperties',[{alignment:this.score},'boid'],this.origin,this.canvasWorkerId);
+                    this.runWorkerFunction('setGroupProperties',[{mul:this.score*0.1},'boid','swirl'],this.origin,this.canvasWorkerId);
+                    //this.canvasWorker.setValues({angleChange:this.angleChange});
                     document.getElementById(this.props.id+'score').innerHTML = this.score.toFixed(3);
                 }
             }
