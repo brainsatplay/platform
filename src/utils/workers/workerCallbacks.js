@@ -186,7 +186,11 @@ export class CallbackManager {
       },
       { //internal event subscription, look at Event.js for usage, its essentially a function trigger manager for creating algorithms
         case: 'subevent', callback: (self, args, origin) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
-          return self.EVENTS.subEvent(args[0], parseFunctionFromText(args[1]))
+          if(typeof args[0] !== 'string') return false;
+          let response = parseFunctionFromText(args[1]);
+          return self.EVENTS.subEvent(args[0], (output) => {
+            response(self,output,origin); //function wrapper so you can access self from the event subscription
+          });
         }
       },
       { //internal event unsubscribe

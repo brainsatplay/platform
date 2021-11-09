@@ -6,9 +6,8 @@ import worker from './magic.worker.js' // works when exporting self
 
 import { Events } from './Event';
 
-let defaultWorkerThreads = 0
 export class WorkerManager {
-    constructor(workerURL= new URL('./magic.worker.js', import.meta.url, defaultWorkerThreads)){
+    constructor(workerURL= new URL('./magic.worker.js', import.meta.url), defaultWorkerThreads=0){
         this.workerURL = workerURL;
         this.workerResponses = [];
         this.workers = [];
@@ -115,7 +114,7 @@ export class WorkerManager {
       eventName,
       worker1Id,
       worker2Id,
-      onEvent=undefined, //event subscription (output) => {}
+      onEvent=undefined, //onEvent=(self,args,origin)=>{} //args will be the output
       foo,
       origin) {
       let channel = new MessageChannel();
@@ -140,23 +139,18 @@ export class WorkerManager {
         origin,
         worker2Id,
         [port2]
-      )
+      );
 
-      if(onEvent) {
-        let func;
-        if(typeof onEvent === 'function') func = onEvent.toString();
-        else if(typeof func === 'string') func = onEvent;
-
+      if(typeof onEvent === 'function')
         this.runWorkerFunction(
           'subevent',
           [
-            eventName,
-            func,
+            'eventName',
+            onEvent.toString()
           ],
           origin,
-          worker2Id,
+          worker2Id
         );
-      }
 
     }
 

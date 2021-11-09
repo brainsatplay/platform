@@ -20,7 +20,10 @@ self.onmessage = async (event) => {
   let dict;
   let output = undefined;
   let emitted = false;
-  if(typeof input === 'object'){
+  if(event.data.eventName) { //pipe events to the event manager system
+    manager.EVENTS.workerCallback(input);
+  }
+  else if(typeof input === 'object'){
     if(input.canvas !== undefined) { //if a new canvas is sent (event.data.canvas = htmlCanvasElement.transferControlToOffscreen()).
       manager.canvas = input.canvas; 
       canvas = manager.canvas;
@@ -32,40 +35,34 @@ self.onmessage = async (event) => {
       context = manager.ctx;
     } 
 
-    if(input.eventName) { //events indicate to just setState locally to trigger subscription functions rather than 
-      manager.EVENTS.workerCallback(input);
-      //received input = { eventName:'string', output: any }
-    }
-    else {
-      let eventSetting = manager.checkEvents(input.foo,input.origin);
-      //console.log(event)
+    let eventSetting = manager.checkEvents(input.foo,input.origin);
+    //console.log(event)
 
-      output = await manager.checkCallbacks(event);  // output some results!
-      counter++; //just tracks the number of calls made to the worker
+    output = await manager.checkCallbacks(event);  // output some results!
+    counter++; //just tracks the number of calls made to the worker
 
-      //we are gonna assume typedarrays are to be transferred for speed so throw those all into the transfer array
-      let transfer = undefined;
-      if(output) {
-        if(output.__proto__?.__proto__?.constructor.name === 'TypedArray') { 
-          transfer = [output.buffer];
-        } else if (typeof output === 'Object') {
-            for(const key in output) {
-                if(output[key].__proto__?.__proto__?.constructor.name === 'TypedArray') {
-                    if(!transfer) transfer = output[key].buffer;
-                    else transfer.push(output[key].buffer);
-                }
-            }
-        }
+    //we are gonna assume typedarrays are to be transferred for speed so throw those all into the transfer array
+    let transfer = undefined;
+    if(output) {
+      if(output.__proto__?.__proto__?.constructor.name === 'TypedArray') { 
+        transfer = [output.buffer];
+      } else if (typeof output === 'Object') {
+          for(const key in output) {
+              if(output[key].__proto__?.__proto__?.constructor.name === 'TypedArray') {
+                  if(!transfer) transfer = output[key].buffer;
+                  else transfer.push(output[key].buffer);
+              }
+          }
       }
-      //if(input.foo === 'particleStep') console.log(output, transfer);
-
-      dict = {output: output, foo: input.foo, origin: input.origin, counter:counter};
-      
-      if(eventSetting) {manager.EVENTS.emit(eventSetting.eventName,dict,transfer,eventSetting.port); emitted = true;} //if the origin and foo match an event setting on the thread, this emits output as an event
-      else if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
-          self.postMessage(dict,undefined,transfer);
-      } 
     }
+    //if(input.foo === 'particleStep') console.log(output, transfer);
+
+    dict = {output: output, foo: input.foo, origin: input.origin, counter:counter};
+    
+    if(eventSetting) {manager.EVENTS.emit(eventSetting.eventName,dict,transfer,eventSetting.port); emitted = true;} //if the origin and foo match an event setting on the thread, this emits output as an event
+    else if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+        self.postMessage(dict,undefined,transfer);
+    } 
   }
   /*
     now run "addfunc" to render something in the linked canvas from the worker thread
