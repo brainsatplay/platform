@@ -699,7 +699,7 @@ export class MultithreadedApplet {
 
                     //console.log(args,eventName);
                     args.output.forEach((arr) => {
-                        self.boids[self.groupsSetup] = arr;
+                        self.boids[parseInt(eventName[eventName.length-1])] = arr;
                         self.groupsSetup++;
                     })
                     if(self.groupsSetup === self.nGroups) {
