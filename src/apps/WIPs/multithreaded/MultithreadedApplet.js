@@ -80,7 +80,7 @@ export class MultithreadedApplet {
                         <tr><td>Alignment:</td><td><input type='range' id='`+props.id+`align' min="0" max="1" value="0.006" step="0.001"></td><td><button id='`+props.id+`alignreset'>Reset</button></td></tr>
                         <tr><td>Swirl:</td><td><input type='range' id='`+props.id+`swirl' min="0" max="0.01" value="0.002" step="0.0001" ></td><td><button id='`+props.id+`swirlreset'>Reset</button></td></tr>
                         <tr><td>Anchor:</td><td><input type='range' id='`+props.id+`anchor' min="0" max="0.05" value="0.003" step="0.001" ></td><td><button id='`+props.id+`anchorreset'>Reset</button></td></tr>
-                        <tr><td>Max Speed:</td><td><input type='range' id='`+props.id+`speed' min="0" max="20" value="2" step="0.1" ></td><td><button id='`+props.id+`speedreset'>Reset</button></td></tr>
+                        <tr><td>Max Speed:</td><td><input type='range' id='`+props.id+`speed' min="0" max="20" value="3" step="0.1" ></td><td><button id='`+props.id+`speedreset'>Reset</button></td></tr>
                         <tr><td>Gravity:</td><td><input type='range' id='`+props.id+`gravity' min="0" max="10" value="0" step="0.1"></td><td><button id='`+props.id+`gravityreset'>Reset</button></td></tr>
                     </table>   
                 </div>
@@ -604,7 +604,7 @@ export class MultithreadedApplet {
                 });
             });
 
-            return Float32Array.from(positionbuffer); //will automatically be transferred as our worker checks for TypedArrays
+            return {pos:Float32Array.from(positionbuffer),time:self.particleObj.currFrame}; //will automatically be transferred as our worker checks for TypedArrays
         }
 
         function setGroupProperties(self, args, origin){
@@ -736,7 +736,7 @@ export class MultithreadedApplet {
                 function worker2Response(self,args,origin,port,eventName){
                     //args = [float32array] from particle1Step output
                     //console.log(args.output,output.length);
-                    let output = Array.from(args.output);
+                    let output = Array.from(args.output.pos);
                     let idx = parseInt(eventName[eventName.length-1]);
                     let offset = 0;
                     let j = 0;
@@ -754,7 +754,7 @@ export class MultithreadedApplet {
                     if(port) {
                         requestAnimationFrame( //let the particle thread know that the render thread is ready for more data (throttled by framerate)
                             ()=>{
-                                port.postMessage({foo:'particleStep',input:[performance.now()*0.001],origin:origin});
+                                port.postMessage({foo:'particleStep',input:[args.output.time],origin:origin});
                             }
                         ); 
                     }

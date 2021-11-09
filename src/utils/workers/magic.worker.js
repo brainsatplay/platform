@@ -47,7 +47,7 @@ self.onmessage = async (event) => {
     if(output) {
       if(output.__proto__?.__proto__?.constructor.name === 'TypedArray') { 
         transfer = [output.buffer];
-      } else if (typeof output === 'Object') {
+      } else if (output.constructor?.name === 'Object') {
           for(const key in output) {
               if(output[key].__proto__?.__proto__?.constructor.name === 'TypedArray') {
                   if(!transfer) transfer = output[key].buffer;

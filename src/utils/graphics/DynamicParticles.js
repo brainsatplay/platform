@@ -58,7 +58,7 @@ export class DynamicParticles {
             particleSize: 5,
             startingX: 0.5, 
             startingY: 0.5,
-            maxSpeed: 2, 
+            maxSpeed: 3, 
             xBounce: -1,
             yBounce: -1,
             gravity: 0.0, //Downward z acceleration (-9.81m/s^2 = Earth gravity)
@@ -120,7 +120,7 @@ export class DynamicParticles {
         this.startingRules = rules;
 
         if(!this.looping) {
-            this.currFrame = performance.now();
+            this.currFrame = performance.now()*0.001;
             this.looping = true;
             this.loop();
         }
@@ -744,10 +744,8 @@ export class DynamicParticles {
 
     frame = (lastFrame) => {
         if(!this.frameOffset) this.frameOffset = lastFrame;
-        
         this.currFrame = performance.now()*0.001+this.frameOffset;
-        let timeStep = (this.currFrame - lastFrame)/lastFrame;
-        
+        let timeStep = (this.currFrame - lastFrame);
 
         if(this.defaultCanvas) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
