@@ -167,10 +167,21 @@ export class CallbackManager {
           return self.gpu.callKernel(args[0], args.slice(1)); //generalized gpu kernel calls
         }
       },
+      { //MessageChannel port, it just runs the whole callback system to keep it pain-free, while allowing messages from other workers
+        case: 'addport', callback: (self, args, origin) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
+          let port = args[0];
+          port.onmessage = onmessage; //sets up a new receiver source (from other workers, perform addevent on the other worker)
+        }
+      },
       { //add an event to the event manager, this helps building automated pipelines between threads
         case: 'addevent', callback: (self, args, origin) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
-          self.EVENTSETTINGS.push({ eventName: args[0], case: args[1], origin: origin });
-          return true;
+          self.EVENTSETTINGS.push({ eventName: args[0], case: args[1], port:args[2], origin: origin });
+          if(args[2]){ 
+            let port = args[2];
+            port.onmessage = onmessage; //attach the port onmessage event
+            return true;
+          }
+          return false;
         }
       },
       { //internal event subscription, look at Event.js for usage, its essentially a function trigger manager for creating algorithms

@@ -76,7 +76,7 @@ export class MultithreadedApplet {
                         </select></td></tr>
                         <tr><td>Cohesion:</td><td><input type='range' id='`+props.id+`cohesion' min="0" max="0.1" value="0.003" step="0.0001"></td><td><button id='`+props.id+`cohesionreset'>Reset</button></td></tr>
                         <tr><td>Separation:</td><td><input type='range' id='`+props.id+`separation' min="0" max="1" value="0.0001" step="0.0001"></td><td><button id='`+props.id+`separationreset'>Reset</button></td></tr>
-                        <tr><td>Alignment:</td><td><input type='range' id='`+props.id+`align' min="0" max="0.05" value="0.006" step="0.001"></td><td><button id='`+props.id+`alignreset'>Reset</button></td></tr>
+                        <tr><td>Alignment:</td><td><input type='range' id='`+props.id+`align' min="0" max="1" value="0.006" step="0.001"></td><td><button id='`+props.id+`alignreset'>Reset</button></td></tr>
                         <tr><td>Swirl:</td><td><input type='range' id='`+props.id+`swirl' min="0" max="0.01" value="0.002" step="0.0001" ></td><td><button id='`+props.id+`swirlreset'>Reset</button></td></tr>
                         <tr><td>Anchor:</td><td><input type='range' id='`+props.id+`anchor' min="0" max="0.05" value="0.003" step="0.001" ></td><td><button id='`+props.id+`anchorreset'>Reset</button></td></tr>
                         <tr><td>Max Speed:</td><td><input type='range' id='`+props.id+`speed' min="0" max="20" value="2" step="0.1" ></td><td><button id='`+props.id+`speedreset'>Reset</button></td></tr>
@@ -214,7 +214,7 @@ export class MultithreadedApplet {
             document.getElementById(props.id+'speed').onchange = (ev) => {
                 window.workers.runWorkerFunction(
                     'setGroupProperties',
-                    [{maxSpeed:ev.target.value}],
+                    [{maxSpeed:ev.target.value},undefined,undefined,this.selected],
                     this.origin,
                     this.worker1Id
                 );
@@ -582,13 +582,16 @@ export class MultithreadedApplet {
         // //add some custom functions to the threads
         window.workers.addWorkerFunction(
             'particleSetup',
-            function particleStep(self, args, origin){
+            function particleSetup(self, args, origin){
                 //console.log(self);
                 self.particleObj = new self.particleClass(undefined,undefined,false,false);
                 self.particleObj.setupRules([
                     ['boids',4000,[450,450,450]],
                     ['boids',5000,[450,450,450]],
-                    ['boids',700,[450,450,450]]]);
+                    ['boids',700,[450,450,450]]]
+                );
+
+                if(typeof args[0] === 'object') self.particleObj.updateGroupProperties(args[3],args[0],args[1],args[2]); //can set some initial properties
                 //TODO: use an arraybuffer system for MUCH FASTER transfers
                 //https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
                 //https://developers.google.com/web/updates/2011/12/Transferable-Objects-Lightning-Fast
@@ -695,6 +698,7 @@ export class MultithreadedApplet {
 
         window.workers.subEvent('particle1Setup',(res) => {
             if(Array.isArray(res.output)) {
+                
                 window.workers.runWorkerFunction('initThree',
                     [
                         proxy.id,
@@ -758,8 +762,9 @@ export class MultithreadedApplet {
             }
         };
 
-
-        window.workers.runWorkerFunction('particleSetup',undefined,this.origin,this.worker1Id);
+        //let particlesettings = [{maxSpeed:5}]; //see updateGroupProperties on the DynamicParticles class (or just the slider settings here in the applet)
+        let particlesettings = undefined;
+        window.workers.runWorkerFunction('particleSetup',particlesettings,this.origin,this.worker1Id);
         
 
         //this.canvasWorker.startAnimation(); //run animationFrame loop on the worker

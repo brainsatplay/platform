@@ -61,7 +61,7 @@ export class Events {
     }
 
     //use this to set values by event name, will post messages on threads too
-    emit(eventName, input, workerId=undefined,transfer=undefined) {
+    emit(eventName, input, workerId=undefined,transfer=undefined,port=undefined) {
         let output = {eventName:eventName, output:input};
         
         if(!input || !eventName) return;
@@ -70,7 +70,8 @@ export class Events {
             else {this.workermanager.workers.forEach((w)=>{this.workermanager.postToWorker(output,w.id,transfer);});}
         } else if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
         // run this in global scope of window or worker. since window.self = window, we're ok
-            postMessage(output,undefined,transfer); //thread event 
+            if(port) port.postMessage(output,undefined,transfer);
+            else postMessage(output,undefined,transfer); //thread event 
         }
         this.state.setState({[eventName]:input}); //local event 
     }

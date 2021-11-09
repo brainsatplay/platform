@@ -31,34 +31,41 @@ self.onmessage = async (event) => {
       ctx = manager.ctx;
       context = manager.ctx;
     } 
-    let eventSetting = manager.checkEvents(input.foo,input.origin);
-    //console.log(event)
 
-    output = await manager.checkCallbacks(event);  // output some results!
-    counter++; //just tracks the number of calls made to the worker
-
-    //we are gonna assume typedarrays are to be transferred for speed so throw those all into the transfer array
-    let transfer = undefined;
-    if(output) {
-      if(output.__proto__?.__proto__?.constructor.name === 'TypedArray') { 
-        transfer = [output.buffer];
-      } else if (typeof output === 'Object') {
-          for(const key in output) {
-              if(output[key].__proto__?.__proto__?.constructor.name === 'TypedArray') {
-                  if(!transfer) transfer = output[key].buffer;
-                  else transfer.push(output[key].buffer);
-              }
-          }
-      }
+    if(input.eventName) { //events indicate to just setState locally to trigger subscription functions rather than 
+      manager.EVENTS.workerCallback(input);
+      //received input = { eventName:'string', output: any }
     }
-    //if(input.foo === 'particleStep') console.log(output, transfer);
+    else {
+      let eventSetting = manager.checkEvents(input.foo,input.origin);
+      //console.log(event)
 
-    dict = {output: output, foo: input.foo, origin: input.origin, counter:counter};
-    
-    if(eventSetting) {manager.EVENTS.emit(eventSetting.eventName,dict,transfer); emitted = true;} //if the origin and foo match an event setting on the thread, this emits output as an event
-    else if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
-        self.postMessage(dict,undefined,transfer);
-    } 
+      output = await manager.checkCallbacks(event);  // output some results!
+      counter++; //just tracks the number of calls made to the worker
+
+      //we are gonna assume typedarrays are to be transferred for speed so throw those all into the transfer array
+      let transfer = undefined;
+      if(output) {
+        if(output.__proto__?.__proto__?.constructor.name === 'TypedArray') { 
+          transfer = [output.buffer];
+        } else if (typeof output === 'Object') {
+            for(const key in output) {
+                if(output[key].__proto__?.__proto__?.constructor.name === 'TypedArray') {
+                    if(!transfer) transfer = output[key].buffer;
+                    else transfer.push(output[key].buffer);
+                }
+            }
+        }
+      }
+      //if(input.foo === 'particleStep') console.log(output, transfer);
+
+      dict = {output: output, foo: input.foo, origin: input.origin, counter:counter};
+      
+      if(eventSetting) {manager.EVENTS.emit(eventSetting.eventName,dict,transfer,eventSetting.port); emitted = true;} //if the origin and foo match an event setting on the thread, this emits output as an event
+      else if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+          self.postMessage(dict,undefined,transfer);
+      } 
+    }
   }
   /*
     now run "addfunc" to render something in the linked canvas from the worker thread
@@ -69,8 +76,6 @@ self.onmessage = async (event) => {
       ctx.strokeRect(50, 50, 50, 50);
     }`]);
   */
-  //if(event.data.eventName) console.log("event sent to thread", event.data)
-  if(!emitted) manager.EVENTS.workerCallback(event.data); //checks for eventName tag and setState locally
 
   // console.timeEnd("worker");
   return dict;

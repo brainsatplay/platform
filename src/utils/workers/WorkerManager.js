@@ -110,6 +110,56 @@ export class WorkerManager {
       this.runWorkerFunction('setValues',values,origin,id,transfer);
     }
 
+    //this creates a message port so particular event outputs can directly message another worker and save overhead on the main thread
+    establishMessageChannel(
+      eventName,
+      worker1Id,
+      worker2Id,
+      onEvent=undefined, //event subscription (output) => {}
+      foo,
+      origin) {
+      let channel = new MessageChannel();
+      let port1 = channel.port1;
+      let port2 = channel.port2;
+
+      this.runWorkerFunction(
+        'addevent',
+        [
+          eventName,
+          foo,
+          port1
+        ],
+        origin,
+        worker1Id,
+        [port1]
+      );
+
+      this.runWorkerFunction(
+        'addport',
+        [port2],
+        origin,
+        worker2Id,
+        [port2]
+      )
+
+      if(onEvent) {
+        let func;
+        if(typeof onEvent === 'function') func = onEvent.toString();
+        else if(typeof func === 'string') func = onEvent;
+
+        this.runWorkerFunction(
+          'subevent',
+          [
+            eventName,
+            func,
+          ],
+          origin,
+          worker2Id,
+        );
+      }
+
+    }
+
     postToWorker = (input, id = null, transfer=undefined) => {
         //console.log('posting',input,id);
         if (Array.isArray(input.input)){
