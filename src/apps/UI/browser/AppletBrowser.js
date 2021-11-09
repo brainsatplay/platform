@@ -44,7 +44,7 @@ export class AppletBrowser {
 
     //Delete all event listeners and loops here and delete the HTML block
     deinit = () => {
-        this.props.trainingModule.deinit()
+        // this.props.trainingModule.deinit()
     }
 
     configure = (settings = []) => { //For configuring from the address bar or saved settings. Expects an array of arguments [a,b,c] to do whatever with
@@ -155,8 +155,8 @@ export class AppletBrowser {
             settings.graphs[0].edges.push({ source: `${mode}:element`, target: `${mode}ui:content` })
         })
 
-        this.props.trainingModule = new brainsatplay.App(settings, trainingContainer, this.session)
-        this.props.trainingModule.init()
+        // this.props.trainingModule = new brainsatplay.App(settings, trainingContainer, this.session)
+        // this.props.trainingModule.init()
         trainingContainer.style.padding = 0
     }
 
