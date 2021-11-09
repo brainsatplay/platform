@@ -744,8 +744,9 @@ export class DynamicParticles {
 
     frame = (lastFrame) => {
         if(!this.frameOffset) this.frameOffset = lastFrame;
+        
         this.currFrame = performance.now()*0.001+this.frameOffset;
-        let timeStep = this.currFrame - lastFrame;
+        let timeStep = (this.currFrame - lastFrame)/lastFrame;
         
 
         if(this.defaultCanvas) {
