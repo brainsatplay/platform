@@ -80,7 +80,7 @@ export class MultithreadedApplet {
                         <tr><td>Alignment:</td><td><input type='range' id='`+props.id+`align' min="0" max="1" value="0.006" step="0.001"></td><td><button id='`+props.id+`alignreset'>Reset</button></td></tr>
                         <tr><td>Swirl:</td><td><input type='range' id='`+props.id+`swirl' min="0" max="0.01" value="0.002" step="0.0001" ></td><td><button id='`+props.id+`swirlreset'>Reset</button></td></tr>
                         <tr><td>Anchor:</td><td><input type='range' id='`+props.id+`anchor' min="0" max="0.05" value="0.003" step="0.001" ></td><td><button id='`+props.id+`anchorreset'>Reset</button></td></tr>
-                        <tr><td>Max Speed:</td><td><input type='range' id='`+props.id+`speed' min="0" max="20" value="3" step="0.1" ></td><td><button id='`+props.id+`speedreset'>Reset</button></td></tr>
+                        <tr><td>Max Speed:</td><td><input type='range' id='`+props.id+`speed' min="0" max="100" value="3" step="0.1" ></td><td><button id='`+props.id+`speedreset'>Reset</button></td></tr>
                         <tr><td>Gravity:</td><td><input type='range' id='`+props.id+`gravity' min="0" max="10" value="0" step="0.1"></td><td><button id='`+props.id+`gravityreset'>Reset</button></td></tr>
                     </table>   
                 </div>
@@ -265,8 +265,8 @@ export class MultithreadedApplet {
                     let slice = this.session.atlas.data.heg[0].ratio.slice(ct-avg);
                     let score = this.session.atlas.data.heg[0].ratio[ct-1] - this.mean(slice);
                     this.angleChange = score; this.score += score;
-                    this.runWorkerFunction('setGroupProperties',[{maxSpeed:this.score*2}],this.origin,this.canvasWorkerId);
-                    this.runWorkerFunction('setGroupProperties',[{alignment:this.score},'boid'],this.origin,this.canvasWorkerId);
+                    this.runWorkerFunction('setGroupProperties',[{maxSpeed:this.score*20}],this.origin,this.canvasWorkerId);
+                    this.runWorkerFunction('setGroupProperties',[{alignment:this.score*0.01},'boid'],this.origin,this.canvasWorkerId);
                     this.runWorkerFunction('setGroupProperties',[{mul:this.score*0.1},'boid','swirl'],this.origin,this.canvasWorkerId);
                     //this.canvasWorker.setValues({angleChange:this.angleChange});
                     document.getElementById(this.props.id+'score').innerHTML = this.score.toFixed(3);
