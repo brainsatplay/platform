@@ -1,5 +1,5 @@
 
-import featureImg from './feature.PNG'
+import featureImg from './feature.png'
 
 export const settings = {
     "name": "HEG Session Plotter",
