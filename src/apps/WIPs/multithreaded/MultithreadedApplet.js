@@ -688,19 +688,7 @@ export class MultithreadedApplet {
 
         let renderThreadWaiting = false;
         let renderThreadSetup = false;
-        //thread 1 process initiated by button press
-        window.workers.subEvent('thread1process',(res) => { //send thread1 result to thread 2
-            if(typeof res.output === 'number')
-            {
-                this.increment = res.output;
-                window.workers.runWorkerFunction('mul',[this.increment,2],this.origin,this.worker2Id);
-                console.log('multiply by 2 on thread 2')
-            } else if (Array.isArray(res.output) && Array.isArray(res.output[0])) {
-                //console.log('thread1 event',res.output,Date.now());
-                console.log(res)
-
-            }
-        });
+        
 
         window.workers.subEvent('particle1Setup',(res) => {
             if(Array.isArray(res.output)) {
@@ -766,6 +754,20 @@ export class MultithreadedApplet {
         });
 
 
+        
+        //thread 1 process initiated by button press
+        window.workers.subEvent('thread1process',(res) => { //send thread1 result to thread 2
+            if(typeof res.output === 'number')
+            {
+                this.increment = res.output;
+                window.workers.runWorkerFunction('mul',[this.increment,2],this.origin,this.worker2Id);
+                console.log('multiply by 2 on thread 2')
+            } else if (Array.isArray(res.output) && Array.isArray(res.output[0])) {
+                //console.log('thread1 event',res.output,Date.now());
+                console.log(res)
+
+            }
+        });
 
         let element = document.getElementById(this.props.id+'res');
         //send thread2 result to canvas thread to update visual settings
