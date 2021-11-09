@@ -21,7 +21,8 @@ self.onmessage = async (event) => {
   let output = undefined;
   let emitted = false;
   if(event.data.eventName) { //pipe events to the event manager system
-    manager.EVENTS.workerCallback(input);
+    //console.log(event.data)
+    manager.EVENTS.workerCallback(event.data);
   }
   else if(typeof input === 'object'){
     if(input.canvas !== undefined) { //if a new canvas is sent (event.data.canvas = htmlCanvasElement.transferControlToOffscreen()).
@@ -55,11 +56,10 @@ self.onmessage = async (event) => {
           }
       }
     }
-    //if(input.foo === 'particleStep') console.log(output, transfer);
+    //if(input.foo === 'particleStep') console.log(eventSetting);
 
     dict = {output: output, foo: input.foo, origin: input.origin, counter:counter};
-    
-    if(eventSetting) {manager.EVENTS.emit(eventSetting.eventName,dict,transfer,eventSetting.port); emitted = true;} //if the origin and foo match an event setting on the thread, this emits output as an event
+    if(eventSetting) {manager.EVENTS.emit(eventSetting.eventName,dict,undefined,transfer,eventSetting.port); emitted = true;} //if the origin and foo match an event setting on the thread, this emits output as an event
     else if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
         self.postMessage(dict,undefined,transfer);
     } 

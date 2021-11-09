@@ -42,6 +42,7 @@ export class MultithreadedApplet {
         this.worker2Waiting = false;
         this.canvasWorkerId;
         this.pushedUpdateToThreads = false;
+        this.origin;
 
         this.thread1lastoutput = 1;
         this.increment = 0;
@@ -481,28 +482,30 @@ export class MultithreadedApplet {
 
     boidsRender = (self, args, origin) => {
 
-        
-        let three = self.threeUtil;
+            let three = self.threeUtil;
 
-        three.resizeRendererToDisplaySize(three.renderer,three.proxy,three.camera);
+            three.resizeRendererToDisplaySize(three.renderer,three.proxy,three.camera);
+            
+            if(self.boids.__proto__?.__proto__.constructor.name === 'TypedArray') {
+            
+                let positions = three.points.geometry.attributes.position.array;
+                let count = 0;
+            
+                //console.log(self.boids);
+                let positionArray = Array.from(self.boids); //convert float32array
 
-        let positions = three.points.geometry.attributes.position.array;
+                //updated with setValues
+                for(let count = 0; count< positionArray.length; count+=3 ) {
+                    positions[count]   =  positionArray[count];
+                    positions[count+1] =  positionArray[count+1];
+                    positions[count+2] = -positionArray[count+2];
+                }
 
-        let count = 0;
+                three.points.geometry.attributes.position.needsUpdate = true; 
+            }   
 
-        //console.log(self.boids);
-        let positionArray = Array.from(self.boids); //convert float32array
-
-        //updated with setValues
-        for(let count = 0; count< positionArray.length; count+=3 ) {
-            positions[count]   =  positionArray[count];
-            positions[count+1] =  positionArray[count+1];
-            positions[count+2] = -positionArray[count+2];
-        }
-
-        three.points.geometry.attributes.position.needsUpdate = true;   
-        three.controls.update();
-        three.renderer.render(three.scene, three.camera);
+            three.controls.update();
+            three.renderer.render(three.scene, three.camera);
     }
 
     //  threeWorkerDefaultDraw(self, args, origin){
@@ -563,7 +566,7 @@ export class MultithreadedApplet {
         
         //add some events to listen to thread results
         window.workers.addEvent('thread1process',this.origin,'add',this.worker1Id);
-        window.workers.addEvent('particle1Step',this.origin,'particleStep',this.worker1Id);
+        //window.workers.addEvent('particle1Step',this.origin,'particleStep',this.worker1Id);
         window.workers.addEvent('particle1Setup',this.origin,'particleSetup',this.worker1Id);
         window.workers.addEvent('thread2process',this.origin,'mul',this.worker2Id);
         window.workers.addEvent('render',this.origin,'render',this.canvasWorkerId);
@@ -576,6 +579,13 @@ export class MultithreadedApplet {
             this.worker1Id
         );
 
+        window.workers.addWorkerFunction(
+            'mul',
+            function mul(self,args,origin){return args[0]*args[1];}.toString(),
+            this.origin,
+            this.worker2Id
+        );
+        
         //list all functions on a thread
         window.workers.runWorkerFunction('list',undefined,this.origin,this.worker1Id);
         
@@ -591,7 +601,7 @@ export class MultithreadedApplet {
                 self.particleObj.setupRules([
                     ['boids',4000,[450,450,450]],
                     ['boids',5000,[450,450,450]],
-                    ['boids',700,[450,450,450]]]
+                    ['boids',1000,[450,450,450]]]
                 );
 
                 if(typeof args[0] === 'object') self.particleObj.updateGroupProperties(args[3],args[0],args[1],args[2]); //can set some initial properties
@@ -649,7 +659,7 @@ export class MultithreadedApplet {
                         p+=3;
                     });
                 });
-                //console.log(output)
+
                 return Float32Array.from(positionbuffer);
             }.toString(),
             this.origin,
@@ -676,13 +686,6 @@ export class MultithreadedApplet {
             this.worker1Id
         );
 
-        window.workers.addWorkerFunction(
-            'mul',
-            function mul(self,args,origin){return args[0]*args[1];}.toString(),
-            this.origin,
-            this.worker2Id
-        );
-        
         let renderThreadWaiting = false;
         let renderThreadSetup = false;
         //thread 1 process initiated by button press
@@ -719,19 +722,42 @@ export class MultithreadedApplet {
             window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
         });
 
-        
-        window.workers.subEvent('particle1Step',(res) => {
-            //console.log(res.output)
-            if(!renderThreadWaiting) { //don't overwhelm the renderthread
-                this.canvasWorker.setValues({boids:res.output},[res.output.buffer]);
-                renderThreadWaiting = true;
-            }
 
-            //console.log(res.output);
-            window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
-        
-        });
+        //direct communication channel between particle and render threads
+        window.workers.establishMessageChannel(
+            'particleStep',
+            this.worker1Id,
+            this.canvasWorkerId,
+            function worker2Response(self,args,origin,port){
+                //args = [float32array] from particle1Step output
+                self.boids = args.output;
+                if(port) 
+                requestAnimationFrame( //let the particle thread know that the render thread is ready for more data (throttled by framerate)
+                    ()=>{
+                        port.postMessage({foo:'particleStep',input:[performance.now()*0.001],origin:origin});
+                    }
+                ); 
+            },
+            'particleStep',
+            this.origin
+        );
 
+        //using above instead of this 
+        // window.workers.subEvent('particle1Step',(res) => {
+        //     //console.log(res.output)
+        //     if(!renderThreadWaiting) { //don't overwhelm the renderthread
+        //         this.canvasWorker.setValues({boids:res.output},[res.output.buffer]);
+        //         renderThreadWaiting = true;
+        //     }
+
+        //     //console.log(res.output);
+        //     window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
+        
+        // });
+
+
+
+        
         //once the render completes release the input
         window.workers.subEvent('render',(res)=>{
             //console.log('render thread event',res,Date.now());

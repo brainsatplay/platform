@@ -114,7 +114,7 @@ export class WorkerManager {
       eventName,
       worker1Id,
       worker2Id,
-      onEvent=undefined, //onEvent=(self,args,origin)=>{} //args will be the output
+      worker2Response=undefined, //onEvent=(self,args,origin)=>{} //args will be the output
       foo,
       origin) {
       let channel = new MessageChannel();
@@ -134,19 +134,23 @@ export class WorkerManager {
       );
 
       this.runWorkerFunction(
-        'addport',
-        [port2],
+        'addevent',
+        [
+          eventName,
+          eventName,
+          port2
+        ],
         origin,
         worker2Id,
         [port2]
       );
 
-      if(typeof onEvent === 'function')
+      if(typeof worker2Response === 'function')
         this.runWorkerFunction(
           'subevent',
           [
-            'eventName',
-            onEvent.toString()
+            eventName,
+            worker2Response.toString()
           ],
           origin,
           worker2Id

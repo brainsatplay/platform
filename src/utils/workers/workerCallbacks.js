@@ -87,6 +87,7 @@ export class CallbackManager {
     this.ANIMFRAMETIME = performance.now(); //ms based on UTC stamps
     this.threeUtil = undefined;
     this.PROXYMANAGER = new ProxyManager();
+    this.ID = Math.floor(Math.random()*1000); //just a reference for discerning threads 
     
     try{
       if(window) console.log('worker in window!');
@@ -169,13 +170,15 @@ export class CallbackManager {
       },
       { //MessageChannel port, it just runs the whole callback system to keep it pain-free, while allowing messages from other workers
         case: 'addport', callback: (self, args, origin) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
-          let port = args[0];
+          let port = args[1];
           port.onmessage = onmessage; //sets up a new receiver source (from other workers, perform addevent on the other worker)
+          this[args[0]] = port; //locally 
         }
       },
       { //add an event to the event manager, this helps building automated pipelines between threads
         case: 'addevent', callback: (self, args, origin) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
           self.EVENTSETTINGS.push({ eventName: args[0], case: args[1], port:args[2], origin: origin });
+          //console.log(args);
           if(args[2]){ 
             let port = args[2];
             port.onmessage = onmessage; //attach the port onmessage event
@@ -185,11 +188,14 @@ export class CallbackManager {
         }
       },
       { //internal event subscription, look at Event.js for usage, its essentially a function trigger manager for creating algorithms
-        case: 'subevent', callback: (self, args, origin) => { //args[0] = eventName, args[1] = case, only fires event if from specific same origin
+        case: 'subevent', callback: (self, args, origin) => { //args[0] = eventName, args[1] = response function(self,args,origin) -> lets you reference self for setting variables
           if(typeof args[0] !== 'string') return false;
+          
           let response = parseFunctionFromText(args[1]);
+          let eventSetting = this.checkEvents(args[0]); //this will contain the port setting if there is any
+          //console.log(args, eventSetting)
           return self.EVENTS.subEvent(args[0], (output) => {
-            response(self,output,origin); //function wrapper so you can access self from the event subscription
+            response(self,output,origin,eventSetting?.port); //function wrapper so you can access self from the event subscription
           });
         }
       },
