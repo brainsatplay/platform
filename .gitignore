@@ -9,8 +9,6 @@ _site
 .idea
 # .env
 
-src/apps/apps.manifest.js
-
 # SSL Certificate
 rootCA.key
 rootCA.pem
