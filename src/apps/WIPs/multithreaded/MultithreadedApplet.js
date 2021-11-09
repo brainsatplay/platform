@@ -717,7 +717,6 @@ export class MultithreadedApplet {
                             origin
                         );
                         //console.log(self)
-                        let n = 0;
                         //need to dispatch to all ports to begin animating
                         
                     }
@@ -912,6 +911,9 @@ export class MultithreadedApplet {
         window.workers.terminate(this.worker1Id);
         window.workers.terminate(this.worker2Id);
         window.workers.terminate(this.canvasWorkerId);
+        this.particleWorkers.forEach((w) => {
+            window.workers.terminate(w);
+        })
     }
 
 } 
