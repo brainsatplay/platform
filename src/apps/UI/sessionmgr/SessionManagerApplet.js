@@ -7,10 +7,10 @@ import * as BrowserFS from 'browserfs'
 const fs = BrowserFS.BFSRequire('fs');
 const BFSBuffer = BrowserFS.BFSRequire('buffer').Buffer;
 
-import brainsvg from '../../../platform/assets/brain-solid.svg'
-import csvsvg from '../../../platform/assets/file-csv-solid.svg'
-import deletesvg from '../../../platform/assets/trash-alt-regular.svg'
-import drivesvg from '../../../platform/assets/Google_Drive_icon_2020.svg'
+import brainsvg from '../../../frontend/assets/brain-solid.svg'
+import csvsvg from '../../../frontend/assets/file-csv-solid.svg'
+import deletesvg from '../../../frontend/assets/trash-alt-regular.svg'
+import drivesvg from '../../../frontend/assets/Google_Drive_icon_2020.svg'
 
 import {uPlotMaker} from '../../../utils/graphics/eegvisuals'
 
