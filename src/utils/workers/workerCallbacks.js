@@ -1,4 +1,4 @@
-import { gpuUtils } from '../gpu/gpuUtils';
+import { gpuUtils } from './gpu/gpuUtils';
 import { Math2 } from '../Math2';
 import { Events } from './Event.js';
 import { ProxyManager } from './ProxyElement.js';
