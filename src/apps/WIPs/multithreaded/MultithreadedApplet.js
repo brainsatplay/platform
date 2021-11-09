@@ -124,127 +124,73 @@ export class MultithreadedApplet {
                 else this.selected = ev.target.value
             }
 
-            document.getElementById(props.id+'cohesion').onchange = (ev) => {
-                let select = document.getElementById(props.id+'select');
-                let value = select.options[select.selectedIndex].value;
-                if(value === 'none') value = undefined;
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{cohesion:ev.target.value},'boid',undefined,this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+            let setGroups = (args=[]) => {
+
+                this.particleWorkers.forEach((id)=> {
+                    let passed = false;
+                    if(!this.selected) passed = true;
+                    else if(id === this.particleWorkers[this.selected]) passed = true;
+                    
+                    if(passed){
+                        window.workers.runWorkerFunction(
+                            'setGroupProperties',
+                            args,
+                            this.origin,
+                            id
+                        );
+                    }
+                });
             }
+
+            document.getElementById(props.id+'cohesion').onchange = (ev) => {
+                setGroups([{cohesion:ev.target.value},'boid']);
+            }
+
             document.getElementById(props.id+'cohesionreset').onclick = () => {
                 document.getElementById(props.id+'cohesion').value = 0.003;
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{cohesion:0.003},'boid',undefined,this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{cohesion:0.003},'boid']);
             }
             document.getElementById(props.id+'separation').onchange = (ev) => {
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{separation:ev.target.value},'boid',undefined,this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{separation:ev.target.value},'boid']);
             }
             document.getElementById(props.id+'separationreset').onclick = () => {
                 document.getElementById(props.id+'separation').value = 0.0001;
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{separation:0.0001},'boid',undefined,this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{separation:0.0001},'boid']);
             }
             document.getElementById(props.id+'align').onchange = (ev) => {
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{alignment:ev.target.value},'boid',undefined,this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{alignment:ev.target.value},'boid']);
             }
             document.getElementById(props.id+'alignreset').onclick = () => {
                 document.getElementById(props.id+'align').value = 0.006;
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{alignment:0.006},'boid',undefined,this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{alignment:0.006},'boid']);
             }
             document.getElementById(props.id+'swirl').onchange = (ev) => {
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{mul:ev.target.value},'boid','swirl',this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{mul:ev.target.value},'boid','swirl']);
             }
             document.getElementById(props.id+'swirlreset').onclick = () => {
                 document.getElementById(props.id+'swirl').value = 0.002;
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{mul:0.002},'boid','swirl',this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{mul:0.002},'boid','swirl']);
             }
             document.getElementById(props.id+'anchor').onchange = (ev) => {
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{mul:ev.target.value},'boid','attractor',this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{mul:ev.target.value},'boid','attractor']);
             }
             document.getElementById(props.id+'anchorreset').onclick = () => {
                 document.getElementById(props.id+'anchor').value = 0.003;
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{mul:0.003},'boid','attractor',this.selected],
-                    this.origin,
-                    this.worker1Id
-                )
+                setGroups([{mul:0.003},'boid','attractor']);
             }
             document.getElementById(props.id+'speed').onchange = (ev) => {
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{maxSpeed:ev.target.value},undefined,undefined,this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{maxSpeed:ev.target.value}]);
             }
             document.getElementById(props.id+'speedreset').onclick = () => {
                 document.getElementById(props.id+'speed').value = 2;
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{maxSpeed:2},undefined,undefined,this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{maxSpeed:2}]);
             }
             document.getElementById(props.id+'gravity').onchange = (ev) => {
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{gravity:-ev.target.value},undefined,undefined,this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{gravity:-ev.target.value}]);
             }
             document.getElementById(props.id+'gravityreset').onclick = () => {
                 document.getElementById(props.id+'gravity').value = 0;
-                window.workers.runWorkerFunction(
-                    'setGroupProperties',
-                    [{gravity:0},undefined,undefined,this.selected],
-                    this.origin,
-                    this.worker1Id
-                );
+                setGroups([{gravity:0}]);
             }
         }
 
@@ -393,12 +339,9 @@ export class MultithreadedApplet {
         // three.controls.minDistance = 0; // radians
         // three.controls.maxDistance = 1000; // radians
 
-        three.nBoids = 0;
-
+        three.nBoids = self.maxParticles;
+        //console.log(self.boids)
         //array of position arrays input
-        self.boids.forEach((group) => {
-            three.nBoids += group.length;
-        });
     
         let vertices = [];
 
@@ -442,6 +385,8 @@ export class MultithreadedApplet {
             });
         });
 
+        self.boids = new Array(self.maxParticles);
+
         let geometry = new THREE.BufferGeometry();
         geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
         
@@ -478,6 +423,16 @@ export class MultithreadedApplet {
             three.animate(self, args, origin);
         }
         
+        for(let j = 0; j < self.nGroups; j++) {
+            let portj = self['particleSetup'+j+'port'];
+            if(portj) {
+                requestAnimationFrame( //let the particle thread know that the render thread is ready for more data (throttled by framerate)
+                    ()=>{
+                        portj.postMessage({foo:'particleStep',input:[performance.now()*0.001],origin:origin});
+                    }
+                ); 
+            }
+        }
     }
 
     boidsRender = (self, args, origin) => {
@@ -486,13 +441,14 @@ export class MultithreadedApplet {
 
             three.resizeRendererToDisplaySize(three.renderer,three.proxy,three.camera);
             
-            if(self.boids.__proto__?.__proto__.constructor.name === 'TypedArray') {
+            //console.log(self.boids)
+            if(self.boids.length === self.maxParticles*3) {
             
                 let positions = three.points.geometry.attributes.position.array;
                 let count = 0;
             
                 //console.log(self.boids);
-                let positionArray = Array.from(self.boids); //convert float32array
+                let positionArray = self.boids;//Array.from(self.boids); //convert float32array
 
                 //updated with setValues
                 for(let count = 0; count< positionArray.length; count+=3 ) {
@@ -566,10 +522,10 @@ export class MultithreadedApplet {
         
         //add some events to listen to thread results
         window.workers.addEvent('thread1process',this.origin,'add',this.worker1Id);
-        //window.workers.addEvent('particle1Step',this.origin,'particleStep',this.worker1Id);
-        window.workers.addEvent('particle1Setup',this.origin,'particleSetup',this.worker1Id);
         window.workers.addEvent('thread2process',this.origin,'mul',this.worker2Id);
         window.workers.addEvent('render',this.origin,'render',this.canvasWorkerId);
+        //window.workers.addEvent('particle1Step',this.origin,'particleStep',this.worker1Id);
+        //window.workers.addEvent('particle1Setup',this.origin,'particleSetup',this.worker1Id);
 
         //add some custom functions to the threads
         window.workers.addWorkerFunction( 
@@ -591,144 +547,297 @@ export class MultithreadedApplet {
         
         //add a particle system
         window.workers.runWorkerFunction('transferClassObject',{particleClass:DynamicParticles.toString()},this.origin,this.worker1Id);
-        
-        // //add some custom functions to the threads
-        window.workers.addWorkerFunction(
-            'particleSetup',
-            function particleSetup(self, args, origin){
-                //console.log(self);
-                self.particleObj = new self.particleClass(undefined,undefined,false,false);
-                self.particleObj.setupRules([
-                    ['boids',4000,[450,450,450]],
-                    ['boids',5000,[450,450,450]],
-                    ['boids',1000,[450,450,450]]]
-                );
 
-                if(typeof args[0] === 'object') self.particleObj.updateGroupProperties(args[3],args[0],args[1],args[2]); //can set some initial properties
-                //TODO: use an arraybuffer system for MUCH FASTER transfers
-                //https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
-                //https://developers.google.com/web/updates/2011/12/Transferable-Objects-Lightning-Fast
 
-                let groups = [];
-                let positionbuffer = [];
-                let bufferidx = -1;
-                let p = 0;
-                self.particleObj.particles.map((group,j) => {
-                    // if(j > bufferidx) {
-                    //     positionbuffer.push(...new Array(group.particles.length*3));
-                    //     bufferidx = j;
-                    // }
-                    groups.push(new Array(group.length));
-                    group.particles.map((particle, k) => {
-                        groups[j][k]=[particle.position.x,particle.position.y,particle.position.z];
-                        // positionbuffer[p]=particle.position.x;
-                        // positionbuffer[p+1]=particle.position.y;
-                        // groups[p+2]=particle.position.z;
-                        // p+=3;
-                    });
+        function particleSetup(self, args, origin){
+            //console.log(self);
+            self.particleObj = new self.particleClass(undefined,undefined,false,false);
+            self.particleObj.setupRules(args[0]);
+
+            if(typeof args[1] === 'object') self.particleObj.updateGroupProperties(args[4],args[1],args[2],args[3]); //can set some initial properties
+            //use an arraybuffer system for MUCH FASTER transfers
+            //https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
+            //https://developers.google.com/web/updates/2011/12/Transferable-Objects-Lightning-Fast
+
+            let groups = [];
+            let positionbuffer = [];
+            let bufferidx = -1;
+            let p = 0;
+            self.particleObj.particles.map((group,j) => {
+                // if(j > bufferidx) {
+                //     positionbuffer.push(...new Array(group.particles.length*3));
+                //     bufferidx = j;
+                // }
+                groups.push(new Array(group.length));
+                group.particles.map((particle, k) => {
+                    groups[j][k]=[particle.position.x,particle.position.y,particle.position.z];
+                    // positionbuffer[p]=particle.position.x;
+                    // positionbuffer[p+1]=particle.position.y;
+                    // groups[p+2]=particle.position.z;
+                    // p+=3;
                 });
-                //console.log(output)
-                return groups;
-                //return Float32Array.from(positionbuffer);
-            }.toString(),
-            this.origin,
-            this.worker1Id
-        );
+            });
+            //console.log(groups)
+            return groups;
+            //return Float32Array.from(positionbuffer);
+        }
 
-        //add some custom functions to the threads
-        window.workers.addWorkerFunction(
-            'particleStep',
-            function particleStep(self, args, origin){
-                self.particleObj.frame(args[0]);
-                //TODO: use an arraybuffer system for MUCH FASTER transfers
-                //https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
-                //https://developers.google.com/web/updates/2011/12/Transferable-Objects-Lightning-Fast
-                //let groups = [];
-                let positionbuffer = [];
-                let bufferidx = -1;
-                let p = 0;
-                self.particleObj.particles.map((group,j) => {
-                    if(j > bufferidx) {
-                        positionbuffer.push(...new Array(group.particles.length*3));
-                        bufferidx = j;
-                    }
-                    group.particles.map((particle, k) => {
-                        positionbuffer[p]=particle.position.x;
-                        positionbuffer[p+1]=particle.position.y;
-                        positionbuffer[p+2]=particle.position.z;
-                        p+=3;
-                    });
-                });
-
-                return Float32Array.from(positionbuffer);
-            }.toString(),
-            this.origin,
-            this.worker1Id
-        );
-
-        //add some custom functions to the threads
-        window.workers.addWorkerFunction(
-            'setGroupProperties',
-            function particleStep(self, args, origin){
-                if(typeof args[0] === 'object') {
-                    if(!args[3]) {
-                        self.particleObj.particles.forEach((p,i) => {
-                            self.particleObj.updateGroupProperties(i,args[0],args[1],args[2]);
-                        });
-                    } else {
-                        self.particleObj.updateGroupProperties(args[3],args[0],args[1],args[2]);
-                    }
-                    return true;
+        function particleStep(self, args, origin){
+            self.particleObj.frame(args[0]);
+            //use an arraybuffer system for MUCH FASTER transfers
+            //https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
+            //https://developers.google.com/web/updates/2011/12/Transferable-Objects-Lightning-Fast
+            //let groups = [];
+            let positionbuffer = [];
+            let bufferidx = -1;
+            let p = 0;
+            self.particleObj.particles.map((group,j) => {
+                if(j > bufferidx) {
+                    positionbuffer.push(...new Array(group.particles.length*3));
+                    bufferidx = j;
                 }
-                return false;
-            }.toString(),
-            this.origin,
-            this.worker1Id
-        );
+                group.particles.map((particle, k) => {
+                    positionbuffer[p]=particle.position.x;
+                    positionbuffer[p+1]=particle.position.y;
+                    positionbuffer[p+2]=particle.position.z;
+                    p+=3;
+                });
+            });
+
+            return Float32Array.from(positionbuffer); //will automatically be transferred as our worker checks for TypedArrays
+        }
+
+        function setGroupProperties(self, args, origin){
+            if(typeof args[0] === 'object') {
+                if(!args[3]) {
+                    self.particleObj.particles.forEach((p,i) => {
+                        self.particleObj.updateGroupProperties(i,args[0],args[1],args[2]);
+                    });
+                } else {
+                    self.particleObj.updateGroupProperties(args[3],args[0],args[1],args[2]);
+                }
+                return true;
+            }
+            return false;
+        }
+
+
+
+        //particle threadpooling example
+        /** multithreaded particles
+         * for each group,
+         * make a thread with the particle functions added,
+         * make each thread output overwrite a set index of the  
+         * render thread's self.boids float32 array that the render thread uses
+         * 
+         * for setup, let each thread setup and send the results to the render thread for the render setup
+         * render setup should wait till it has the complete initial dataset, 
+         * then re-render on it's own while the particles update asynchronously at their own pace
+         */
+
+        let maxParticles = 10000;
+                   
+        let particleSettings = [
+            ['boids',4000,[450,450,450]],
+            ['boids',5000,[450,450,450]],
+            ['boids',1000,[450,450,450]]
+        ];
+
+        //let particlesettings = [{maxSpeed:5}]; //see updateGroupProperties on the DynamicParticles class (or just the slider settings here in the applet)
+        //let particlesettings = undefined;
+
+        this.canvasWorker.setValues({
+            boids:[],
+            particleSettings:particleSettings,
+            maxParticles:maxParticles,
+            nGroups:particleSettings.length,
+            groupsSetup:0,
+            proxyId: proxy.id,
+            setupfstring: this.boidsSetup.toString(),
+            renderfstring: this.boidsRender.toString()
+        });
+
+
+
+        this.particleWorkers = [];
+        particleSettings.forEach((s,i) => {
+            let workerId = window.workers.addWorker();
+            this.particleWorkers.push(workerId);
+            
+            window.workers.runWorkerFunction('transferClassObject',{particleClass:DynamicParticles.toString()},this.origin,workerId);
+            // //add some custom functions to the threads
+            window.workers.addWorkerFunction(
+                'particleSetup',
+                particleSetup,
+                this.origin,
+                workerId
+            );
+            
+            //add some custom functions to the threads
+            window.workers.addWorkerFunction(
+                'particleStep',
+                particleStep,
+                this.origin,
+                workerId
+            );
+
+            //add some custom functions to the threads
+            window.workers.addWorkerFunction(
+                'setGroupProperties',
+                setGroupProperties,
+                this.origin,
+                workerId
+            );
+   
+            //direct communication channel between particle and render threads
+            window.workers.establishMessageChannel(
+                'particleSetup'+i,
+                workerId,
+                this.canvasWorkerId,
+                function worker2Response(self,args,origin,port,eventName){
+                    //args = [float32array] from particle1Step output
+
+                    //console.log(args,eventName);
+                    args.output.forEach((arr) => {
+                        self.boids[self.groupsSetup] = arr;
+                        self.groupsSetup++;
+                    })
+                    if(self.groupsSetup === self.nGroups) {
+                        //console.log(self.boids);
+                        self.runCallback(
+                            'initThree',
+                            [
+                                self.proxyId,
+                                undefined,
+                                self.setupfstring, //CONVERT TO STRING
+                                //undefined,
+                                self.renderfstring,
+                                undefined
+                            ],
+                            origin
+                        );
+                        //console.log(self)
+                        let n = 0;
+                        //need to dispatch to all ports to begin animating
+                        
+                    }
+
+                    
+                },
+                'particleSetup',
+                this.origin
+            );
+
+            //direct communication channel between particle and render threads
+            window.workers.establishMessageChannel(
+                'particleStep'+i,
+                workerId,
+                this.canvasWorkerId,
+                function worker2Response(self,args,origin,port,eventName){
+                    //args = [float32array] from particle1Step output
+                    //console.log(args.output,output.length);
+                    let output = Array.from(args.output);
+                    let idx = parseInt(eventName[eventName.length-1]);
+                    let offset = 0;
+                    let j = 0;
+
+                    while(j < idx) {
+                        offset+=self.particleSettings[j][1]*3;
+                        j++;
+                    }
+
+                    self.boids.splice(offset, output.length, ...output );
+                    
+                    //console.log(offset,output.length);
+
+                    //if(idx === 2) console.log(self.boids);
+                    if(port) {
+                        requestAnimationFrame( //let the particle thread know that the render thread is ready for more data (throttled by framerate)
+                            ()=>{
+                                port.postMessage({foo:'particleStep',input:[performance.now()*0.001],origin:origin});
+                            }
+                        ); 
+                    }
+                },
+                'particleStep',
+                this.origin
+            );
+
+
+            window.workers.runWorkerFunction('particleSetup',[[particleSettings[i]]],this.origin,workerId);
+            //window.workers.runWorkerFunction('particleSetup',particlesettings,this.origin,this.worker1Id);
+         
+
+        });
+        
 
         let renderThreadWaiting = false;
         let renderThreadSetup = false;
         
 
-        window.workers.subEvent('particle1Setup',(res) => {
-            if(Array.isArray(res.output)) {
+        // //add some custom functions to the threads
+        // window.workers.addWorkerFunction(
+        //     'particleSetup',
+        //     particleSetup,
+        //     this.origin,
+        //     this.worker1Id
+        // );
+        
+        // //add some custom functions to the threads
+        // window.workers.addWorkerFunction(
+        //     'particleStep',
+        //     particleStep,
+        //     this.origin,
+        //     this.worker1Id
+        // );
+
+        // //add some custom functions to the threads
+        // window.workers.addWorkerFunction(
+        //     'setGroupProperties',
+        //     setGroupProperties,
+        //     this.origin,
+        //     this.worker1Id
+        // );
+
+        // window.workers.subEvent('particle1Setup',(res) => {
+        //     if(Array.isArray(res.output)) {
                 
-                window.workers.runWorkerFunction('initThree',
-                    [
-                        proxy.id,
-                        {boids:res.output},
-                        this.boidsSetup.toString(), //CONVERT TO STRING
-                        //undefined,
-                        this.boidsRender.toString(),
-                        undefined
-                    ],
-                    this.origin,
-                    this.canvasWorkerId
-                );
-                renderThreadSetup = true;
-            }
-            window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
-        });
+        //         window.workers.runWorkerFunction('initThree',
+        //             [
+        //                 proxy.id,
+        //                 {boids:res.output},
+        //                 this.boidsSetup.toString(), //CONVERT TO STRING
+        //                 //undefined,
+        //                 this.boidsRender.toString(),
+        //                 undefined
+        //             ],
+        //             this.origin,
+        //             this.canvasWorkerId
+        //         );
+        //         renderThreadSetup = true;
+        //     }
+        //     window.workers.runWorkerFunction('particleStep',[performance.now()*0.001],this.origin,this.worker1Id);
+        // });
 
 
-        //direct communication channel between particle and render threads
-        window.workers.establishMessageChannel(
-            'particleStep',
-            this.worker1Id,
-            this.canvasWorkerId,
-            function worker2Response(self,args,origin,port){
-                //args = [float32array] from particle1Step output
-                self.boids = args.output;
-                if(port) 
-                requestAnimationFrame( //let the particle thread know that the render thread is ready for more data (throttled by framerate)
-                    ()=>{
-                        port.postMessage({foo:'particleStep',input:[performance.now()*0.001],origin:origin});
-                    }
-                ); 
-            },
-            'particleStep',
-            this.origin
-        );
+        // //direct communication channel between particle and render threads
+        // window.workers.establishMessageChannel(
+        //     'particleStep',
+        //     this.worker1Id,
+        //     this.canvasWorkerId,
+        //     function worker2Response(self,args,origin,port,eventName){
+        //         //args = [float32array] from particle1Step output
+        //         self.boids = args.output;
+        //         if(port) 
+        //         requestAnimationFrame( //let the particle thread know that the render thread is ready for more data (throttled by framerate)
+        //             ()=>{
+        //                 port.postMessage({foo:'particleStep',input:[performance.now()*0.001],origin:origin});
+        //             }
+        //         ); 
+        //     },
+        //     'particleStep',
+        //     this.origin
+        // );
 
         //using above instead of this 
         // window.workers.subEvent('particle1Step',(res) => {
@@ -747,13 +856,10 @@ export class MultithreadedApplet {
 
         
         //once the render completes release the input
-        window.workers.subEvent('render',(res)=>{
-            //console.log('render thread event',res,Date.now());
-            renderThreadWaiting = false;
-
-        });
-
-
+        // window.workers.subEvent('render',(res)=>{
+        //     //console.log('render thread event',res,Date.now());
+        //     //renderThreadWaiting = false;
+        // });
         
         //thread 1 process initiated by button press
         window.workers.subEvent('thread1process',(res) => { //send thread1 result to thread 2
@@ -793,10 +899,6 @@ export class MultithreadedApplet {
             }
         };
 
-        //let particlesettings = [{maxSpeed:5}]; //see updateGroupProperties on the DynamicParticles class (or just the slider settings here in the applet)
-        let particlesettings = undefined;
-        window.workers.runWorkerFunction('particleSetup',particlesettings,this.origin,this.worker1Id);
-        
 
         //this.canvasWorker.startAnimation(); //run animationFrame loop on the worker
     }

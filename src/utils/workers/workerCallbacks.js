@@ -182,6 +182,7 @@ export class CallbackManager {
           if(args[2]){ 
             let port = args[2];
             port.onmessage = onmessage; //attach the port onmessage event
+            this[args[0]+'port'] = port;
             return true;
           }
           return false;
@@ -195,7 +196,7 @@ export class CallbackManager {
           let eventSetting = this.checkEvents(args[0]); //this will contain the port setting if there is any
           //console.log(args, eventSetting)
           return self.EVENTS.subEvent(args[0], (output) => {
-            response(self,output,origin,eventSetting?.port); //function wrapper so you can access self from the event subscription
+            response(self,output,origin,eventSetting?.port,eventSetting?.eventName); //function wrapper so you can access self from the event subscription
           });
         }
       },
