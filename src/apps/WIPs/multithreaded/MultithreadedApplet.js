@@ -80,7 +80,7 @@ export class MultithreadedApplet {
                         <tr><td>Alignment:</td><td><input type='range' id='`+props.id+`align' min="0" max="1" value="0.006" step="0.001"></td><td><button id='`+props.id+`alignreset'>Reset</button></td></tr>
                         <tr><td>Swirl:</td><td><input type='range' id='`+props.id+`swirl' min="0" max="0.01" value="0.002" step="0.0001" ></td><td><button id='`+props.id+`swirlreset'>Reset</button></td></tr>
                         <tr><td>Anchor:</td><td><input type='range' id='`+props.id+`anchor' min="0" max="0.05" value="0.003" step="0.001" ></td><td><button id='`+props.id+`anchorreset'>Reset</button></td></tr>
-                        <tr><td>Max Speed:</td><td><input type='range' id='`+props.id+`speed' min="0" max="100" value="3" step="0.1" ></td><td><button id='`+props.id+`speedreset'>Reset</button></td></tr>
+                        <tr><td>Max Speed:</td><td><input type='range' id='`+props.id+`speed' min="0" max="100" value="40" step="1" ></td><td><button id='`+props.id+`speedreset'>Reset</button></td></tr>
                         <tr><td>Gravity:</td><td><input type='range' id='`+props.id+`gravity' min="0" max="10" value="0" step="0.1"></td><td><button id='`+props.id+`gravityreset'>Reset</button></td></tr>
                     </table>   
                 </div>
