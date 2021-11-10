@@ -1,5 +1,9 @@
 //From Worker Thread
 
+
+function noop() {
+}
+
 /////////////https://threejsfundamentals.org/threejs/lessons/threejs-offscreencanvas.html
 
 export class EventDispatcher {
