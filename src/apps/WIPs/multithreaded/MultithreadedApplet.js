@@ -147,8 +147,8 @@ export class MultithreadedApplet {
             }
 
             document.getElementById(props.id+'cohesionreset').onclick = () => {
-                document.getElementById(props.id+'cohesion').value = 0.003;
-                setGroups([{cohesion:0.003},'boid']);
+                document.getElementById(props.id+'cohesion').value = 0.00001;
+                setGroups([{cohesion:0.00001},'boid']);
             }
             document.getElementById(props.id+'separation').onchange = (ev) => {
                 setGroups([{separation:ev.target.value},'boid']);
@@ -168,7 +168,7 @@ export class MultithreadedApplet {
                 setGroups([{mul:ev.target.value},'boid','swirl']);
             }
             document.getElementById(props.id+'swirlreset').onclick = () => {
-                document.getElementById(props.id+'swirl').value = 0.002;
+                document.getElementById(props.id+'swirl').value = 0.006;
                 setGroups([{mul:0.002},'boid','swirl']);
             }
             document.getElementById(props.id+'anchor').onchange = (ev) => {
