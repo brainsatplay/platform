@@ -69,10 +69,10 @@ export class DynamicParticles {
             boundingBox:{left:0,right:1,bot:1,top:0,front:0,back:1}, //bounding box, 1 = max height/width of render window
             boid:{
                 boundingBox:{left:0,right:1,bot:1,top:0,front:0,back:1}, //bounding box, 1 = max height/width of render window
-                cohesion:0.001,
+                cohesion:0.00001,
                 separation:0.0001,
                 alignment:0.006,
-                swirl:{x:0.5,y:0.5,z:0.5,mul:0.003},
+                swirl:{x:0.5,y:0.5,z:0.5,mul:0.006},
                 attractor:{x:0.5,y:0.5,z:0.5,mul:0.002},
                 avoidance:{groups:[],mul:0.1},
                 useCohesion:true,
@@ -419,6 +419,7 @@ export class DynamicParticles {
     calcBoids = (particles=[],timeStep, from=0, to=particles.length) => {
         
         const newVelocities = [];
+        let _timeStep = 1/timeStep;
         outer:
         for(var i = from; i < to; i++) {
             let p0 = particles[i];
@@ -453,9 +454,9 @@ export class DynamicParticles {
                         }
                 
                         if(p0.boid.useCohesion){
-                            boidVelocities[0] = boidVelocities[0] + pr.position.x;
-                            boidVelocities[1] = boidVelocities[1] + pr.position.y;
-                            boidVelocities[2] = boidVelocities[2] + pr.position.z;
+                            boidVelocities[0] += (pr.position.x - p0.position.x)*0.5*disttemp*_timeStep;
+                            boidVelocities[1] += (pr.position.y - p0.position.y)*0.5*disttemp*_timeStep;
+                            boidVelocities[2] += (pr.position.z - p0.position.z)*0.5*disttemp*_timeStep;
                         }
 
                         if(isNaN(disttemp) || isNaN(boidVelocities[0]) || isNaN(pr.position.x)) {
@@ -522,18 +523,18 @@ export class DynamicParticles {
             let _groupCount = 1/groupCount;
     
             if(p0.boid.useCohesion){
-                boidVelocities[0] = p0.boid.cohesion*(boidVelocities[0]*_groupCount-p0.position.x);
-                boidVelocities[1] = p0.boid.cohesion*(boidVelocities[1]*_groupCount-p0.position.y);
-                boidVelocities[2] = p0.boid.cohesion*(boidVelocities[2]*_groupCount-p0.position.z);
+                boidVelocities[0] = p0.boid.cohesion*(boidVelocities[0]*_groupCount);
+                boidVelocities[1] = p0.boid.cohesion*(boidVelocities[1]*_groupCount);
+                boidVelocities[2] = p0.boid.cohesion*(boidVelocities[2]*_groupCount);
             } else { boidVelocities[0] = 0; boidVelocities[1] = 0; boidVelocities[2] = 0; }
 
-            if(p0.boid.useCohesion){
+            if(p0.boid.useSeparation){
                 boidVelocities[3] = p0.boid.separation*boidVelocities[3];
                 boidVelocities[4] = p0.boid.separation*boidVelocities[4];
                 boidVelocities[5] = p0.boid.separation*boidVelocities[5];
             } else { boidVelocities[3] = 0; boidVelocities[4] = 0; boidVelocities[5] = 0; }
 
-            if(p0.boid.useCohesion){
+            if(p0.boid.useAlignment){
                 boidVelocities[6] = -(p0.boid.alignment*boidVelocities[6]*_groupCount);
                 boidVelocities[7] = p0.boid.alignment*boidVelocities[7]*_groupCount;
                 boidVelocities[8] = p0.boid.alignment*boidVelocities[8]*_groupCount;//Use a perpendicular vector [-y,x,z]
