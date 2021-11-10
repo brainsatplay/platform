@@ -444,6 +444,13 @@ export class DynamicParticles {
                     if(disttemp > p0.boid.groupRadius) { } else {
                         distances.push(disttemp);
                         inRange.push(randj);
+
+                        let distInv;
+                        if(p0.boid.useSeparation || p0.boid.useAlignment) {
+                            distInv = (p0.boid.groupRadius/(disttemp*disttemp));
+                            if(distInv == Infinity) distInv = p.maxSpeed;
+                            else if (distInv == -Infinity) distInv = -p.maxSpeed;
+                        }
                 
                         if(p0.boid.useCohesion){
                             boidVelocities[0] = boidVelocities[0] + pr.position.x;
@@ -457,9 +464,6 @@ export class DynamicParticles {
                         }
 
                         if(p0.boid.useSeparation){
-                            let distInv = (p0.boid.groupRadius/(disttemp*disttemp));
-                            if(distInv == Infinity) distInv = p.maxSpeed;
-                            else if (distInv == -Infinity) distInv = -p.maxSpeed;
                             boidVelocities[3] = boidVelocities[3] + (p0.position.x-pr.position.x)*distInv;
                             boidVelocities[4] = boidVelocities[4] + (p0.position.y-pr.position.y)*distInv; 
                             boidVelocities[5] = boidVelocities[5] + (p0.position.z-pr.position.z)*distInv;
@@ -471,9 +475,9 @@ export class DynamicParticles {
 
                         if(p0.boid.useAlignment){
                             //console.log(separationVec);
-                            boidVelocities[6] = boidVelocities[6] + pr.velocity.x; 
-                            boidVelocities[7] = boidVelocities[7] + pr.velocity.y;
-                            boidVelocities[8] = boidVelocities[8] + pr.velocity.z;
+                            boidVelocities[6] = boidVelocities[6] + pr.velocity.x*distInv; 
+                            boidVelocities[7] = boidVelocities[7] + pr.velocity.y*distInv;
+                            boidVelocities[8] = boidVelocities[8] + pr.velocity.z*distInv;
                         }
 
                         groupCount++;
