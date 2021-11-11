@@ -8,7 +8,7 @@ import invisisphereVertexShader from './shaders/invisisphere/vertex.glsl'
 import invisisphereFragmentShader from './shaders/invisisphere/fragment.glsl'
 import particlesVertexShader from './shaders/particles/vertex.glsl'
 import particlesFragmentShader from './shaders/particles/fragment.glsl'
-import * as THREE from 'three'
+import {Trees} from './Trees'
 
 /* 
  Samir Parameters
@@ -20,45 +20,43 @@ const riverWidth = 4.0
 var quantityPoints = 3000
 
 let groundUniforms = {
-  iTime: {value: 0.0},
-  uBigWavesSpeed: { value: 0.5 },
-  uBigWavesElevation: { value: 0.22 },
-  uBigWavesFrequency: { value:{x:2,y:2}},
-  uDepthColor: { value: '#000000'},
-  uSurfaceColor: { value: '#111111'},
-  uColorOffset: {value: 0.2},
-  uColorMultiplier: {value: 0.25},
-  uSmallWavesElevation: { value: 0.05 },
-  uSmallWavesFrequency: { value: 3 },
-  uSmallWavesSpeed: { value: 0.2 },
-  uSmallIterations: { value: 4 },
-  uFogRadius: {value: terrainFog},
-  uFogDropoff: {value: 10.0},
-  uRiverOffset: {value: riverOffset},
-  uRiverWidth: {value: riverWidth}
+  uBigWavesSpeed: 0.5,
+  uBigWavesElevation:  0.22 ,
+  uBigWavesFrequency: {x:2,y:2},
+  uDepthColor:  '#000000',
+  uSurfaceColor:  '#111111',
+  uColorOffset:  0.2,
+  uColorMultiplier:  0.25,
+  uSmallWavesElevation:  0.05 ,
+  uSmallWavesFrequency:  3 ,
+  uSmallWavesSpeed:  0.2 ,
+  uSmallIterations:  4 ,
+  uFogRadius:  terrainFog,
+  uFogDropoff:  10.0,
+  uRiverOffset:  riverOffset,
+  uRiverWidth:  riverWidth
 }
 
 let meshUniforms = {
-  iTime: {value: 0.0},
-  uBigWavesSpeed: { value: 0.5 },
-  uBigWavesElevation: { value: 0.12 },
-  uBigWavesFrequency: { value: {x: 2, y:2}},
-  uDepthColor: { value: '#000000'},
-  uSurfaceColor: { value: 'gray'},
-  uColorOffset: {value: 0.2},
-  uColorMultiplier: {value: 0.25},
-  uSmallWavesElevation: { value: 0.05 },
-  uSmallWavesFrequency: { value: 3 },
-  uSmallWavesSpeed: { value: 0.2 },
-  uSmallIterations: { value: 4 },
-  uFogRadius: {value: terrainFog},
-  uFogDropoff: {value: 10.0},
-  uRiverOffset: {value: riverOffset},
-  uRiverWidth: {value: riverWidth}
+  uBigWavesSpeed:  0.5 ,
+  uBigWavesElevation:  0.12 ,
+  uBigWavesFrequency:  {x: 2, y:2},
+  uDepthColor:  '#000000',
+  uSurfaceColor:  'gray',
+  uColorOffset:  0.2,
+  uColorMultiplier:  0.25,
+  uSmallWavesElevation:  0.05 ,
+  uSmallWavesFrequency:  3 ,
+  uSmallWavesSpeed:  0.2 ,
+  uSmallIterations:  4 ,
+  uFogRadius:  terrainFog,
+  uFogDropoff:  10.0,
+  uRiverOffset:  riverOffset,
+  uRiverWidth:  riverWidth
 }
 
-let invisisphereUniforms = {iTime: {value: 0}, uSpeedModifier: {value: 0}, uColorChange: {value: 0}}
-let particleUniforms = {iTime: {value: 0}, uVerdant: {value: 0}}
+let invisisphereUniforms = {uSpeedModifier:  0, uColorChange:  0}
+let particleUniforms = {uVerdant:  0}
 
 
 
@@ -95,7 +93,7 @@ export const settings = {
     description: "WebXR breathing meditation.",
     categories: ["WIP"],
     instructions:"Coming soon...",
-    image: featureImg,
+    // image: featureImg,
     // intro: {
     //   mode: 'single'
     // },
@@ -115,7 +113,7 @@ export const settings = {
         {name: 'scheduler', class: 'Scheduler', params: { duration: 4, progression: ['Welcome to Breath Garden', 'Welcome to Breath Garden', 'Breathe In','Hold','Breathe Out','Hold','Breathe In','Hold','Breathe Out','Hold','Breathe In','Hold','Breathe Out','Hold','Breathe In','Hold','Breathe Out','Thank You for Playing!']}},
 
         // Tree
-        {name: 'tree1', class: 'Trees', params: {count: 5}},
+        {name: 'tree1', class: Trees, params: {count: 5}},
 
         // Light
         {name: 'light', class: 'Light'},
@@ -124,13 +122,13 @@ export const settings = {
         {name: 'meshvertex', class: 'Shader', params: {default: desertGroundVertexShader, uniforms: meshUniforms}},
         {name: 'meshfragment', class: 'Shader', params: {default: desertGroundFragmentShader, uniforms: meshUniforms}},
         {name: 'meshmat', class: 'Material', params:{wireframe: true, transparent:true, depthWrite: true}},
-        {name: 'mesh', class: 'Object3D', params:{type: 'Mesh', x:0, y:0.05, z:0,scale:1, rotatex: Math.PI/2}},
+        {name: 'mesh', class: 'Object3D', params:{type: 'Mesh', x:0, y:0.05, z:0,scale:terrainLength, rotatex: Math.PI/2}},
         
         {name: 'groundvertex', class: 'Shader', params: {default: desertGroundVertexShader, uniforms: groundUniforms}},
         {name: 'groundfragment', class: 'Shader', params: {default: desertGroundFragmentShader, uniforms: groundUniforms}},
-        {name: 'groundgeo', class: 'Geometry', params:{type: 'PlaneGeometry', radius: terrainLength, segments: 256}},
+        {name: 'groundgeo', class: 'Geometry', params:{type: 'PlaneGeometry', segments: 256}},
         {name: 'groundmat', class: 'Material', params:{wireframe: false, transparent:true, depthWrite: true}},
-        {name: 'ground', class: 'Object3D', params:{type: 'Mesh', x:0, y:0, z:0,scale:1, rotatex: Math.PI/2}},
+        {name: 'ground', class: 'Object3D', params:{type: 'Mesh', x:0, y:0, z:0,scale: terrainLength, rotatex: Math.PI/2}},
         
 
         // River
@@ -146,7 +144,6 @@ export const settings = {
         {name: 'particlesgeo', class: 'Geometry', params:{type: 'BufferGeometry', attributes: particleattributes}},
         {name: 'particlesmat', class: 'Material', params:{type: 'ShaderMaterial',wireframe: false, transparent:true, depthWrite: false}},
         {name: 'particles', class: 'Object3D', params:{type: 'Points', x: -terrainLength/4, y:0, z:-terrainLength/4,scalex:terrainLength/2, scaley: 5, scalez: terrainLength/2}},
-        {name: 'sine', class: 'Event'},//, params: {center: 0.5, scale: 0.5, frequency: 0.1}},
         {name: 'html', class: 'DOM', params:{
           html: `
           <div style='background: transparent; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;'>

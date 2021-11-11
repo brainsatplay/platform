@@ -57,12 +57,12 @@ export const settings = {
               target: 'blob'           //changes blob noise
             },
             {
-              source: 'blob:element', 
-              target: 'ui:content'  //updates on UI
-            },
-            {
                 source: 'neurofeedback:element', //updates the target of the protocol selector on state change
                 target: 'ui:selector'
+            },
+            {
+              source: 'blob:element', 
+              target: 'ui:content'  //updates on UI
             },
           ]
     }
