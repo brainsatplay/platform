@@ -419,9 +419,17 @@ export class AppletManager {
                         resolve(app)
                     })
                 } else {
-                    let app = await this.session.createApp(info, parentNode, this.session, config)
-                    this.editor.addApp(app)
-                    resolve(app)
+                    this.session.createApp(info, parentNode, this.session, config).then((app) => {
+                        this.editor.addApp(app)
+                        resolve(app)
+                    }).catch(e => {
+
+                         // default to browser
+                        window.history.pushState({ additionalInformation: 'Updated URL to Applet Browser' }, '', `${window.location.origin}`)
+                        document.getElementById("preset-selector").value = 'default'
+                        this.deinitApplets()
+                        this.initAddApplets()
+                    })
                 }
             } else {
                 resolve(new appletCls(parentNode, this.session, config))

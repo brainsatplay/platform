@@ -28,6 +28,17 @@
     },
 
     // -------------------- Community Contributions -------------------- 
+    
+    {
+        name: 'Derpy Frog', 
+        devices: ["EEG"],
+        author: "Autumn Auriel",
+        description: "Derp derp derp.",
+        categories: ["play"],
+        image: 'https://github.com/autumnauriel/FrogGame/blob/main/app/assets/feature.png?raw=true', // Github Image Example
+        zip: 'https://autumnauriel.github.io/FrogGame/app.zip',
+        link: 'https://autumnauriel.github.io/FrogGame' // Fallback
+    },
 
     {
         name: "Unity Template",
