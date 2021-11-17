@@ -274,6 +274,14 @@ export class Math2 {
         return Math.sqrt(sqrd)
     }
 
+	static distance(point1, point2) { //nDimensional vector distance function
+        var dsqrd = 0;
+        point1.forEach((c,i) => {
+            dsqrd += (point2[i] - c)*(point2[i] - c);
+        })
+        return Math.sqrt(dsqrd);
+    }
+	
     static normalize(vec) { //nDimensional normalization
         _mag = 1/this.magnitude(vec);
         let vecn = new Array(vec.length);
