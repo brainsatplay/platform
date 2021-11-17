@@ -246,12 +246,12 @@ export class Math2 {
 	}
 
 	static variance(arr) { //Variance of 1D input arrays of length n
-		var mean = this.mean(arr);
+		let mean = this.mean(arr);
 		return arr.reduce((a,b) => a + ((b - mean)**2), 0)/arr.length;
 	}
 
 	static dot(vec1,vec2) { //nDimensional vector dot product
-        var dot=0;
+        let dot=0;
         for(var i=0; i<vec1.length; i++) {
             dot += vec1[i]*vec2[i];
         }
@@ -267,26 +267,18 @@ export class Math2 {
     }
 
     static magnitude(vec) { //nDimensional magnitude
-        var sqrd = 0;
+        let sqrd = 0;
         vec.forEach((c) => {
             sqrd+=c*c;
         })
         return Math.sqrt(sqrd)
     }
 
-    static distance(point1, point2) { //nDimensional vector distance function
-        var dsqrd = 0;
-        point1.forEach((c,i) => {
-            dsqrd += (point2[i] - c)*(point2[i] - c);
-        })
-        return Math.sqrt(dsqrd);
-    }
-	static normalize(vec) { //nDimensional vector normalization
-        var norm = 0;
-        norm = this.magnitude(vec);
-        var vecn = [];
+    static normalize(vec) { //nDimensional normalization
+        _mag = 1/this.magnitude(vec);
+        let vecn = new Array(vec.length);
         vec.forEach((c,i) => {
-            vecn.push(c*norm);
+            vecn[i] = c*_mag;
         })
         return vecn;
     }
