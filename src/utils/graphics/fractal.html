@@ -1,0 +1,130 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <div style='position:absolute; color:white;'>
+            X Pan: <input type='range' id='panx' min='-2' max='2' value='0.5' step='0.1'><button id='resetx'>Reset</button><br>
+            Y Pan: <input type='range' id='pany' min='-2' max='2' value='0.5' step='0.1'><button id='resety'>Reset</button><br>
+            Zoom: <input type='range' id='zoom' min='100' max='10000' value='300' step='100'><button id='resetz'>Reset</button><br>
+            Fractal: <select id='fractal'>
+                        <option value=0 selected>Mandelbrot</option>
+                        <option value=1>Julia</option>
+                    </select>
+        </div>
+        <canvas id='canvas' style='width:100%;height:100%;'></canvas>
+        <script>
+            let canvas = document.getElementById('canvas');
+            let ctx = canvas.getContext('2d');
+
+
+            let xinput = document.getElementById('panx');
+            let yinput = document.getElementById('pany');
+            let zoom = document.getElementById('zoom');
+            let fractalselect = document.getElementById('fractal');
+            
+            let xinputr = document.getElementById('resetx');
+            let yinputr = document.getElementById('resety');
+            let zoomr = document.getElementById('resetz');
+            
+            canvas.width = document.body.clientWidth;
+            canvas.height = document.body.clientHeight;
+
+
+
+            let maxIterations = 300;
+            
+            let juliaReal = -0.7;
+            let juliaImag = 0.27015;
+
+            function checkFractal(x,y,mode=0) {
+                let real = x;
+                let imag = y;
+                for(let i = 0; i<maxIterations; i++) {
+                    let realt, imagt;
+                    if(mode === 0)  { //mandelbrot
+                        realt = real * real - imag*imag + x;
+                        imagt = 2*real*imag + y;
+                    }
+                    else if (mode === 1) { //julia set
+                        realt = real * real - imag*imag + juliaReal;
+                        imagt = 2*real*imag+juliaImag;
+                    }
+                    real = realt;
+                    imag = imagt;
+                    //if(real*imag > 5) {
+                    if(real*real+imag*imag > 4) {
+                        return (i/maxIterations)*100; //is in mandelbrot set
+                    }  
+                }
+                return 0; //is not in set
+            }
+
+
+            function draw() {
+
+                let magnification = zoom.value;
+                let panX = xinput.value;
+                let panY = yinput.value;
+
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0,0,canvas.width,canvas.height);
+
+                console.log('draw #', canvas.width, canvas.height, canvas.width*canvas.height);
+                for(let x=0; x<canvas.width; x++) {
+                    for(let y=0; y<canvas.height; y++) {
+                        let foundSet = checkFractal(
+                            (x - panX*canvas.width)/magnification,
+                            (y - panY*canvas.height)/magnification,
+                            parseInt(fractalselect.options[fractalselect.selectedIndex].value)
+                        );
+                        //console.log(foundSet);
+                        if(foundSet !== 0 ) {
+                            ctx.fillStyle = 'hsl(0, 100%, ' + foundSet + '%)';
+                            ctx.fillRect(x,y, 1,1); // Draw a colorful pixel
+                        }
+                    }
+                }
+            }
+
+            window.addEventListener('resize',()=>{
+                canvas.width = document.body.clientWidth;
+                canvas.height = document.body.clientHeight;
+                draw();
+            });
+
+            zoom.onchange = () =>{
+                draw();
+            }
+
+            xinput.onchange = () => {
+                draw();
+            }
+
+            yinput.onchange = () => {
+                draw();
+            }
+
+            xinputr.onclick = () => {
+                xinput.value = .5;
+                draw();
+            }
+
+            yinputr.onclick = () => {
+                yinput.value = .5;
+                draw();
+            }
+
+            zoomr.onclick = () => {
+                zoom.value = 300;
+                draw();
+            }
+
+            fractalselect.onchange = () => {
+                draw();
+            }
+       
+            draw();
+
+        </script>
+    </body>
+</html>
