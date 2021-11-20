@@ -2,7 +2,6 @@
 import {CallbackManager} from './workerCallbacks'
 
 let manager = new CallbackManager();
-let id = `worker_${Math.floor(Math.random()*10000000000)}`;
 let canvas = manager.canvas; 
 let ctx = manager.canvas.context;
 let context = ctx; //another common reference
@@ -77,11 +76,5 @@ self.onmessage = async (event) => {
   // console.timeEnd("worker");
   return dict;
 }
-
-if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
-    //addEventListener('message', self.onmessage);
-} 
-
-manager.EVENTS.emit('newWorker',id);
 
 export default self

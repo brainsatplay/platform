@@ -14,9 +14,12 @@
 import {StateManager} from '../StateManager'
 
 export class Events {
+
+    STATEMANAGERCLASS = StateManager;
+
     constructor(workermanager=undefined) {
 
-        this.state = new StateManager({},undefined,false); //trigger only state (no overhead)
+        this.state = new this.STATEMANAGERCLASS({},undefined,false); //trigger only state (no overhead)
         this.workermanager = workermanager;
 
         if(workermanager !== undefined) { //only in window

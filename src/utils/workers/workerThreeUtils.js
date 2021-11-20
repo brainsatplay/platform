@@ -37,6 +37,12 @@ export class threeUtil {
 
     }
 
+    init(canvas,callbackManager,proxy) {
+      this.canvas = canvas;
+      this.manager = callbackManager
+      this.proxy = proxy;
+    }
+
     setup = (self, args, origin) => { //setup three animation
         this.defaultSetup();
         

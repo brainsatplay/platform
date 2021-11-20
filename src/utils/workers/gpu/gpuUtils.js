@@ -1,52 +1,15 @@
-import './gpu-browser.min.js' // becomes a window variable
+import './gpu-browser.min.js'
 import { addGpuFunctions, createGpuKernels as krnl } from './gpuUtils-functs';
 
 //By Joshua Brewster, Dovydas Stirpeika (MIT License)
 
-export function makeKrnl(gpu, f, opts = {
-  setDynamicOutput: true,
-  setDynamicArguments: true,
-  setPipeline: true,
-  setImmutable: true,
-  setGraphical: false
-}) {
-  const k = gpu.createKernel(f);
-
-  if (opts.setDynamicOutput)    k.setDynamicOutput(true);
-  if (opts.setDynamicArguments) k.setDynamicArguments(true);
-  if (opts.setPipeline)         k.setPipeline(true);
-  if (opts.setImmutable)        k.setImmutable(true);
-  if (opts.setGraphical)        k.setGraphical(true);
-
-  //.setOutput([signal.length]) //Call before running the kernel
-  //.setLoopMaxIterations(signal.length);
-
-  return k;
-}
-
-export function makeCanvasKrnl(appendToId, gpu, f, opts = {
-  setDynamicOutput: true,
-  setDynamicArguments: true,
-  setPipeline: true,
-  setImmutable: true,
-  setGraphical: true
-}) {
-
-  const k = makeKrnl(gpu,f,opts);
-
-  //k();
-
-  const canvas = k.canvas; 
-
-  document.getElementById(appendToId).appendChild(canvas);
-
-  return k; //run k() with the input arguments in an animation loop, get graphical output.
-}
-
 export class gpuUtils {
+
+  static GPU = GPU;
   
-  constructor(gpu = new GPU()) {
+  constructor(gpu = undefined) {
     this.gpu = gpu;
+    if(!gpu) this.gpu = new GPU();
     this.kernels = []; // {name:"",f:foo(){}}
     this.canvaskernels = [];
 
@@ -109,6 +72,52 @@ export class gpuUtils {
     };
   }
 
+  
+static makeKrnl(gpu, f, opts = {
+  setDynamicOutput: true,
+  setDynamicArguments: true,
+  setPipeline: true,
+  setImmutable: true,
+  setGraphical: false
+}) {
+  const k = gpu.createKernel(f);
+
+  if (opts.setDynamicOutput)    k.setDynamicOutput(true);
+  if (opts.setDynamicArguments) k.setDynamicArguments(true);
+  if (opts.setPipeline)         k.setPipeline(true);
+  if (opts.setImmutable)        k.setImmutable(true);
+  if (opts.setGraphical)        k.setGraphical(true);
+
+  //.setOutput([signal.length]) //Call before running the kernel
+  //.setLoopMaxIterations(signal.length);
+
+  return k;
+}
+
+static makeCanvasKrnl(appendToId, gpu, f, opts = {
+  setDynamicOutput: true,
+  setDynamicArguments: true,
+  setPipeline: true,
+  setImmutable: true,
+  setGraphical: true
+}) {
+
+  const k = makeKrnl(gpu,f,opts);
+
+  //k();
+
+  const canvas = k.canvas; 
+
+  document.getElementById(appendToId).appendChild(canvas);
+
+  return k; //run k() with the input arguments in an animation loop, get graphical output.
+}
+
+  dynamicImport = async (url) => {
+    let module = await import(url);
+    return module;
+  }
+
   //adds math functions to use per-thread
   addFunction(func = function f(){}) {
     this.gpu.addFunction(func);
@@ -122,7 +131,7 @@ export class gpuUtils {
       }
     });
     if(!found) {
-      this.kernels.push({name:name, krnl:makeKrnl(this.gpu,krnl)});
+      this.kernels.push({name:name, krnl:gpuUtils.makeKrnl(this.gpu,krnl)});
       return true;
     } else { 
       console.error('Kernel already exists'); 
@@ -138,7 +147,7 @@ export class gpuUtils {
       }
     });
     if(!found) {
-      this.kernels.push({name:name,krnl:makeCanvasKrnl(appendToId,this.gpu,f)});
+      this.kernels.push({name:name,krnl:gpuUtils.makeCanvasKrnl(appendToId,this.gpu,f)});
       return true;
     } else { 
       console.error('Kernel already exists'); 
@@ -209,25 +218,25 @@ export class gpuUtils {
   addFunctions() { 
     addGpuFunctions.forEach(f => this.gpu.addFunction(f));
 
-    this.correlograms = makeKrnl(this.gpu, krnl.correlogramsKern);
-    this.correlogramsPC = makeKrnl(this.gpu, krnl.correlogramsKern);
-    this.dft = makeKrnl(this.gpu, krnl.dftKern);
-    this.idft = makeKrnl(this.gpu, krnl.idftKern);
-    this.dft_windowed = makeKrnl(this.gpu, krnl.dft_windowedKern);
-    this.idft_windowed = makeKrnl(this.gpu, krnl.idft_windowedKern);
-    this.fft = makeKrnl(this.gpu, krnl.fftKern);
-    this.ifft = makeKrnl(this.gpu, krnl.ifftKern);
-    this.fft_windowed = makeKrnl(this.gpu, krnl.fft_windowedKern);
-    this.ifft_windowed = makeKrnl(this.gpu, krnl.ifft_windowedKern);
-    this.listdft2D = makeKrnl(this.gpu, krnl.listdft2DKern);
-    this.listdft1D = makeKrnl(this.gpu, krnl.listdft1DKern);
-    this.listdft1D_windowed = makeKrnl(this.gpu, krnl.listdft1D_windowedKern);
-    this.listfft1D = makeKrnl(this.gpu, krnl.listfft1DKern);
-    this.listfft1D_windowed = makeKrnl(this.gpu, krnl.listfft1D_windowedKern);
-    this.listidft1D_windowed = makeKrnl(this.gpu, krnl.listidft1D_windowedKern);
-    this.listifft1D_windowed = makeKrnl(this.gpu, krnl.listifft1D_windowedKern);
-    this.bulkArrayMul = makeKrnl(this.gpu, krnl.bulkArrayMulKern);
-    this.multiConv2D = makeKrnl(this.gpu, krnl.multiImgConv2DKern);
+    this.correlograms =         gpuUtils.makeKrnl(this.gpu, krnl.correlogramsKern);
+    this.correlogramsPC =       gpuUtils.makeKrnl(this.gpu, krnl.correlogramsKern);
+    this.dft =                  gpuUtils.makeKrnl(this.gpu, krnl.dftKern);
+    this.idft =                 gpuUtils.makeKrnl(this.gpu, krnl.idftKern);
+    this.dft_windowed =         gpuUtils.makeKrnl(this.gpu, krnl.dft_windowedKern);
+    this.idft_windowed =        gpuUtils.makeKrnl(this.gpu, krnl.idft_windowedKern);
+    this.fft =                  gpuUtils.makeKrnl(this.gpu, krnl.fftKern);
+    this.ifft =                 gpuUtils.makeKrnl(this.gpu, krnl.ifftKern);
+    this.fft_windowed =         gpuUtils.makeKrnl(this.gpu, krnl.fft_windowedKern);
+    this.ifft_windowed =        gpuUtils.makeKrnl(this.gpu, krnl.ifft_windowedKern);
+    this.listdft2D =            gpuUtils.makeKrnl(this.gpu, krnl.listdft2DKern);
+    this.listdft1D =            gpuUtils.makeKrnl(this.gpu, krnl.listdft1DKern);
+    this.listdft1D_windowed =   gpuUtils.makeKrnl(this.gpu, krnl.listdft1D_windowedKern);
+    this.listfft1D =            gpuUtils.makeKrnl(this.gpu, krnl.listfft1DKern);
+    this.listfft1D_windowed =   gpuUtils.makeKrnl(this.gpu, krnl.listfft1D_windowedKern);
+    this.listidft1D_windowed =  gpuUtils.makeKrnl(this.gpu, krnl.listidft1D_windowedKern);
+    this.listifft1D_windowed =  gpuUtils.makeKrnl(this.gpu, krnl.listifft1D_windowedKern);
+    this.bulkArrayMul =         gpuUtils.makeKrnl(this.gpu, krnl.bulkArrayMulKern);
+    this.multiConv2D =          gpuUtils.makeKrnl(this.gpu, krnl.multiImgConv2DKern);
 
     this.kernels.push(
       {name:"correlograms", krnl:this.correlograms},

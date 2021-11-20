@@ -3,72 +3,18 @@ import { Math2 } from '../Math2';
 import { Events } from './Event.js';
 import { ProxyManager } from './ProxyListener.js';
 
-let dynamicImport = async (url) => {
-  let module = await import(url);
-  return module;
-}
-
-//Get the text inside of a function (regular or arrow);
-function getFunctionBody(methodString) {
-  return methodString.toString().replace(/^\W*(function[^{]+\{([\s\S]*)\}|[^=]+=>[^{]*\{([\s\S]*)\}|[^=]+=>(.+))/i, '$2$3$4');
-}
-
-function getFunctionHead(methodString) {
-  let fnstring = methodString.toString();
-  return fnstring.slice(0, fnstring.indexOf('{') + 1);
-}
-
-function buildNewFunction(head, body) {
-  let newFunc = eval(head + body + '}');
-  return newFunc;
-}
-
-function isFunction(string) {
-  let regex = new RegExp('(|[a-zA-Z]\w*|\([a-zA-Z]\w*(,\s*[a-zA-Z]\w*)*\))\s*=>')
-  let func = (typeof string === 'string') ? string.substring(0,10).includes('function') : false;
-  let arrow = (typeof string === 'string') ? regex.test(string) : false;
-  if(func || arrow) return true;
-  else return false;
-}
-
-function parseFunctionFromText(method) {
-  //Get the text inside of a function (regular or arrow);
-  let getFunctionBody = (methodString) => {
-    return methodString.replace(/^\W*(function[^{]+\{([\s\S]*)\}|[^=]+=>[^{]*\{([\s\S]*)\}|[^=]+=>(.+))/i, '$2$3$4');
-  }
-
-  let getFunctionHead = (methodString) => {
-    let startindex = methodString.indexOf(')');
-    return methodString.slice(0, methodString.indexOf('{',startindex) + 1);
-  }
-
-  let newFuncHead = getFunctionHead(method);
-  let newFuncBody = getFunctionBody(method);
-
-  let newFunc;
-  if (newFuncHead.includes('function ')) {
-    let varName = newFuncHead.split('(')[1].split(')')[0]
-    newFunc = new Function(varName, newFuncBody);
-  } else {
-    if(newFuncHead.substring(0,6) === newFuncBody.substring(0,6)) {
-      //newFuncBody = newFuncBody.substring(newFuncHead.length);
-      let varName = newFuncHead.split('(')[1].split(')')[0]
-      //console.log(varName, newFuncHead ,newFuncBody);
-      newFunc = new Function(varName, newFuncBody.substring(newFuncBody.indexOf('{')+1,newFuncBody.length-1));
-    }
-    else newFunc = eval(newFuncHead + newFuncBody + "}");
-  }
-
-  return newFunc;
-
-}
 
 
 export class CallbackManager {
-  constructor() {
+  constructor(importThree=false) {
+
+    this.MATH2 = Math2; //allows for easier dynamic importing
+    this.EVENTSCLASS = Events;
+    this.PROXYMANAGERCLASS = ProxyManager;
+    this.GPUUTILSCLASS = gpuUtils;
 
     try {
-      window.gpu = new gpuUtils();
+      window.gpu = new this.GPUUTILSCLASS();
       this.gpu = window.gpu;
     } catch {
       let gpu = new gpuUtils();
@@ -86,7 +32,17 @@ export class CallbackManager {
     this.ANIMATING = false;
     this.ANIMFRAMETIME = performance.now(); //ms based on UTC stamps
     this.threeUtil = undefined;
-    this.PROXYMANAGER = new ProxyManager();
+    this.THREE = undefined;
+    if(importThree) {
+      new Promise(async (resolve)=>{
+        let module = await this.dynamicImport('./workerThreeUtils.js');
+        resolve(module);
+      }).then((module) => {
+        this.threeUtil = new module();
+        this.THREE = this.threeUtil.THREE; //add another reference for the hell of it  
+      });
+    }
+    this.PROXYMANAGER = new this.PROXYMANAGERCLASS();
     this.ID = Math.floor(Math.random()*1000); //just a reference for discerning threads 
     
     try{
@@ -116,7 +72,7 @@ export class CallbackManager {
       },
       { //add a local function, can implement whole algorithm pipelines on-the-fly
         case: 'addfunc', callback: (self, args, origin) => { //arg0 = name, arg1 = function string (arrow or normal)
-          let newFunc = parseFunctionFromText(args[1]);
+          let newFunc = this.parseFunctionFromText(args[1]);
 
           let newCallback = { case: args[0], callback: newFunc };
 
@@ -155,12 +111,12 @@ export class CallbackManager {
       },
       { //add a gpu function call usable in kernels, follow gpujs's tutorials and pass stringified functions using their format
         case: 'addgpufunc', callback: (self, args, origin) => { //arg0 = gpu in-thread function string
-          return self.gpu.addFunction(parseFunctionFromText(args[0]));
+          return self.gpu.addFunction(this.parseFunctionFromText(args[0]));
         }
       },
       { //add a gpu kernels, follow gpujs's tutorials and pass stringified functions using their format
         case: 'addkernel', callback: (self, args, origin) => { //arg0 = kernel name, arg1 = kernel function string
-          return self.gpu.addKernel(args[0], parseFunctionFromText(args[1]));
+          return self.gpu.addKernel(args[0], this.parseFunctionFromText(args[1]));
         }
       },
       { //call a custom gpu kernel
@@ -192,7 +148,7 @@ export class CallbackManager {
         case: 'subevent', callback: (self, args, origin) => { //args[0] = eventName, args[1] = response function(self,args,origin) -> lets you reference self for setting variables
           if(typeof args[0] !== 'string') return false;
           
-          let response = parseFunctionFromText(args[1]);
+          let response = this.parseFunctionFromText(args[1]);
           let eventSetting = this.checkEvents(args[0]); //this will contain the port setting if there is any
           //console.log(args, eventSetting)
           return self.EVENTS.subEvent(args[0], (output) => {
@@ -236,22 +192,25 @@ export class CallbackManager {
             cancelAnimationFrame(self.ANIMATION);
           }
           if (!self.threeUtil) {
-            let module = await dynamicImport('./workerThreeUtils.js');
+            let module = await this.dynamicImport('./workerThreeUtils.js');
             self.threeUtil = new module.threeUtil(self.canvas,self,self.PROXYMANAGER.getProxy(args[0]));
             self.THREE = self.threeUtil.THREE; //add another reference for the hell of it
+          }
+          else if (self.threeUtil && !self.THREE) {
+            self.THREE = self.threeUtil.THREE;
           }
           if (typeof args[1] === 'object') { //first is the setup function
             await this.runCallback('setValues',args[1]);
           }
           //console.log(args)
           if (args[2]) { //first is the setup function
-            self.threeUtil.setup = parseFunctionFromText(args[2]);
+            self.threeUtil.setup = this.parseFunctionFromText(args[2]);
           }
           if (args[3]) { //next is the draw function (for 1 frame)
-            self.threeUtil.draw = parseFunctionFromText(args[3]);
+            self.threeUtil.draw = this.parseFunctionFromText(args[3]);
           }
           if (args[4]) {
-            self.threeUtil.clear = parseFunctionFromText(args[4]);
+            self.threeUtil.clear = this.parseFunctionFromText(args[4]);
           }
           self.threeUtil.clear(self, args, origin);
           self.threeUtil.setup(self, args, origin);
@@ -266,10 +225,14 @@ export class CallbackManager {
             cancelAnimationFrame(self.ANIMATION);
           }
           if (!this.threeUtil) {
-            let module = await dynamicImport('./workerThreeUtils.js');
+            let module = await this.dynamicImport('./workerThreeUtils.js');
             //console.log(module);
             self.threeUtil = new module.threeUtil(self.canvas,self,self.PROXYMANAGER.getProxy(args[0]));
           }
+          else if (self.threeUtil && !self.THREE) {
+            self.THREE = self.threeUtil.THREE;
+          }
+
           if (this.threeUtil) {
             self.threeUtil.clear(self, args, origin);
             self.threeUtil.setup(self, args, origin);
@@ -286,7 +249,7 @@ export class CallbackManager {
         }
       },
       {case: 'setAnimation', callback: (self, args, origin) => { //pass a draw function to be run on an animation loop. Reference this.canvas and this.context or canvas and context. Reference values with this.x etc. and use setValues to set the values from another thread
-          this.animationFunc = parseFunctionFromText(args[0]);
+          this.animationFunc = this.parseFunctionFromText(args[0]);
           return true;
         }
       },
@@ -344,25 +307,25 @@ export class CallbackManager {
       },
       { 
         case: 'xcor', callback: (self, args, origin) => { 
-          return Math2.crosscorrelation(...args); 
+          return this.MATH2.crosscorrelation(...args); 
         } 
       },
       { 
         case: 'autocor', callback: (self, args, origin) => { 
-          return Math2.autocorrelation(args); 
+          return this.MATH2.autocorrelation(args); 
         } 
       },
       { 
         case: 'cov1d', callback: (self, args, origin) => { 
-          return Math2.cov1d(...args); } 
+          return this.MATH2.cov1d(...args); } 
         },
       { 
         case: 'cov2d', callback: (self, args, origin) => { 
-          return Math2.cov2d(args); } 
+          return this.MATH2.cov2d(args); } 
         },
       { 
         case: 'sma', callback: (self, args, origin) => { 
-          return Math2.sma(...args); } 
+          return this.MATH2.sma(...args); } 
         },
       {
         case: 'dft', callback: (self, args, origin) => {
@@ -406,7 +369,7 @@ export class CallbackManager {
         },
       {
         case: 'coherence', callback: (self, args, origin) => {
-          const correlograms = Math2.correlograms(args[0]);
+          const correlograms = this.MATH2.correlograms(args[0]);
           const buffer = [...args[0], ...correlograms];
           var dfts;
 
@@ -467,6 +430,44 @@ export class CallbackManager {
         }
       }
     ];
+  }
+
+    
+  dynamicImport = async (url) => {
+    let module = await import(url);
+    return module;
+  }
+
+  parseFunctionFromText(method) {
+    //Get the text inside of a function (regular or arrow);
+    let getFunctionBody = (methodString) => {
+      return methodString.replace(/^\W*(function[^{]+\{([\s\S]*)\}|[^=]+=>[^{]*\{([\s\S]*)\}|[^=]+=>(.+))/i, '$2$3$4');
+    }
+
+    let getFunctionHead = (methodString) => {
+      let startindex = methodString.indexOf(')');
+      return methodString.slice(0, methodString.indexOf('{',startindex) + 1);
+    }
+
+    let newFuncHead = getFunctionHead(method);
+    let newFuncBody = getFunctionBody(method);
+
+    let newFunc;
+    if (newFuncHead.includes('function ')) {
+      let varName = newFuncHead.split('(')[1].split(')')[0]
+      newFunc = new Function(varName, newFuncBody);
+    } else {
+      if(newFuncHead.substring(0,6) === newFuncBody.substring(0,6)) {
+        //newFuncBody = newFuncBody.substring(newFuncHead.length);
+        let varName = newFuncHead.split('(')[1].split(')')[0]
+        //console.log(varName, newFuncHead ,newFuncBody);
+        newFunc = new Function(varName, newFuncBody.substring(newFuncBody.indexOf('{')+1,newFuncBody.length-1));
+      }
+      else newFunc = eval(newFuncHead + newFuncBody + "}");
+    }
+
+    return newFunc;
+
   }
 
   async runCallback(foo,input=[],origin) {

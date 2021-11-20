@@ -23,24 +23,71 @@ export class WorkerManager {
           this.addWorker()
         }
     }
+    
+    dynamicImport = async (url) => {
+      let module = await import(url);
+      return module;
+    }
 
-    addWorker = (workerurl=this.workerURL) => {
+    addWorker = (workerurl=this.workerURL,includeThree=false) => {
         console.log('add worker');
 
         let newWorker;
-
         // Swapped with webpack and snowpack
-        try {
-          newWorker = new worker()
-        } catch {
-          try {
-            newWorker = new Worker(workerurl, {name:'eegworker_'+this.workers.length, type: 'module'})
-          } catch (err) {
-            console.log("Error, creating dummy worker (WARNING: Single Threaded). ERROR:", err);
-            newWorker =  new dummyWorker(this.workerResponses)
-          }
-        } finally {
+        // try { //webpack
+        //   newWorker = new worker()
+        // } catch {
+        //   try { //snowpack
+        //     newWorker = new Worker(workerurl, {name:'eegworker_'+this.workers.length, type: 'module'})
+        //   } catch (err) {
+            try { //blob worker
 
+              let mgr = new CallbackManager(includeThree);
+
+              if(!document.getElementById('blobworker')) {
+                document.head.insertAdjacentHTML('beforeend',`
+                  <script id='blobworker' type='javascript/worker'>
+              
+                    //gotta handle imports
+                    self.GPU = ${mgr.GPUUTILSCLASS.GPU.toString()}
+                    console.log(GPU, typeof GPU);
+                    const gpuUtils = ${mgr.GPUUTILSCLASS.toString()}
+                    gpuUtils.GPU = ${mgr.GPUUTILSCLASS.GPU.toString()}
+                    const Math2 = ${mgr.MATH2.toString()}
+                    const ProxyManager = ${mgr.PROXYMANAGERCLASS.toString()}
+                    const Events = ${mgr.EVENTSCLASS.toString()}
+
+                    ${CallbackManager.toString()}
+
+                    let manager = new CallbackManager();
+                    manager.threeUtil = ${mgr.threeUtil?.toString()}
+                    let canvas = manager.canvas; 
+                    let ctx = manager.canvas.context;
+                    let context = ctx; //another common reference
+                    let counter = 0;
+
+                    self.onmessage = ${worker.onmessage.toString()}
+                  </script>
+                `);
+              }
+              let blob = new Blob([
+                document.querySelector('#blobworker').textContent
+              ], {type:"text/javascript"});
+
+              console.log("Blob worker!");
+              newWorker = new Worker(window.URL.createObjectURL(blob));
+            } catch (err2) { //dummy worker (single threaded)
+              try{
+                console.error("Error, creating dummy worker (WARNING: Single Threaded). ERROR:", err2);
+                newWorker =  new dummyWorker(this.workerResponses)
+              } catch(err3) {
+                console.error("No worker created:", err3);
+              }
+          //   }
+
+          // }
+        } finally {
+          if(!newWorker) return;
           let id = "worker_"+Math.floor(Math.random()*10000000000);
             
           this.workers.push({worker:newWorker, id:id});
@@ -217,7 +264,7 @@ class dummyWorker {
     postMessage=(input)=>{
         let result = this.onMessage({data:input}); 
         this.workerResponses.forEach((foo,i) => {
-            foo(result);
+            foo.callback(result);
         });
     }
 
