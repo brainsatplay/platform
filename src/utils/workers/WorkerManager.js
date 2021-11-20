@@ -58,9 +58,8 @@ export class WorkerManager {
                 document.head.insertAdjacentHTML('beforeend',`
                   <script id='blobworker' type='javascript/worker'>
                     //gotta handle imports
-                    class gpu extends ${mgr.GPUUTILSCLASS.GPU} {}
-                    console.log(gpu);
-                    const GPU = gpu;
+                    const GPU = ${mgr.GPUUTILSCLASS.GPU.toString()};
+                    console.log(GPU, GPU.__proto__.constructor.name);
                     const gpuUtils = ${mgr.GPUUTILSCLASS.toString()};
                     const Math2 = ${mgr.MATH2.toString()};
                     const ProxyManager = ${mgr.PROXYMANAGERCLASS.toString()};
