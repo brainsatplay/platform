@@ -12,6 +12,7 @@ export class gpuUtils {
     this.createKernelsandFunctions();
 
     this.gpu = gpu;
+    //console.log(GPU);
     if(!gpu) this.gpu = new this.GPU();
     this.kernels = []; // {name:"",f:foo(){}}
     this.canvaskernels = [];

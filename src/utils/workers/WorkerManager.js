@@ -52,14 +52,15 @@ export class WorkerManager {
                 });
               }
 
-              let mgr = CallbackManager
-              console.log(mgr.GPUUTILSCLASS.GPU);
+              let mgr = CallbackManager;
 
               if(!document.getElementById('blobworker')) {
                 document.head.insertAdjacentHTML('beforeend',`
                   <script id='blobworker' type='javascript/worker'>
                     //gotta handle imports
-                    const GPU = ${mgr.GPUUTILSCLASS.GPU};
+                    class gpu extends ${mgr.GPUUTILSCLASS.GPU} {}
+                    console.log(gpu);
+                    const GPU = gpu;
                     const gpuUtils = ${mgr.GPUUTILSCLASS.toString()};
                     const Math2 = ${mgr.MATH2.toString()};
                     const ProxyManager = ${mgr.PROXYMANAGERCLASS.toString()};
@@ -68,7 +69,6 @@ export class WorkerManager {
                     
                     ${CallbackManager.toString()}
 
-                    console.log(CallbackManager.GPUUTILSCLASS);
                     let manager = new CallbackManager();
                     manager.threeUtil = ${threeUtil?.toString()}
                     let canvas = manager.canvas; 
