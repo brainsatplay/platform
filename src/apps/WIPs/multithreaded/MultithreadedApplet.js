@@ -488,16 +488,16 @@ export class MultithreadedApplet {
     
     // }.toString(), //CONVERT TO STRING
 
-    setupWorkerStuff = () => {
+    setupWorkerStuff = async () => {
 
         //add the worker manager if it's not on window
         window.workers = new WorkerManager();
         this.origin = this.props.id;
 
         //add workers
-        this.worker1Id      = window.workers.addWorker(); // Thread 1
-        this.worker2Id      = window.workers.addWorker(); // Thread 2
-        this.canvasWorkerId = window.workers.addWorker(); // Thread 3 - render thread
+        this.worker1Id      = await window.workers.addWorker(); // Thread 1
+        this.worker2Id      = await window.workers.addWorker(); // Thread 2
+        this.canvasWorkerId = await window.workers.addWorker(); // Thread 3 - render thread
         
         this.canvas.width = this.AppletHTML.node.clientWidth;
         this.canvas.height = this.AppletHTML.node.clientHeight;

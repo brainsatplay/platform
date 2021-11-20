@@ -6,15 +6,22 @@ import { ProxyManager } from './ProxyListener.js';
 
 
 export class CallbackManager {
+
+  static MATH2 = Math2; //allows for easier dynamic importing
+  static EVENTSCLASS = Events;
+  static PROXYMANAGERCLASS = ProxyManager;
+  static GPUUTILSCLASS = gpuUtils;
+
   constructor(importThree=false) {
 
-    this.MATH2 = Math2; //allows for easier dynamic importing
+    //redundancy is for blob workers
+    this.MATH2 = Math2; 
     this.EVENTSCLASS = Events;
     this.PROXYMANAGERCLASS = ProxyManager;
     this.GPUUTILSCLASS = gpuUtils;
 
     try {
-      window.gpu = new this.GPUUTILSCLASS();
+      window.gpu = new gpuUtils();
       this.gpu = window.gpu;
     } catch {
       let gpu = new gpuUtils();
@@ -38,11 +45,11 @@ export class CallbackManager {
         let module = await this.dynamicImport('./workerThreeUtils.js');
         resolve(module);
       }).then((module) => {
-        this.threeUtil = new module();
+        this.threeUtil = new module.threeUtil();
         this.THREE = this.threeUtil.THREE; //add another reference for the hell of it  
       });
     }
-    this.PROXYMANAGER = new this.PROXYMANAGERCLASS();
+    this.PROXYMANAGER = new ProxyManager();
     this.ID = Math.floor(Math.random()*1000); //just a reference for discerning threads 
     
     try{
@@ -197,6 +204,7 @@ export class CallbackManager {
             self.THREE = self.threeUtil.THREE; //add another reference for the hell of it
           }
           else if (self.threeUtil && !self.THREE) {
+            self.threeUtil.init(self.canvas,self,self.PROXY);
             self.THREE = self.threeUtil.THREE;
           }
           if (typeof args[1] === 'object') { //first is the setup function
@@ -230,6 +238,7 @@ export class CallbackManager {
             self.threeUtil = new module.threeUtil(self.canvas,self,self.PROXYMANAGER.getProxy(args[0]));
           }
           else if (self.threeUtil && !self.THREE) {
+            self.threeUtil.init(self.canvas,self,self.PROXY);
             self.THREE = self.threeUtil.THREE;
           }
 

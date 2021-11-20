@@ -29,7 +29,7 @@ export class WorkerManager {
       return module;
     }
 
-    addWorker = (workerurl=this.workerURL,includeThree=false) => {
+    addWorker = async (workerurl=this.workerURL,includeThree=false) => {
         console.log('add worker');
 
         let newWorker;
@@ -42,25 +42,35 @@ export class WorkerManager {
         //   } catch (err) {
             try { //blob worker
 
-              let mgr = new CallbackManager(includeThree);
+              let threeUtil;
+              if(includeThree) {
+                await new Promise(async (resolve)=>{
+                  let module = await this.dynamicImport('./workerThreeUtils.js');
+                  resolve(module);
+                }).then((module) => {
+                  threeUtil = new module.threeUtil();
+                });
+              }
+
+              let mgr = CallbackManager
+              console.log(mgr.GPUUTILSCLASS.GPU);
 
               if(!document.getElementById('blobworker')) {
                 document.head.insertAdjacentHTML('beforeend',`
                   <script id='blobworker' type='javascript/worker'>
-              
                     //gotta handle imports
-                    self.GPU = ${mgr.GPUUTILSCLASS.GPU.toString()}
-                    console.log(GPU, typeof GPU);
-                    const gpuUtils = ${mgr.GPUUTILSCLASS.toString()}
-                    gpuUtils.GPU = ${mgr.GPUUTILSCLASS.GPU.toString()}
-                    const Math2 = ${mgr.MATH2.toString()}
-                    const ProxyManager = ${mgr.PROXYMANAGERCLASS.toString()}
-                    const Events = ${mgr.EVENTSCLASS.toString()}
-
+                    const GPU = ${mgr.GPUUTILSCLASS.GPU};
+                    const gpuUtils = ${mgr.GPUUTILSCLASS.toString()};
+                    const Math2 = ${mgr.MATH2.toString()};
+                    const ProxyManager = ${mgr.PROXYMANAGERCLASS.toString()};
+                    const StateManager = ${mgr.EVENTSCLASS.STATEMANAGERCLASS.toString()};
+                    const Events = ${mgr.EVENTSCLASS.toString()};
+                    
                     ${CallbackManager.toString()}
 
+                    console.log(CallbackManager.GPUUTILSCLASS);
                     let manager = new CallbackManager();
-                    manager.threeUtil = ${mgr.threeUtil?.toString()}
+                    manager.threeUtil = ${threeUtil?.toString()}
                     let canvas = manager.canvas; 
                     let ctx = manager.canvas.context;
                     let context = ctx; //another common reference

@@ -15,9 +15,12 @@ import {StateManager} from '../StateManager'
 
 export class Events {
 
-    STATEMANAGERCLASS = StateManager;
+    static STATEMANAGERCLASS = StateManager;
 
     constructor(workermanager=undefined) {
+
+        //redundancy is for blob workers
+        this.STATEMANAGERCLASS = StateManager;
 
         this.state = new this.STATEMANAGERCLASS({},undefined,false); //trigger only state (no overhead)
         this.workermanager = workermanager;
