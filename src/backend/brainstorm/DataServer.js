@@ -275,7 +275,7 @@ class DataServer {
             }
         }
         else if (commands[0] === 'setUserStreamSettings') {
-            let sub = this.setUserStreamSettings(commands[0],commands[1]);
+            let sub = this.setUserStreamSettings(commands[1],commands[2]);
             if(sub === undefined) {
                 u.sockets.ws.send(JSON.stringify({msg:'userNotFound',id:commands[1]}));
             } else {
@@ -353,7 +353,7 @@ class DataServer {
             }
         }
         else if (commands[0] === 'setHostSessionSettings') {
-            let sub = this.setHostAppSettings(commands[0],commands[1]);
+            let sub = this.setHostAppSettings(commands[1],commands[2]);
             if(sub === undefined) {
                 u.sockets.ws.send(JSON.stringify({msg:'sessionNotFound',id:commands[1]}));
             } else {
