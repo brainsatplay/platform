@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 
-import vertex from './shaders/vertex.glsl'
-import fragment from './shaders/fragment.glsl'
+import vertex from './shaders/vertex.glsl?raw'
+import fragment from './shaders/fragment.glsl?raw'
 import {brainpoints} from './visbrain'
 
 let uniforms = {uData: {value: [0,0,0]}, uCoords: {value: [0,0,0]}, electrodeRadius: {value: 30}}

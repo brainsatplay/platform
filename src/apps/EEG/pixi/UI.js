@@ -1,5 +1,5 @@
-import vertexSrc from "./shaders/vertex.glsl"
-import fragmentSrc from "./shaders/noiseCircle/fragment.glsl"
+import vertexSrc from "./shaders/vertex.glsl?raw"
+import fragmentSrc from "./shaders/noiseCircle/fragment.glsl?raw"
 
 export class UI{
 

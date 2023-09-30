@@ -15,24 +15,24 @@ import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
 import {addChannelOptions, addCoherenceOptions } from '../../../frontend/js/menus/selectTemplates'
 
 //Import shader urls
-import vertexShader from './shaders/vertex.glsl'
-import galaxyFragmentShader from "./shaders/fractalGalaxy/fragment.glsl"
-import negaGalaxyFragmentShader from "./shaders/nega_fractalGalaxy/fragment.glsl"
-import wavesFragmentShader from './shaders/waves/fragment.glsl'
-import noiseCircleFragmentShader from './shaders/noiseCircle/fragment.glsl'
-import creationFragmentShader from './shaders/creation/fragment.glsl'
-import blobFragmentShader from './shaders/voronoiblobs/fragment.glsl'
-import fractalpyramidFragmentShader from './shaders/fractalpyramid/fragment.glsl'
-import cineshaderlavaFragmentShader from './shaders/cineshaderlava/fragment.glsl'
-import octagramsFragmentShader from './shaders/octagrams/fragment.glsl'
-import marbleFragmentShader from './shaders/marble/fragment.glsl'
-import turbulenceFragmentShader from './shaders/turbulence/fragment.glsl'
-import pulseFragmentShader from './shaders/pulse/fragment.glsl'
+import vertexShader from './shaders/vertex.glsl?raw'
+import galaxyFragmentShader from "./shaders/fractalGalaxy/fragment.glsl?raw"
+import negaGalaxyFragmentShader from "./shaders/nega_fractalGalaxy/fragment.glsl?raw"
+import wavesFragmentShader from './shaders/waves/fragment.glsl?raw'
+import noiseCircleFragmentShader from './shaders/noiseCircle/fragment.glsl?raw'
+import creationFragmentShader from './shaders/creation/fragment.glsl?raw'
+import blobFragmentShader from './shaders/voronoiblobs/fragment.glsl?raw'
+import fractalpyramidFragmentShader from './shaders/fractalpyramid/fragment.glsl?raw'
+import cineshaderlavaFragmentShader from './shaders/cineshaderlava/fragment.glsl?raw'
+import octagramsFragmentShader from './shaders/octagrams/fragment.glsl?raw'
+import marbleFragmentShader from './shaders/marble/fragment.glsl?raw'
+import turbulenceFragmentShader from './shaders/turbulence/fragment.glsl?raw'
+import pulseFragmentShader from './shaders/pulse/fragment.glsl?raw'
 
-import spinthings from './shaders/spinthings/fragment.glsl'
-import bandsynth from './shaders/bandlimited/fragment.glsl'
-import tripclock from './shaders/clock/fragment.glsl'
-import julia from './shaders/julia/fragment.glsl'
+import spinthings from './shaders/spinthings/fragment.glsl?raw'
+import bandsynth from './shaders/bandlimited/fragment.glsl?raw'
+import tripclock from './shaders/clock/fragment.glsl?raw'
+import julia from './shaders/julia/fragment.glsl?raw'
 
 //Import sound files
 import bloops from './sounds/wav/guitarbloops.wav'
@@ -585,7 +585,7 @@ void main(){
         );  
 
         
-        // this.AppletHTML.appendStylesheet("./_dist_/platform/styles/css/prism/prism-vsc-dark-plus.css");
+        // this.AppletHTML.appendStylesheet("./src/platform/styles/css/prism/prism-vsc-dark-plus.css");
 
         //Add whatever else you need to initialize
         this.looping = true;

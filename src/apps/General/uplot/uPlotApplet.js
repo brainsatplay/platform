@@ -188,7 +188,7 @@ export class uPlotApplet {
         );  
 
         
-        this.AppletHTML.appendStylesheet("/_dist_/utils/graphics/uPlot.min.css");
+        this.AppletHTML.appendStylesheet("/src/utils/graphics/uPlot.min.css");
 
         
         if(this.session.atlas.data.eegshared.frequencies.length === 0) {

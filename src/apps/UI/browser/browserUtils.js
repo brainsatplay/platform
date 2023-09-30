@@ -1,4 +1,4 @@
-import placeholderImage from '../../../../public/assets/features/placeholder.png'
+import placeholderImage from '../../../frontend/assets/features/placeholder.png'
 
 export const createCards = (appletSettings=[], filter = (settings) => { return settings }, onclick=()=>{}) => {
         

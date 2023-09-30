@@ -2,6 +2,7 @@ import {presets} from '../presets.manifest'
 import {apps} from '../../apps/apps.manifest'
 import { getApplet, getAppletSettings } from "./ui/importUtils"
 import {handleAuthRedirect} from './ui/login'
+import { Editor } from '../../library/src/graph/Editor';
 
 //By Garrett Flynn, Joshua Brewster (GPL)
 
@@ -22,8 +23,8 @@ export class AppletManager {
         // Editor
 
         // Spawn Global Editor
-        this.editor = new brainsatplay.Editor(document.getElementById('page'), apps) // Edit the application (optional)
-        if (bcisession.app) this.editor.addApp(bcisession.app) // Add Global App
+        // this.editor = new Editor(document.getElementById('page'), apps) // Edit the application (optional)
+        // if (bcisession.app) this.editor.addApp(bcisession.app) // Add Global App
 
         // Layout Constraints
         if (!window.isMobile) {
@@ -415,12 +416,12 @@ export class AppletManager {
                         config.applets=resolved
 
                         let app = new brainsatplay.App(info, parentNode, this.session, [config])
-                        this.editor.addApp(app)
+                        // this.editor.addApp(app)
                         resolve(app)
                     })
                 } else {
                     this.session.createApp(info, parentNode, this.session, config).then((app) => {
-                        this.editor.addApp(app)
+                        // this.editor.addApp(app)
                         resolve(app)
                     }).catch(e => {
 

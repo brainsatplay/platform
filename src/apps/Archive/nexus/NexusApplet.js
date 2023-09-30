@@ -4,8 +4,8 @@ import * as THREE from 'three'
 import {UserMarker} from './UserMarker'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import Stats from 'three/examples/jsm/libs/stats.module'
-import mapVertexShader from './shaders/map/vertex.glsl'
-import mapFragmentShader from './shaders/map/fragment.glsl'
+import mapVertexShader from './shaders/map/vertex.glsl?raw'
+import mapFragmentShader from './shaders/map/fragment.glsl?raw'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { GlitchPass } from './postprocessing/CustomGlitchPass'
@@ -115,7 +115,7 @@ export class NexusApplet {
             "NEVER"             //Changes to props or the template string will automatically rerender the html template if "NEVER" is changed to "FRAMERATE" or another value, otherwise the UI manager handles resizing and reinits when new apps are added/destroyed
         );  
 
-        this.AppletHTML.appendStylesheet("./_dist_/applets/General/nexus/style.css")
+        this.AppletHTML.appendStylesheet("./src/applets/General/nexus/style.css")
 
         if(this.settings.length > 0) { this.configure(this.settings); } //You can give the app initialization settings if you want via an array.
 

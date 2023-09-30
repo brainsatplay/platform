@@ -1,13 +1,13 @@
 
 import featureImg from './feature.png'
-import fragmentShader from './shaders/galaxy.glsl'
-import vertexShader from './shaders/vertex.glsl'
-import desertGroundVertexShader from './shaders/desertGround/vertex.glsl'
-import desertGroundFragmentShader from './shaders/desertGround/fragment.glsl'
-import invisisphereVertexShader from './shaders/invisisphere/vertex.glsl'
-import invisisphereFragmentShader from './shaders/invisisphere/fragment.glsl'
-import particlesVertexShader from './shaders/particles/vertex.glsl'
-import particlesFragmentShader from './shaders/particles/fragment.glsl'
+import fragmentShader from './shaders/galaxy.glsl?raw'
+import vertexShader from './shaders/vertex.glsl?raw'
+import desertGroundVertexShader from './shaders/desertGround/vertex.glsl?raw'
+import desertGroundFragmentShader from './shaders/desertGround/fragment.glsl?raw'
+import invisisphereVertexShader from './shaders/invisisphere/vertex.glsl?raw'
+import invisisphereFragmentShader from './shaders/invisisphere/fragment.glsl?raw'
+import particlesVertexShader from './shaders/particles/vertex.glsl?raw'
+import particlesFragmentShader from './shaders/particles/fragment.glsl?raw'
 import {Trees} from './Trees'
 
 /* 

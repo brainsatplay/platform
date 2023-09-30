@@ -2,7 +2,7 @@ import './gpu-browser.min.js' // becomes a window variable
 import { addGpuFunctions, createGpuKernels as krnl } from './gpuUtils-functs';
 
 //By Joshua Brewster, Dovydas Stirpeika (MIT License)
-
+console.log('GPU', GPU)
 export function makeKrnl(gpu, f, opts = {
   setDynamicOutput: true,
   setDynamicArguments: true,

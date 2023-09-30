@@ -188,7 +188,7 @@ export class BCIAppManager {
                 </div>
                 `
             // <div id="profile-menu" class="collapsible-container">
-            //     <button class="collapsible"><div class="img-cont"><img src="./_dist_/assets/user-solid.svg"><span>Profile</span></div></button>
+            //     <button class="collapsible"><div class="img-cont"><img src="./src/assets/user-solid.svg"><span>Profile</span></div></button>
             //     <div class="content">
             //     <div class="collapsible-content-label">
             //         <span>Profile</span>
@@ -198,7 +198,7 @@ export class BCIAppManager {
             // </div>
 
             // <div class="collapsible-container">
-            //     <button class="collapsible"><div class="img-cont"><img src="./_dist_/assets/code-solid.svg"><span>Dev Tools</span></div></button>
+            //     <button class="collapsible"><div class="img-cont"><img src="./src/assets/code-solid.svg"><span>Dev Tools</span></div></button>
             //     <div class="content">
             //         <div class="collapsible-content-label">
             //         <span>Server</span>
@@ -688,50 +688,50 @@ export class BCIAppManager {
             
             let autosaving = await this.session.storage.get('settings', 'Autosave Data')//this.session.dataManager.state.data.autosaving
             
-            let newsettings = JSON.stringify({
-                time: this.session.dataManager.toISOLocal(new Date()),
-                appletConfigs: this.appletConfigs,
-                autosaving
-            });
-            this.session.dataManager.fs.writeFile('/data/settings.json',
-                newsettings,
-                (err) => {
-                    if (err) throw err;
-                    console.log("saved settings to /data/settings.json", newsettings);
-                });
+            // let newsettings = JSON.stringify({
+            //     time: this.session.dataManager.toISOLocal(new Date()),
+            //     appletConfigs: this.appletConfigs,
+            //     autosaving
+            // });
+            // this.session.dataManager.fs.writeFile('/data/settings.json',
+            //     newsettings,
+            //     (err) => {
+            //         if (err) throw err;
+            //         console.log("saved settings to /data/settings.json", newsettings);
+            //     });
         }
 
         const initWithDirectory = () => {
             let contents = "";
-            this.session.dataManager.fs.readFile('/data/settings.json', (err, data) => {
-                if (err) {
-                    console.log("New settings file created.");
-                    contents = JSON.stringify(
-                        {
-                            appletConfigs: [],
-                            autosaving: true
-                        }
-                    )
-                    this.session.dataManager.fs.writeFile('/data/settings.json',
-                        contents,
-                        (errr) => {
-                            this.init(contents);
-                            listFiles();
-                            if (errr) throw errr;
-                        }
-                    );
-                    //if(err) throw err;
-                }
-                else {
-                    //console.log("Grabbed settings successfully")
-                    contents = data.toString();
-                    this.init(contents);
-                    listFiles();
-                    document.getElementById("saveBCISession").addEventListener('click',saveSettings);
-                }
+            // this.session.dataManager.fs.readFile('/data/settings.json', (err, data) => {
+            //     if (err) {
+            //         console.log("New settings file created.");
+            //         contents = JSON.stringify(
+            //             {
+            //                 appletConfigs: [],
+            //                 autosaving: true
+            //             }
+            //         )
+            //         this.session.dataManager.fs.writeFile('/data/settings.json',
+            //             contents,
+            //             (errr) => {
+            //                 this.init(contents);
+            //                 listFiles();
+            //                 if (errr) throw errr;
+            //             }
+            //         );
+            //         //if(err) throw err;
+            //     }
+            //     else {
+            //         //console.log("Grabbed settings successfully")
+            //         contents = data.toString();
+                    this.init('');
+                //     listFiles();
+                //     document.getElementById("saveBCISession").addEventListener('click',saveSettings);
+                // }
 
                 this.session.dataManager.setupAutosaving();
-            });
+            // });
         }
 
         this.session.dataManager.initFS(initWithDirectory,()=>{

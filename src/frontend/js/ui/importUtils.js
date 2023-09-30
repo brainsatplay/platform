@@ -2,12 +2,15 @@ import {apps} from '../../../apps/apps.manifest'
 // import {App} from '../../App'
 
 export let dynamicImport = async (url) => {
-    let module = await import(url);
+    console.warn('Getting', url)
+    let module = await import(url /* @vite-ignore */);
     return module;
 }
 
 export let getAppletSettings = async (settings) => {
     let config = {settings}
+    console.warn('Getting', settings)
+
     if (settings.folderUrl) config = await dynamicImport(settings.folderUrl+"/settings.js")
     //let image = await dynamicImport(AppletFolderUrl+"/"+config.settings.image);
     return config.settings;

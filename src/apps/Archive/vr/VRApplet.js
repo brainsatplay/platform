@@ -4,8 +4,8 @@ import {DOMFragment} from '../../../utils/DOMFragment'
 import * as THREE from 'three'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import vertexShader from './blob/vertex.glsl'
-import fragmentShader from './blob/fragment.glsl'
+import vertexShader from './blob/vertex.glsl?raw'
+import fragmentShader from './blob/fragment.glsl?raw'
 import * as settingsFile from './settings'
 
 //Example Applet for integrating with the UI Manager

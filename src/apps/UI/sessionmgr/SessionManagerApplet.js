@@ -111,7 +111,7 @@ export class SessionManagerApplet {
 
         if(this.settings.length > 0) { this.configure(this.settings); } //You can give the app initialization settings if you want via an array.
         
-        this.AppletHTML.appendStylesheet("/_dist_/utils/graphics/uPlot.min.css");
+        this.AppletHTML.appendStylesheet("/src/utils/graphics/uPlot.min.css");
 
         this.looping = true;
         //Add whatever else you need to initialize

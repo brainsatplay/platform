@@ -3,13 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "source": "public/index.html",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/brainsaplay/brainsatplay"
   },
+  "workspaces": [
+    "src/library"
+  ],
   "scripts": {
-    "start": "node --max-old-space-size=5000 app.js",
-    "build": "NODE_OPTIONS='--max-old-space-size=5000' snowpack build"
+    "start": "vite",
+    "build": "vite build"
   },
   "author": "Joshua Brewster",
   "license": "GPL-3.0-only",
